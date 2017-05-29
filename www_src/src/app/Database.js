@@ -19,11 +19,14 @@ const indexFiles: Array<IndexFile> = [
 	{ type:'Outline', filename:'outlineIndex-3.json', desc:'Outline 4' },
 	{ type:'Outline', filename:'outlineIndex-4.json', desc:'Outline 5' },
 	{ type:'Outline', filename:'outlineIndex-5.json', desc:'Outline 6' },
-	{ type:'Outline', filename:'outlineIndex-6.json', desc:'Outline 7' }
+	{ type:'Outline', filename:'outlineIndex-6.json', desc:'Outline 7' },
+	{ type:'OutlineWorkTitle', filename:'outlineWorkTitle.json', desc:'Outline Work Titles' },
 ];
 
 
 class DatabaseResult {
+
+	db:Database;
 
 	id: number;
 	title: string;
@@ -34,8 +37,30 @@ class DatabaseResult {
 	isWork:boolean = false;
 	isOutline:boolean = false;
 
+	_workTitleForOutline: string;
+	
+	workTitleForOutline(){
+		if(this.isOutline) {
+			if(!this._workTitleForOutline) {
+				let dashIndex = this.nodeId.indexOf('-');
+				if(dashIndex!=-1) {
+					this._workTitleForOutline = this.db.outlineWorkIndex[this.nodeId.substring(0,dashIndex)];
+				}
+			}
+			return this._workTitleForOutline;
+		}
+		return null;
+	}
+
 	load = (callback:(record:Record)=>void) => {
-		let relativeFilePath = this.type.toLowerCase()+'s/'+this.nodeId+'.json';
+		let filename = this.nodeId;
+    // Account for compound nodeId that is brought in with the Outline Index files in order to provide both the 
+    // filename of the outline, and the node within the outline that the title represents.
+		if(this.isOutline) {
+			let dashIndex = this.nodeId.indexOf('-');
+			filename = filename.substring(0,dashIndex);
+		}
+		let relativeFilePath = this.type.toLowerCase()+'s/'+filename+'.json';
 		if('browser'===device.platform) {
 			WebUtil.loadJSONFile(relativeFilePath, (json) => { this.loaded(json, callback); });			
 		} else {
@@ -55,7 +80,9 @@ class DatabaseResult {
 		}
 	} 
 
-	constructor(row: any) {
+	constructor(db:Database, row: any) {		
+		this.db = db;
+
 		this.id = row.id;
 		this.title = row.title;
 		this.nodeId = row.nodeId;
@@ -79,6 +106,9 @@ class Database {
 
 	// browser database, just for testing
 	jsondata: Array<DatabaseResult> = [];
+
+	// lookup table for mobile and browser
+	outlineWorkIndex: any = {};
 
 	// data that listeners are interested in
 	searchString: string = '';
@@ -177,7 +207,7 @@ class Database {
 
 		if(this.searchStringIsValid) {			
 			if(this.runningInBrowser) {
-				// console.log('in browser. searching throuh '+this.jsondata.length+' records');
+				// console.log('in browser. searching through '+this.jsondata.length+' records');
 				let searchResults = [];
 				let moreSearchResults = [];
 				for(let i=0,ii=this.jsondata.length;i<ii;i++) {					
@@ -198,11 +228,11 @@ class Database {
 					let searchResults = [];
 					let moreSearchResults = [];
 					for(let x = 0; x < resultSet.rows.length && x < RESULT_BATCH_SIZE; x++) {
-						searchResults.push(new DatabaseResult(resultSet.rows.item(x)));
+						searchResults.push(new DatabaseResult(this, resultSet.rows.item(x)));
 					}
 					if(resultSet.rows.length>RESULT_BATCH_SIZE){
 						for(let x=resultSet.rows.length-1;x>=RESULT_BATCH_SIZE;x--){
-							moreSearchResults.push(new DatabaseResult(resultSet.rows.item(x)));
+							moreSearchResults.push(new DatabaseResult(this, resultSet.rows.item(x)));
 						}
 					}
 					this.searchResults = searchResults;
@@ -242,41 +272,70 @@ class Database {
 	 * @return {[type]}      [description]
 	 */
 	processIndex(obj: {indexFile: IndexFile,indexFileContents: any}){
+
+		if(obj.indexFile.type==='OutlineWorkTitle') {
+			return this.processOutlineWorkTitleIndex(obj);
+		} else {
+			return new Promise((resolve, reject)=>{ 
+				this.shareStatus('Processing '+obj.indexFile.desc);
+				if(this.runningInBrowser) {
+					let startingIndex = this.jsondata.length;
+					for(var key in obj.indexFileContents) {
+						obj.indexFileContents[key].forEach((nodeId)=>{
+							this.jsondata.push( new DatabaseResult(this, {
+								id: startingIndex,
+								title: key,
+								nodeId: nodeId,
+								type: obj.indexFile.type
+							}));
+							startingIndex++;
+						});
+					}
+					resolve(obj.indexFile);			
+				} else {
+					let batch = ['CREATE TABLE IF NOT EXISTS indices (id INTEGER PRIMARY KEY, title, nodeId, type)'];
+					for(var key in obj.indexFileContents) {
+						obj.indexFileContents[key].forEach((nodeId)=>{
+							batch.push([ 'INSERT INTO indices VALUES (?,?,?,?)', [null, key, nodeId, obj.indexFile.type] ]);
+						});
+					}
+					this.database.sqlBatch(batch, 
+				  	()=>{
+			    		resolve(obj.indexFile);
+				  	}, 
+				  	(error)=>{
+				    	reject({ indexFile: obj.indexFile, error:error});
+				  	}
+				  );
+				}
+			});
+		}
+	}
+
+/**
+ * [processOutlineWorkTitleIndex description]
+ *
+ * {
+ *   "O1KG10746": "ས་ར་ཧ་པའི་རྡོ་རྗེའི་གསུང་རྣམས་ཕྱོགས་བསྒྲིགས།",
+ *   "O1KG2938": "རྒྱན་འགྲེལ་སྤྱི་དོན་རོལ་མཚོ།（ཀྲུང་གོ་བོད་ཀྱི་ཤེས་རིག་དཔེ་སྐྲུན་ཁང་／）",
+ *   "O00EGS109598": "གསུང་འབུམ། འཇམ་དབྱངས་དཔལ་ལྡན་རྒྱ་མཚོ",
+ *   ...
+ * }
+ * 
+ * @param  {[type]} obj: {indexFile:  IndexFile,indexFileContents: any} [description]
+ * @return {[type]}      [description]
+ */
+	processOutlineWorkTitleIndex(obj: {indexFile: IndexFile,indexFileContents: any}) {
 		return new Promise((resolve, reject)=>{ 
 			this.shareStatus('Processing '+obj.indexFile.desc);
-
-			if(this.runningInBrowser) {
-				let startingIndex = this.jsondata.length;
-				for(var key in obj.indexFileContents) {
-					obj.indexFileContents[key].forEach((nodeId)=>{
-						this.jsondata.push( new DatabaseResult({
-							id: startingIndex,
-							title: key,
-							nodeId: nodeId,
-							type: obj.indexFile.type
-						}));
-						startingIndex++;
-					});
-				}				
-				resolve(obj.indexFile);
-			} else {
-				let batch = ['CREATE TABLE IF NOT EXISTS indices (id INTEGER PRIMARY KEY, title, nodeId, type)'];
-				for(var key in obj.indexFileContents) {
-					obj.indexFileContents[key].forEach((nodeId)=>{
-						batch.push([ 'INSERT INTO indices VALUES (?,?,?,?)', [null, key, nodeId, obj.indexFile.type] ]);
-					});
-				}
-				this.database.sqlBatch(batch, 
-			  	()=>{
-		    		resolve(obj.indexFile);
-			  	}, 
-			  	(error)=>{
-			    	reject({ indexFile: obj.indexFile, error:error});
-			  	}
-			  );
-			}
-		});
+			localStorage.setItem('OutlineWorkIndex', JSON.stringify(obj.indexFileContents));
+			this.outlineWorkIndex = obj.indexFileContents;
+			resolve(obj.indexFile);
+		});		
 	}
+
+
+
 
 	/**
 	 * Loads the index represented by IndexFile into memory.
@@ -301,7 +360,6 @@ class Database {
 				this.shareStatus('loading '+indexFile.desc);
 				let filePath = cordova.file.applicationDirectory+'www/data/'+indexFile.filename;
 				window.resolveLocalFileSystemURL(filePath, (fileEntry) => {
-		    	// FileUtil.readAsBinaryString
 		 			FileUtil.readFile(fileEntry, (fileContents)=> {
 		 				if(fileContents) {
 		 					try {
@@ -350,9 +408,6 @@ class Database {
 
 		// Load all of the index files
 		let loadingPromises = indexFiles.map(this.loadIndex.bind(this));
-
-
-
 
 		Promise.all(loadingPromises)
 	  .then((results) => {

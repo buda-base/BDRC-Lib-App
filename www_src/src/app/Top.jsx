@@ -11,7 +11,9 @@ import ons from 'onsenui';
 import Database from './Database.js';
 import SearchPage from './SearchPage.jsx';
 import DetailPage from './DetailPage.jsx';
+import {en, bo} from './LocalizedStrings.js';
 import type {Route} from './TypeAliases.js';
+import type {LocalizedStringsType} from './LocalizedStrings.js';
 
 import styles from './Top.pcss';
 
@@ -19,36 +21,25 @@ const searchRoute: Route = { title: 'Search', hasBackButton: false };
 const detailRoute: Route = { title: 'Detail', hasBackButton: true };
 
 
-class PleaseWait extends Component {
-  
-  props:{
-    statusMessage:string,
-    showStatusMessage:boolean
-  }
 
-  render(){
-    let pleaseWaitClass = this.props.showStatusMessage?'show':'';    
-    return (
-      <div id="PleaseWait" className={pleaseWaitClass}>
-        <ProgressCircular indeterminate />
-        <p>{this.props.statusMessage}</p>
-      </div>    
-    );
-  }
-}
 
 class Top extends Component {
 
   state:{
     statusMessage:string,
-    showStatusMessage:boolean
+    showStatusMessage:boolean,
+    strings:LocalizedStringsType
   }
 
   constructor(props:{db:Database, initializeDatabase:boolean}){
     super(props);
+
+    let strings = bo;
+
     this.state = {
       statusMessage:props.initializeDatabase?'Initializing Database':'',
-      showStatusMessage:props.initializeDatabase
+      showStatusMessage:props.initializeDatabase,
+      strings:strings
     }
   }
 
@@ -73,13 +64,10 @@ class Top extends Component {
   }
 
   hideStatusMessage = () => {
-    //console.log('hideStatusMessage');
     this.setState({statusMessage:'', showStatusMessage:false});    
   }
 
   pushPage(route:Route, navigator:Navigator){
-  	// console.log('pushPage');
-  	// console.log(route);
     navigator.pushPage({
       title: route.title,
       hasBackButton: route.hasBackButton
@@ -88,12 +76,6 @@ class Top extends Component {
 
   handleBack(navigator:Navigator){
   	navigator.popPage();
-    // ons.notification.confirm('Do you really want to go back?')
-    //   .then((response) => {
-    //     if (response === 1) {
-    //       navigator.popPage();
-    //     }
-    //   });
   }
 
   renderToolbar(route:Route, navigator:Navigator, pageTitle:string) {
@@ -110,25 +92,25 @@ class Top extends Component {
   renderPage = (route:Route, navigator:Navigator) => {
   	let content = "";
   	let pageTitle = "";
-  	//console.log("renderPage");
-  	//console.log(route);
   	if(route.title===searchRoute.title) {
-  		content = <SearchPage db={this.props.db} navigateTo={(route)=>this.pushPage(route, navigator)} />;
-  		pageTitle = "BDRC Lib 0.1";
+  		content = <SearchPage strings={this.state.strings} db={this.props.db} navigateTo={(route)=>this.pushPage(route, navigator)} />;
+  		pageTitle = this.state.strings.appName;
   	} else if(route.title===detailRoute.title)  {
-  		content = <DetailPage databaseResult={this.props.db.selectedDatabaseResult} />;
+  		content = <DetailPage strings={this.state.strings} databaseResult={this.props.db.selectedDatabaseResult} />;
   		pageTitle = this.props.db.selectedDatabaseResult.nodeId;  		
+      // Account for compound nodeId that is brought in with the Outline Index files in order to provide both the 
+      // filename of the outline, and the node within the outline that the title represents.
+      let dashIndex = pageTitle.indexOf('-');
+      if(dashIndex>0){ pageTitle = pageTitle.substring(dashIndex+1);}
     }
     return (
-      <Page modifier="material" key={route.title} renderToolbar={this.renderToolbar.bind(this, route, navigator, pageTitle)}>
+      <Page strings={this.state.strings} modifier="material" key={route.title} renderToolbar={this.renderToolbar.bind(this, route, navigator, pageTitle)}>
         {content}
       </Page>
     );
   }
 
 	render() {
-		//console.log('render');
-		// let initialContent = <SearchPage db={this.props.db} />
 		return (
       <div>
   			<Navigator 
@@ -140,6 +122,24 @@ class Top extends Component {
       </div>
 		);
 	}
+}
+
+
+
+class PleaseWait extends Component {
+  props:{
+    statusMessage:string,
+    showStatusMessage:boolean
+  }
+  render(){
+    let pleaseWaitClass = this.props.showStatusMessage?'show':'';    
+    return (
+      <div id="PleaseWait" className={pleaseWaitClass}>
+        <ProgressCircular indeterminate />
+        <p>{this.props.statusMessage}</p>
+      </div>    
+    );
+  }
 }
 
 

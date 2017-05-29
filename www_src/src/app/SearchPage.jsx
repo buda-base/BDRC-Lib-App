@@ -5,6 +5,7 @@ import React, {Component} from 'react';
 
 import Database from './Database.js';
 import SearchResults from './SearchResults.jsx'; 
+import type {LocalizedStringsType} from './LocalizedStrings.js';
 
 import style from './SearchPage.pcss';
 
@@ -18,7 +19,7 @@ class SearchPage extends Component {
   	queryIsValid: boolean
   }
 
-	constructor(props:{db:Database, navigateTo:()=>{}}) {
+	constructor(props:{db:Database, navigateTo:()=>{}, strings:LocalizedStringsType}) {
 		super(props);
 		this.state = {
 			query:'',
@@ -42,8 +43,8 @@ class SearchPage extends Component {
 
 		return (
 			<section>
-				<input onChange={this.handleQueryChange} type="search" value={this.state.query} placeholder="Search" className="search-input search-input--material" style={{width: '100%'}} />
-				<SearchResults db={this.props.db} searchQuery={this.state.query} navigateTo={this.props.navigateTo}/>
+				<input onChange={this.handleQueryChange} type="search" value={this.state.query} placeholder={this.props.strings.searchHintText} className="search-input search-input--material" style={{width: '100%'}} />
+				<SearchResults strings={this.props.strings} db={this.props.db} searchQuery={this.state.query} navigateTo={this.props.navigateTo}/>
 			</section>
 		);
 	}
