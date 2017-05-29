@@ -1,0 +1,28 @@
+
+#PleaseWait {
+	position: absolute;
+	top:-10000;
+
+	background-color: rgba(255, 255, 255, .75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+	flex-direction: column;
+
+
+	& p {
+		color:#1f1f21;
+		font-family: Roboto,Noto,sans-serif;
+		font-size:16px;
+	}
+	
+	&.show {
+		position:fixed;
+		top:0;
+		left:0;
+		right:0;
+		bottom:0;
+		z-index:10000;
+	}
+
+}
