@@ -7,7 +7,6 @@ import Waypoint from 'react-waypoint'; // https://brigade.github.io/react-waypoi
 import {Page, Button, Input, Icon, ListItem, List} from 'react-onsenui';
 
 import Database, {DatabaseResult} from './Database.js';
-import {detailRoute} from './Top.jsx'; 
 import type {Route} from './TypeAliases.js';
 import type {LocalizedStringsType} from './LocalizedStrings.js';
 
@@ -21,7 +20,7 @@ class SearchResults extends Component {
 		moreResultsAvailable: boolean
 	}
 
-	constructor(props:{ db: Database, navigateTo:(Route)=>{}, strings:LocalizedStringsType}){
+	constructor(props:{ db: Database, navigateTo:(DatabaseResult)=>void, strings:LocalizedStringsType}){
 		super(props);
 		let moreResultsAvailable = props.db.moreResultsAvailable();
 		this.state = {
@@ -46,8 +45,8 @@ class SearchResults extends Component {
 	}
 
 	selectSearchResult = (databaseResult:DatabaseResult) => {
-		this.props.db.setSelectedDatabaseResult(databaseResult);
-		this.props.navigateTo(detailRoute);
+		// this.props.db.setSelectedDatabaseResult(databaseResult);
+		this.props.navigateTo(databaseResult);
 	}
 	handleWaypointLeave(){
 

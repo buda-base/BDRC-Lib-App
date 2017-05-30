@@ -5,10 +5,12 @@ import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import {Navigator, Page, BackButton, Toolbar, ProgressCircular} from 'react-onsenui';
 import ons from 'onsenui';
+import uuidV1 from 'uuid/v1';
+
 
 //import FileUtil from './FileUtil.js'
 
-import Database from './Database.js';
+import Database, {DatabaseResult} from './Database.js';
 import SearchPage from './SearchPage.jsx';
 import DetailPage from './DetailPage.jsx';
 import {en, bo} from './LocalizedStrings.js';
@@ -17,8 +19,8 @@ import type {LocalizedStringsType} from './LocalizedStrings.js';
 
 import styles from './Top.pcss';
 
-const searchRoute: Route = { title: 'Search', hasBackButton: false };
-const detailRoute: Route = { title: 'Detail', hasBackButton: true };
+const searchRoute: Route = { page: 'Search', hasBackButton: false, data:{} };
+const detailRoute: Route = { page: 'Detail', hasBackButton: true, data:{} };
 
 
 
@@ -28,7 +30,8 @@ class Top extends Component {
   state:{
     statusMessage:string,
     showStatusMessage:boolean,
-    strings:LocalizedStringsType
+    strings:LocalizedStringsType,
+    databaseResultStack:Array<DatabaseResult>;
   }
 
   constructor(props:{db:Database, initializeDatabase:boolean}){
@@ -39,7 +42,8 @@ class Top extends Component {
     this.state = {
       statusMessage:props.initializeDatabase?'Initializing Database':'',
       showStatusMessage:props.initializeDatabase,
-      strings:strings
+      strings:strings,
+      databaseResultStack:[]
     }
   }
 
@@ -68,14 +72,25 @@ class Top extends Component {
   }
 
   pushPage(route:Route, navigator:Navigator){
+    let data = route.data;
+    data.key = uuidV1();
     navigator.pushPage({
-      title: route.title,
-      hasBackButton: route.hasBackButton
+      page: route.page,
+      hasBackButton: route.hasBackButton,
+      data:data
     });
   }
 
   handleBack(navigator:Navigator){
-  	navigator.popPage();
+    navigator.popPage();
+    let state = this.state;
+    state.databaseResultStack.pop();
+    this.setState(state);
+  }
+
+  navigateTo = (databaseResult:DatabaseResult, navigator:Navigator) => {
+    let route:Route = { page: 'Detail', hasBackButton: true, data:{databaseResult:databaseResult}};
+    this.pushPage(route, navigator);    
   }
 
   renderToolbar(route:Route, navigator:Navigator, pageTitle:string) {
@@ -90,22 +105,27 @@ class Top extends Component {
   }
 
   renderPage = (route:Route, navigator:Navigator) => {
+
   	let content = "";
   	let pageTitle = "";
-  	if(route.title===searchRoute.title) {
-  		content = <SearchPage strings={this.state.strings} db={this.props.db} navigateTo={(route)=>this.pushPage(route, navigator)} />;
+    let pageKey = '';
+  	if(route.page===searchRoute.page) {
+  		content = <SearchPage strings={this.state.strings} db={this.props.db} navigateTo={(databaseResult:DatabaseResult)=>this.navigateTo(databaseResult, navigator)} />;
   		pageTitle = this.state.strings.appName;
-  	} else if(route.title===detailRoute.title)  {
-  		content = <DetailPage strings={this.state.strings} databaseResult={this.props.db.selectedDatabaseResult} />;
-  		pageTitle = this.props.db.selectedDatabaseResult.nodeId;  		
+      pageKey='search';
+  	} else if(route.page===detailRoute.page)  {
+  		content = <DetailPage strings={this.state.strings} db={this.props.db} databaseResult={route.data.databaseResult} navigateTo={(databaseResult)=>this.navigateTo(databaseResult, navigator)} />;
+  		pageTitle = route.data.databaseResult.nodeId; //this.state.databaseResultStack[this.state.databaseResultStack.length].nodeId; //this.props.db.selectedDatabaseResult.nodeId;  		
       // Account for compound nodeId that is brought in with the Outline Index files in order to provide both the 
       // filename of the outline, and the node within the outline that the title represents.
       let dashIndex = pageTitle.indexOf('-');
       if(dashIndex>0){ pageTitle = pageTitle.substring(dashIndex+1);}
+      pageKey = route.data.key; 
     }
     return (
-      <Page strings={this.state.strings} modifier="material" key={route.title} renderToolbar={this.renderToolbar.bind(this, route, navigator, pageTitle)}>
+      <Page strings={this.state.strings} modifier="material" key={pageKey} renderToolbar={this.renderToolbar.bind(this, route, navigator, pageTitle)}>
         {content}
+        
       </Page>
     );
   }

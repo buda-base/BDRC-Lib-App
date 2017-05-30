@@ -11,10 +11,12 @@
     "jquery": "^3.2.1",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
+    "react-image-lightbox": "^4.0.0",
     "react-spinkit": "^3.0.0",
     "react-tap-event-plugin": "^2.0.1",
     "react-waypoint": "^7.0.3",
-    "text-encoding": "^0.6.4"
+    "text-encoding": "^0.6.4",
+    "uuid": "^3.0.1"
   },
   "devDependencies": {
     "babel-cli": "^6.23.0",

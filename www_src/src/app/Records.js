@@ -1,6 +1,6 @@
 // @flow
 
-import type {WorkJSON, PersonJSON, OutlineNode} from './TypeAliases.js';
+import type {WorkJSON, PersonJSON, OutlineNode, VolumeJSON} from './TypeAliases.js';
 
 // type WorkJSON = {
 // 	title: Array<string>;
@@ -15,6 +15,7 @@ class Work {
 	hasCreator: Array<string>; // references Person records
 	status: ('seekingOut'|'acquiring'|'accessioned'|'released');
 	archiveInfo_vols: string;
+	volumeMap: Array<Volume>
 
 	constructor(json: WorkJSON, nodeId:string){
 		this.nodeId = nodeId;
@@ -23,7 +24,24 @@ class Work {
 		this.status = json.status;
 		this.title = json.title;
 		this.archiveInfo_vols = json.archiveInfo_vols;
+		if(json.volumeMap) {
+			this.volumeMap = [];
+			for(let i=0;i<json.volumeMap.length;i++) {
+				this.volumeMap.push(new Volume(json.volumeMap[i]));
+			}
+		}
 	}
+}
+
+class Volume {
+	id: string;
+  total: number;
+  num: number;
+  constructor(json:VolumeJSON){
+  	this.id = json.id;
+  	this.total = json.total;
+  	this.num = json.num;
+  }
 }
 
 // P00KG03924.json contains name=[null]    -- {"creatorOf":["W00KG03892"],"name":[null],"death":"1865","birth":"1822?"}
@@ -61,4 +79,4 @@ class Outline {
 
 
 export type Record = Work | Person | Outline | null;
-export {Work, Person, Outline};
+export {Work, Person, Outline, Volume};

@@ -52,7 +52,7 @@ class DatabaseResult {
 		return null;
 	}
 
-	load = (callback:(record:Record)=>void) => {
+	load = (callback:(record:Work|Person|Outline|null)=>void) => {
 		let filename = this.nodeId;
     // Account for compound nodeId that is brought in with the Outline Index files in order to provide both the 
     // filename of the outline, and the node within the outline that the title represents.
@@ -68,7 +68,7 @@ class DatabaseResult {
 		}
 	}
 
-	loaded = (json:any, callback:(record:Record)=>void) => {
+	loaded = (json:any, callback:(record:Work|Person|Outline|null)=>void) => {
 		if(null==json) {
 			callback(null);
 		} else if(this.isPerson) {
@@ -190,6 +190,46 @@ class Database {
 	setSelectedDatabaseResult(databaseResult: DatabaseResult){
 		this.selectedDatabaseResult = databaseResult;
 		this.update();
+	}
+
+	searchForMatchingNodes(nodeIds:Array<string>, callback:(Array<DatabaseResult>)=>void) {
+		
+		if(this.runningInBrowser) {				
+			let results = [];
+			let nodeIdsArray = nodeIds.slice(0); // duplicate the array
+			for(let i=0,ii=this.jsondata.length;i<ii;i++) {	
+				let idx = nodeIdsArray.indexOf(this.jsondata[i].nodeId);
+				if(-1!=idx) {
+					results.push(this.jsondata[i]);
+					nodeIdsArray.splice(idx, 1);
+				}
+				if(0==nodeIdsArray.length) break;
+			}
+			callback(results);			
+		} else {
+			let orIds = '';
+			for(let i=0;i<nodeIds.length;i++) {
+				orIds += i>0?" OR nodeId = ?":" nodeId = ?";
+			}
+			let query = 'SELECT id, title, nodeId, type FROM indices WHERE '+orIds;
+			this.database.executeSql(query, nodeIds, 
+				(resultSet) => {
+					let searchResults = [];
+					let moreSearchResults = [];
+					for(let x = 0; x < resultSet.rows.length; x++) {
+						searchResults.push(new DatabaseResult(this, resultSet.rows.item(x)));
+					}
+					callback(searchResults);
+				}, 
+				(error) => {
+			    console.log('SELECT SQL statement ERROR: ' + error.message);
+				  this.searchResults = [];
+					callback([]);
+			  }
+			);	
+
+		}
+		//return results;
 	}
 
 	/**

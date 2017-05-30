@@ -23,7 +23,15 @@ export type WorkJSON = {
 	hasCreator: Array<string>;
 	status: ('seekingOut'|'acquiring'|'accessioned'|'released');
 	archiveInfo_vols: string;	
+	volumeMap: Array<VolumeJSON>
 };
+
+export type VolumeJSON = {
+	id: string,
+  total: number,
+  num: number
+};
+
 
 /**
  * Used in Records.js to describe the content of the Work JSON file
@@ -53,7 +61,10 @@ export type OutlineNode = {
  * @type {Object}
  */
 export type Route = {
-	title: string,
-	hasBackButton: boolean
+	page: string,
+	hasBackButton: boolean,
+	data: any
 };
+
+
 

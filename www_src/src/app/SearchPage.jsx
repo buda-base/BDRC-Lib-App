@@ -3,7 +3,7 @@ declare var cordova: any;
 
 import React, {Component} from 'react';
 
-import Database from './Database.js';
+import Database, {DatabaseResult} from './Database.js';
 import SearchResults from './SearchResults.jsx'; 
 import type {LocalizedStringsType} from './LocalizedStrings.js';
 
@@ -19,7 +19,7 @@ class SearchPage extends Component {
   	queryIsValid: boolean
   }
 
-	constructor(props:{db:Database, navigateTo:()=>{}, strings:LocalizedStringsType}) {
+	constructor(props:{db:Database, navigateTo:(databaseResult:DatabaseResult)=>void, strings:LocalizedStringsType}) {
 		super(props);
 		this.state = {
 			query:'',

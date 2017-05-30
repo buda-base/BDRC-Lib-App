@@ -21,6 +21,8 @@ type LocalizedStringsType = {
 	IsOutlineOf:string;	
 	VIEW:string;
 	SHARE:string;
+	pages:string;
+	viewWarning:string;
 };
 
 
@@ -56,7 +58,9 @@ var en:LocalizedStringsType = {
 	Volumes:'Volumes',	
 	IsOutlineOf:'Is Outline Of',	
 	VIEW:'VIEW',
-	SHARE:'SHARE'
+	SHARE:'SHARE',
+	pages:'pages',
+	viewWarning:'Viewing will only work reliably if you have a strong Internet connection.'
 };
 
 
@@ -101,7 +105,9 @@ var bo:LocalizedStringsType = {
 	Volumes:'པོད་གྲངས།',	
 	IsOutlineOf:'དཀར་ཆག',	
 	VIEW:'ཀློག',
-	SHARE:'བརྒྱུད་བསྐུར།'
+	SHARE:'བརྒྱུད་བསྐུར།',
+	pages:'pages',
+	viewWarning:'Viewing will only work reliably if you have a strong Internet connection.'	
 };
 
 export {en, bo};
