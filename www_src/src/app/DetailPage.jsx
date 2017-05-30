@@ -258,11 +258,31 @@ class PechaViewer extends Component {
 		photoIndex:number
 	};
 
+	/**
+	 *	This function provides a workaround for legacy ImageGroup Ids that can be recognized by their lack of alphabetical characters other than the
+	 *	initial character "I" - the ImageService 
+	 * 
+	 *	https://www.tbrc.org/xmldoc?rid=W12827
+	 *	https://www.tbrc.org/xmldoc?rid=I2061
+	 *	https://www.tbrc.org/browser/ImageService?work=W12827&igroup=2061&image=1&first=1&last=459&fetchimg=yes
+	 * 
+	 * @param  {[type]} ig:string [description]
+	 * @return {[type]}           [description]
+	 */
+	normalizeIg(ig:string) {
+		let s = ig;
+		if(!s.match(/.+[A-Z]+.+/i)){
+			s = s.substring(1);
+		}		
+		return s;
+	}
+
 	constructor(props:{workId:string, imageGroupId:string, total:number, onGalleryClose:()=>void}){
 		super(props);
 		let images = [];
+		let ig = this.normalizeIg(props.imageGroupId);
 		for(let i=1;i<=props.total;i++){
-			images.push('https://www.tbrc.org/browser/ImageService?work='+this.props.workId+'&igroup='+this.props.imageGroupId+'&image='+i+'&first=1&last='+this.props.total+'&fetchimg=yes');
+			images.push('https://www.tbrc.org/browser/ImageService?work='+this.props.workId+'&igroup='+ig+'&image='+i+'&first=1&last='+this.props.total+'&fetchimg=yes');
 		}
 		this.state = {
 			images: images,
