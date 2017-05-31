@@ -63,7 +63,6 @@ class Top extends Component {
   }  
 
   handleStatusUpdate = (statusMessage:string) =>{
-    //console.log('handleStatusUpdate '+statusMessage);
     this.setState({statusMessage:statusMessage});
   }
 

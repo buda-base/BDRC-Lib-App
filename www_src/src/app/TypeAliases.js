@@ -45,14 +45,24 @@ export type PersonJSON = {
 	death: string;	
 };
 
+
+export type OutlineJSON = {
+	isOutlineOf: string; // references a Work	
+	nodes: Array<OutlineNodeJSON>;
+}
+
 /**
  * A node inside of an outline JSON file that has an id and titles
  * 
  * @type {Object}
  */
-export type OutlineNode = {
-	id: string,
-	title: Array<string>
+export type OutlineNodeJSON = {
+	id: string;
+	title: Array<string>;
+  volumeEnd: number;
+  beginsAt: number;
+  volume: number;
+  endsAt: number;
 };
 
 /**
@@ -64,6 +74,14 @@ export type Route = {
 	page: string,
 	hasBackButton: boolean,
 	data: any
+};
+
+
+export type ImageGroup = {
+	imageGroupId:string,
+	total:number,
+	start:number,
+	end:number
 };
 
 

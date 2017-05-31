@@ -76,7 +76,10 @@ class DatabaseResult {
 		} else if(this.isWork) {
 			callback(new Work(json, this.nodeId));
 		} else if(this.isOutline) {
-			callback(new Outline(json, this.nodeId));
+			let dashIndex = this.nodeId.indexOf('-');
+			let nodeId = this.nodeId.substring(dashIndex+1);
+			let outlineNodeId = this.nodeId.substring(0, dashIndex);
+			callback(new Outline(json, nodeId, outlineNodeId));
 		}
 	} 
 
@@ -241,13 +244,12 @@ class Database {
 	 */
 	search(searchString:string) {
 		this.searchString = searchString;
-		console.log(searchString);
+
 		let tsheg_loc = searchString.indexOf(TSHEG);
 		this.searchStringIsValid = (tsheg_loc>0 && searchString.length > tsheg_loc+1);
 
 		if(this.searchStringIsValid) {			
 			if(this.runningInBrowser) {
-				// console.log('in browser. searching through '+this.jsondata.length+' records');
 				let searchResults = [];
 				let moreSearchResults = [];
 				for(let i=0,ii=this.jsondata.length;i<ii;i++) {					
@@ -389,7 +391,6 @@ class Database {
 				this.shareStatus('loading '+indexFile.desc);
 	    	$.getJSON('data/'+indexFile.filename)
 	      	.done((json) => {
-	      		// console.log(json);
 	      		resolve({indexFile:indexFile, indexFileContents:json});
 	      	})
 	      	.fail((xhr, status, err) => reject({ indexFile: indexFile, error:err}));
@@ -441,26 +442,37 @@ class Database {
 	initialize(callback:(success:boolean, error:any)=>void, statusListener:(string)=>void) {
 
 		this.addStatusListener(statusListener);
-		this.shareStatus('Database Initialization Started');
 		
-		// clear the database
-		this.clearDatabase();
+		if(localStorage.getItem('DatabaseStatus')==='Loaded' && !this.runningInBrowser){
+			callback(true);
+		} else {
+			this.shareStatus('Database Initialization Started');
+			
+			// clear the database
+			this.clearDatabase();
 
-		// Load all of the index files
-		let loadingPromises = indexFiles.map(this.loadIndex.bind(this));
+			// Load all of the index files
+			let loadingPromises = indexFiles.map(this.loadIndex.bind(this));
 
-		Promise.all(loadingPromises)
-	  .then((results) => {
-	     // We only get here if ALL promises resolve
-	  	this.shareStatus('Database Initialization Complete');
-	  	this.rowCount();
-	    callback(true);
-	  })
-	  .catch((err) => {
-	    // Will catch failure of first failed promise
-	  	this.shareStatus('Database Initialization Failed');
-	    callback(false, err);
-	  });
+			Promise.all(loadingPromises)
+		  .then((results) => {
+		     // We only get here if ALL promises resolve
+		  	this.shareStatus('Database Initialization Complete');
+				
+				localStorage.setItem('DatabaseStatus', 'Loaded');
+		  	
+		  	//this.rowCount();
+		    callback(true);
+		  })
+		  .catch((err) => {
+		    // Will catch failure of first failed promise
+		  	this.shareStatus('Database Initialization Failed');
+
+				localStorage.setItem('DatabaseStatus', 'Failed To Load');
+
+		    callback(false, err);
+		  });
+		}
 	}
 
 	constructor(onready: () => void) {
@@ -468,7 +480,9 @@ class Database {
 			this.jsondata = [];
 		} else {
 			this.database = window.sqlitePlugin.openDatabase({name: 'bdrc.db', location: 'default'});
-			this.database.executeSql('DROP TABLE IF EXISTS indices');
+			if(localStorage.getItem('DatabaseStatus')!='Loaded') {
+				this.database.executeSql('DROP TABLE IF EXISTS indices');
+			}
 		}
   	onready();
 	}

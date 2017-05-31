@@ -7,6 +7,7 @@ import $ from 'jquery';
 import {Card} from 'react-onsenui';
 import Database, {DatabaseResult} from './Database.js';
 import {Work, Person, Outline, Volume} from './Records.js';
+import type {ImageGroup} from './TypeAliases.js';
 import FileUtil from './FileUtil.js'
 import Lightbox from 'react-image-lightbox';
 
@@ -45,7 +46,6 @@ class DetailPage extends Component {
 	}
 
 	viewRelatedRecord = (databaseResult:DatabaseResult) => {
-		//console.log(record);
 		this.props.navigateTo(databaseResult);
 	}
 
@@ -231,12 +231,20 @@ class VolumeCard extends Component {
 	}
 
 	render(){
+
+		let imageGroup = {
+			imageGroupId: this.props.volume.id,
+			total:this.props.volume.total,
+			start:1,
+			end:this.props.volume.total
+		};
+
 		return (
 				<Card modifier="material">
 					
 					<div>{this.props.strings.Volume} {this.props.strings.displayNum(this.props.volume.num)}, {this.props.strings.displayNum(this.props.volume.total)} {this.props.strings.pages}</div>
 
-					<div>{this.props.strings.viewWarning}</div>
+					{/*<div>{this.props.strings.viewWarning}</div>*/}
 
 	    		<div className="action-bar">
 	    			<div className="actions"> 
@@ -244,12 +252,13 @@ class VolumeCard extends Component {
 	  	  		</div>
 		    	</div>
 					
-					{this.state.pechaViewerOpen?<PechaViewer workId={this.props.workId} imageGroupId={this.props.volume.id} total={this.props.volume.total} onGalleryClose={this.onGalleryClose} />:null}
+					{this.state.pechaViewerOpen?<PechaViewer workId={this.props.workId} imageGroups={[imageGroup]} onGalleryClose={this.onGalleryClose} />:null}
 
 				</Card>
 		);
 	}
 }
+
 
 
 class PechaViewer extends Component {
@@ -277,12 +286,17 @@ class PechaViewer extends Component {
 		return s;
 	}
 
-	constructor(props:{workId:string, imageGroupId:string, total:number, onGalleryClose:()=>void}){
+	constructor(props:{workId:string, imageGroups:Array<ImageGroup>, onGalleryClose:()=>void}){
 		super(props);
 		let images = [];
-		let ig = this.normalizeIg(props.imageGroupId);
-		for(let i=1;i<=props.total;i++){
-			images.push('https://www.tbrc.org/browser/ImageService?work='+this.props.workId+'&igroup='+ig+'&image='+i+'&first=1&last='+this.props.total+'&fetchimg=yes');
+		if(props.imageGroups){
+			for(let x=0;x<props.imageGroups.length;x++){
+				let ig = this.normalizeIg(props.imageGroups[x].imageGroupId);
+				console.log( ig );
+				for(let i=props.imageGroups[x].start;i<=props.imageGroups[x].end;i++){
+					images.push('https://www.tbrc.org/browser/ImageService?work='+props.workId+'&igroup='+ig+'&image='+i+'&first=1&last='+this.props.imageGroups[x].total+'&fetchimg=yes');
+				}
+			}
 		}
 		this.state = {
 			images: images,
@@ -309,18 +323,142 @@ class PechaViewer extends Component {
 }
 
 
-
-
+/**
+ *
+ *	This class renders an Outline
+ * 
+ * Sample search:
+ * ཆོས་མངོན་པའི་མཛོད་ཀྱི་འགྲེལ་པ་གནད་ཀྱི་སྒྲོན་མེ
+ *
+ */
 class OutlineDetail extends Component {
-	
+	state:{
+		imageGroups: Array<ImageGroup>,
+		work: Work|null,
+		pechaViewerOpen:boolean	
+	};
+	props:{
+		outline:Outline,
+		strings:LocalizedStringsType,
+		db:Database, 
+		viewRelatedRecord:(record:DatabaseResult)=>void
+	};
+
+	constructor(props:{db:Database, outline:Outline, strings:LocalizedStringsType, viewRelatedRecord:(record:DatabaseResult)=>void} ) {
+		super(props);
+		this.state = {
+			work: null,
+			imageGroups:[],
+			pechaViewerOpen:false
+		};
+	}
+
+	componentWillMount(){
+		if(this.props.outline && this.props.outline.isOutlineOf){ 
+			this.props.db.searchForMatchingNodes([this.props.outline.isOutlineOf], this.receiveWorks);
+		}	
+	}
+
+	receiveWorks = (works:Array<DatabaseResult>) => {
+		if(works.length>0) {
+			works[0].load( (work:any)=>{this.receiveWork(work)} );
+		}
+	}
+
+	receiveWork = (work:Work) => {
+		if(work) {
+			let imageGroups = [];
+			let beginsAt = this.props.outline.beginsAt;
+			let endsAt = this.props.outline.endsAt;
+			let volumeBegin = this.props.outline.volume;
+
+			if(beginsAt && endsAt && volumeBegin) {
+
+				if(this.props.outline.volumeEnd && this.props.outline.volumeEnd>volumeBegin) {
+
+					for(let v=volumeBegin;v<=this.props.outline.volumeEnd;v++){
+						for(let i=0;i<work.volumeMap.length;i++) {
+							if(v===work.volumeMap[i].num) {
+								let imageGroup = {
+									imageGroupId:work.volumeMap[i].id,
+									total:work.volumeMap[i].total,
+									start:v===volumeBegin?beginsAt:1,
+									end:v===this.props.outline.volumeEnd?endsAt:work.volumeMap[i].total
+								};
+								imageGroups.push(imageGroup);
+								break;
+							}
+						}						
+					}
+				} else {
+					for(let i=0;i<work.volumeMap.length;i++) {
+						if(volumeBegin===work.volumeMap[i].num) {
+							let imageGroup = {
+								imageGroupId:work.volumeMap[i].id,
+								total:work.volumeMap[i].total,
+								start:beginsAt,
+								end:endsAt<work.volumeMap[i].total?endsAt:work.volumeMap[i].total
+							};
+							imageGroups.push(imageGroup);
+							break;
+						}
+					}
+				}
+			}
+			let state = this.state;
+			state.work = work;
+			state.imageGroups = imageGroups;			
+			this.setState(state);
+		}
+	}
+
+
+	onGalleryClose = () =>{
+		this.setState({pechaViewerOpen:false});
+	}
+
+	onViewButtonClicked = () =>{
+		this.setState({pechaViewerOpen:true});
+	}
+
 	render() {
-		return null;
-	}	
+
+		if(this.props.outline) {
+
+			let shareLink = "https://www.tbrc.org/#!rid="+this.props.outline.outlineNodeId;
+			let shareSubject = "A link to BDRC text "+this.props.outline.outlineNodeId;
+
+			return (
+				<section>
+					<Card modifier="material">
+						<StringSection title={this.props.strings.Title} vals={this.props.outline.title} />
+						<StringSection title={this.props.strings.IsOutlineOf} val={this.state.work?this.state.work.title:''} />
+
+		    		<div className="action-bar">
+		    			<div className="actions"> 
+		    				<ShareButton strings={this.props.strings} subject={shareSubject} url={shareLink} />		  	  			
+		    				<ViewButton strings={this.props.strings} handleViewButtonClicked={this.onViewButtonClicked}/>	
+		  	  		</div>
+			    	</div>
+						
+						{this.state.pechaViewerOpen?<PechaViewer workId={this.state.work?this.state.work.nodeId:null} imageGroups={this.state.imageGroups} onGalleryClose={this.onGalleryClose} />:null}
+
+					</Card>					
+
+
+				</section>				
+			);
+		} else {
+			return null;
+		}
+	}
 }
 
 
+
+
 class ViewButton  extends Component {
-	constructor(props:{volume:Volume, strings:LocalizedStringsType, handleViewButtonClicked:()=>void}) {
+	constructor(props:{strings:LocalizedStringsType, handleViewButtonClicked:()=>void}) {
 		super(props)
 	}
 	render(){

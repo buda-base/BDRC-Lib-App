@@ -1,6 +1,6 @@
 // @flow
 
-import type {WorkJSON, PersonJSON, OutlineNode, VolumeJSON} from './TypeAliases.js';
+import type {WorkJSON, PersonJSON, OutlineJSON, OutlineNode, VolumeJSON} from './TypeAliases.js';
 
 // type WorkJSON = {
 // 	title: Array<string>;
@@ -71,8 +71,30 @@ class Person {
 
 class Outline {
 	nodeId: string;
+	outlineNodeId: string;
 	isOutlineOf: string; // references a Work
-	nodes: Array<OutlineNode>;
+  volumeEnd: number;
+  beginsAt: number;
+  volume: number;
+  endsAt: number;
+  title: Array<string>;
+
+	constructor(json: OutlineJSON, nodeId: string, outlineNodeId: string) {
+		console.log(nodeId);
+		this.nodeId = nodeId;
+		this.outlineNodeId = outlineNodeId;
+		this.isOutlineOf = json.isOutlineOf;
+		for(let i=0,ii=json.nodes.length;i<ii;i++){
+			if(nodeId===json.nodes[i].id){
+				this.volumeEnd = json.nodes[i].volumeEnd;
+				this.volume = json.nodes[i].volume;
+				this.beginsAt = json.nodes[i].beginsAt;
+				this.endsAt = json.nodes[i].endsAt;
+				this.title = json.nodes[i].title;
+				break;
+			}
+		}
+	}
 }
 
 
@@ -80,3 +102,10 @@ class Outline {
 
 export type Record = Work | Person | Outline | null;
 export {Work, Person, Outline, Volume};
+
+
+
+
+
+
+
