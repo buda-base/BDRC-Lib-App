@@ -117,6 +117,7 @@ https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-device/
 https://github.com/litehelpers/Cordova-sqlite-storage
 https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin
 https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-file/
+https://github.com/danwilson/google-analytics-plugin
 
 #### Other Info
 

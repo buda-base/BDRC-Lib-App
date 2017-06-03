@@ -100,15 +100,25 @@ class SearchResult extends Component {
 	}
 
 	render(){
-		let icon = this.props.item.type==='Person'? <Icon icon="md-account-circle" modifier="material" size={{default: 40, material: 36}}/> : <Icon icon="md-collection-text" modifier="material" size={{default: 40, material: 36}}/>;
-		let subtitle = this.props.item.workTitleForOutline(); //this.props.item.type==='Outline'? this.props.item.workTitleForOutline:null;
+		let icon = null;
+		let subtitle = null;
+
+		if(this.props.item.type==='Person'){
+			icon = <Icon icon="md-account-circle" modifier="material" size={{default: 40, material: 36}}/>;
+		} else if(this.props.item.type==='Work'){
+			icon = <Icon icon="md-collection-text" modifier="material" size={{default: 40, material: 36}}/>;
+		} else {
+			icon = <Icon icon="md-file-text" modifier="material" size={{default: 40, material: 36}} style={{marginLeft: '4px'}} />;
+			subtitle = this.props.item.workTitleForOutline();
+		}
+
 		return (
 		  <li className="list-item list-item--material" onTouchTap={this.handleSelect}>
 		    <div className="list-item__left list-item--material__left">
 					{icon}
 		    </div>
 		    <div className="list-item__center list-item--material__center">
-		      <div className="list-item__title list-item--material__title title">{this.props.item.title}</div>
+		      <div className="list-item__title list-item--material__title title" style={{lineHeight:'30px'}}>{this.props.item.title}</div>
 		      {subtitle?<div className="list-item__subtitle list-item--material__subtitle">{subtitle}</div>:null}
 		      {/*<div className="list-item__subtitle list-item--material__subtitle">{this.props.item.nodeId}</div>*/}
 		    </div>
@@ -124,7 +134,7 @@ class BubbleWrapper extends Component {
 		if(this.props.show){
 			return (
 				<div className="bubbleWrapper">
-					<Spinner spinnerName="three-bounce" fadeIn="none" />
+					<Spinner name="three-bounce" fadeIn="none" />
 				</div>
 			);
 		} else {

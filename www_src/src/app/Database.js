@@ -9,18 +9,19 @@ import $ from 'jquery';
 import type {IndexFile} from './TypeAliases.js';
 import {Work, Person, Outline} from './Records.js';
 import type {Record} from './Records.js';
+import type {LocalizedStringsType} from './LocalizedStrings.js';
 
 const indexFiles: Array<IndexFile> = [ 
 	{ type:'Work', filename:'workIndex.json', desc:'Works' },
 	{ type:'Person', filename:'personIndex.json', desc:'Authors' },
-	{ type:'Outline', filename:'outlineIndex-0.json', desc:'Outline 1' },
-	{ type:'Outline', filename:'outlineIndex-1.json', desc:'Outline 2' },
-	{ type:'Outline', filename:'outlineIndex-2.json', desc:'Outline 3' },
-	{ type:'Outline', filename:'outlineIndex-3.json', desc:'Outline 4' },
-	{ type:'Outline', filename:'outlineIndex-4.json', desc:'Outline 5' },
-	{ type:'Outline', filename:'outlineIndex-5.json', desc:'Outline 6' },
-	{ type:'Outline', filename:'outlineIndex-6.json', desc:'Outline 7' },
-	{ type:'OutlineWorkTitle', filename:'outlineWorkTitle.json', desc:'Outline Work Titles' },
+	{ type:'Outline', filename:'outlineIndex-0.json', desc:'Outline1' },
+	{ type:'Outline', filename:'outlineIndex-1.json', desc:'Outline2' },
+	{ type:'Outline', filename:'outlineIndex-2.json', desc:'Outline3' },
+	{ type:'Outline', filename:'outlineIndex-3.json', desc:'Outline4' },
+	{ type:'Outline', filename:'outlineIndex-4.json', desc:'Outline5' },
+	{ type:'Outline', filename:'outlineIndex-5.json', desc:'Outline6' },
+	{ type:'Outline', filename:'outlineIndex-6.json', desc:'Outline7' },
+	{ type:'OutlineWorkTitle', filename:'outlineWorkTitle.json', desc:'OutlineWorkTitles' },
 ];
 
 
@@ -106,6 +107,9 @@ class Database {
 
 	// Android and IOS database
 	database = {};
+
+	// localization
+	strings:LocalizedStringsType;
 
 	// browser database, just for testing
 	jsondata: Array<DatabaseResult> = [];
@@ -245,51 +249,113 @@ class Database {
 	search(searchString:string) {
 		this.searchString = searchString;
 
-		let tsheg_loc = searchString.indexOf(TSHEG);
-		this.searchStringIsValid = (tsheg_loc>0 && searchString.length > tsheg_loc+1);
+		let searchByNodeId = true;
 
-		if(this.searchStringIsValid) {			
-			if(this.runningInBrowser) {
-				let searchResults = [];
-				let moreSearchResults = [];
-				for(let i=0,ii=this.jsondata.length;i<ii;i++) {					
-					if(this.jsondata[i].title===searchString || -1!=this.jsondata[i].title.indexOf(searchString)) {
-						if(searchResults.length<RESULT_BATCH_SIZE) {
-							searchResults.push(this.jsondata[i]);
-						} else {
-							moreSearchResults.push(this.jsondata[i]);
-						}
-					}
-				}
-				this.searchResults = searchResults;				
-				this.moreSearchResults = moreSearchResults;
-				this.update();
-			} else {
-				let query = 'SELECT id, title, nodeId, type FROM indices WHERE (title LIKE ?)';
-				this.database.executeSql(query, ['%'+searchString+'%'], (resultSet) => {
+		if(searchString && searchString.length>0) {
+			let firstChar = searchString.charAt(0);
+			searchByNodeId = (firstChar==='O' || firstChar==='W' || firstChar==='P');
+		}
+
+		if(!searchByNodeId) {
+			let tsheg_loc = searchString.indexOf(TSHEG);
+			this.searchStringIsValid = (tsheg_loc>0 && searchString.length > tsheg_loc+1);
+
+			if(this.searchStringIsValid) {			
+				if(this.runningInBrowser) {
 					let searchResults = [];
 					let moreSearchResults = [];
-					for(let x = 0; x < resultSet.rows.length && x < RESULT_BATCH_SIZE; x++) {
-						searchResults.push(new DatabaseResult(this, resultSet.rows.item(x)));
-					}
-					if(resultSet.rows.length>RESULT_BATCH_SIZE){
-						for(let x=resultSet.rows.length-1;x>=RESULT_BATCH_SIZE;x--){
-							moreSearchResults.push(new DatabaseResult(this, resultSet.rows.item(x)));
+					for(let i=0,ii=this.jsondata.length;i<ii;i++) {					
+						if(this.jsondata[i].title===searchString || -1!=this.jsondata[i].title.indexOf(searchString)) {
+							if(searchResults.length<RESULT_BATCH_SIZE) {
+								searchResults.push(this.jsondata[i]);
+							} else {
+								moreSearchResults.push(this.jsondata[i]);
+							}
 						}
 					}
-					this.searchResults = searchResults;
+					this.searchResults = searchResults;				
 					this.moreSearchResults = moreSearchResults;
 					this.update();
-				  }, (error) => {
-				    console.log('SELECT SQL statement ERROR: ' + error.message);
-					  this.searchResults = [];
+				} else {
+					let query = 'SELECT id, title, nodeId, type FROM indices WHERE (title LIKE ?)';
+					this.database.executeSql(query, ['%'+searchString+'%'], (resultSet) => {
+						let searchResults = [];
+						let moreSearchResults = [];
+						for(let x = 0; x < resultSet.rows.length && x < RESULT_BATCH_SIZE; x++) {
+							searchResults.push(new DatabaseResult(this, resultSet.rows.item(x)));
+						}
+						if(resultSet.rows.length>RESULT_BATCH_SIZE){
+							for(let x=resultSet.rows.length-1;x>=RESULT_BATCH_SIZE;x--){
+								moreSearchResults.push(new DatabaseResult(this, resultSet.rows.item(x)));
+							}
+						}
+						this.searchResults = searchResults;
+						this.moreSearchResults = moreSearchResults;
 						this.update();
-				  }
-				);	
+					  }, (error) => {
+					    console.log('SELECT SQL statement ERROR: ' + error.message);
+						  this.searchResults = [];
+							this.update();
+					  }
+					);	
+				}
+			} else {
+			  this.searchResults = [];
+				this.update();			
 			}
 		} else {
-		  this.searchResults = [];
-			this.update();			
+
+			this.searchStringIsValid = searchString.length > 1;
+
+			if(this.searchStringIsValid){
+				let exactMatchRequired = searchString.charAt(searchString.length-1) === ' ';
+
+				if(this.runningInBrowser) {
+					let searchResults = [];
+					let moreSearchResults = [];
+					let ss = exactMatchRequired ? searchString.substring(0, searchString.length-1) : searchString;
+					for(let i=0,ii=this.jsondata.length;i<ii;i++) {											
+						if(exactMatchRequired ? ss===this.jsondata[i].nodeId : 0==this.jsondata[i].nodeId.indexOf(searchString)   ) {
+							if(searchResults.length<RESULT_BATCH_SIZE) {
+								searchResults.push(this.jsondata[i]);
+							} else {
+								moreSearchResults.push(this.jsondata[i]);
+							}
+						}
+					}
+					this.searchResults = searchResults;				
+					this.moreSearchResults = moreSearchResults;
+					this.update();
+				} else {
+
+					let query = 'SELECT id, title, nodeId, type FROM indices WHERE ' + (exactMatchRequired ? '(nodeId = ?)' : '(nodeId LIKE ?)' );
+					let searchParams = exactMatchRequired ? [searchString] :[searchString+'%'];
+					this.database.executeSql(query, searchParams, (resultSet) => {
+						let searchResults = [];
+						let moreSearchResults = [];
+						for(let x = 0; x < resultSet.rows.length && x < RESULT_BATCH_SIZE; x++) {
+							searchResults.push(new DatabaseResult(this, resultSet.rows.item(x)));
+						}
+						if(resultSet.rows.length>RESULT_BATCH_SIZE){
+							for(let x=resultSet.rows.length-1;x>=RESULT_BATCH_SIZE;x--){
+								moreSearchResults.push(new DatabaseResult(this, resultSet.rows.item(x)));
+							}
+						}
+						this.searchResults = searchResults;
+						this.moreSearchResults = moreSearchResults;
+						this.update();
+					  }, (error) => {
+					    console.log('SELECT SQL statement ERROR: ' + error.message);
+						  this.searchResults = [];
+							this.update();
+					  }
+					);	
+	
+				}				
+			} else {
+			  this.searchResults = [];
+				this.update();						
+			}
 		}
 	}
 
@@ -319,7 +385,7 @@ class Database {
 			return this.processOutlineWorkTitleIndex(obj);
 		} else {
 			return new Promise((resolve, reject)=>{ 
-				this.shareStatus('Processing '+obj.indexFile.desc);
+				//this.shareStatus(this.strings.IndexFileLoadingDescriptions[obj.indexFile.desc]);
 				if(this.runningInBrowser) {
 					let startingIndex = this.jsondata.length;
 					for(var key in obj.indexFileContents) {
@@ -369,7 +435,7 @@ class Database {
  */
 	processOutlineWorkTitleIndex(obj: {indexFile: IndexFile,indexFileContents: any}) {
 		return new Promise((resolve, reject)=>{ 
-			this.shareStatus('Processing '+obj.indexFile.desc);
+			// this.shareStatus('Processing '+obj.indexFile.desc);
 			localStorage.setItem('OutlineWorkIndex', JSON.stringify(obj.indexFileContents));
 			this.outlineWorkIndex = obj.indexFileContents;
 			resolve(obj.indexFile);
@@ -387,8 +453,10 @@ class Database {
 	 */
 	loadIndex(indexFile: IndexFile){
 		if(this.runningInBrowser) {
+
 			return new Promise((resolve, reject) => {
-				this.shareStatus('loading '+indexFile.desc);
+				//this.shareStatus('loading '+indexFile.desc);
+				this.shareStatus(this.strings.IndexFileLoadingDescriptions[indexFile.desc]);
 	    	$.getJSON('data/'+indexFile.filename)
 	      	.done((json) => {
 	      		resolve({indexFile:indexFile, indexFileContents:json});
@@ -398,7 +466,8 @@ class Database {
 				.then(this.processIndex.bind(this));
 		} else {
 			return new Promise((resolve, reject)=>{ 
-				this.shareStatus('loading '+indexFile.desc);
+				// this.shareStatus('loading '+indexFile.desc);
+				this.shareStatus(this.strings.IndexFileLoadingDescriptions[indexFile.desc]);
 				let filePath = cordova.file.applicationDirectory+'www/data/'+indexFile.filename;
 				window.resolveLocalFileSystemURL(filePath, (fileEntry) => {
 		 			FileUtil.readFile(fileEntry, (fileContents)=> {
@@ -432,6 +501,10 @@ class Database {
 		}
 	}
 
+	isInitialized():boolean{
+		return localStorage.getItem('DatabaseStatus')==='Loaded' && !this.runningInBrowser;
+	}
+
 	/**
 	 * Should be called only once to initialize the database when the app is
 	 * first loaded
@@ -442,40 +515,62 @@ class Database {
 	initialize(callback:(success:boolean, error:any)=>void, statusListener:(string)=>void) {
 
 		this.addStatusListener(statusListener);
+	
+		this.shareStatus('Database Initialization Started');
 		
-		if(localStorage.getItem('DatabaseStatus')==='Loaded' && !this.runningInBrowser){
-			callback(true);
-		} else {
-			this.shareStatus('Database Initialization Started');
+		// clear the database
+		this.clearDatabase();
+
+		/*
+		 * serial executes Promises sequentially.
+		 * @param {funcs} An array of funcs that return promises.
+		 * @example
+		 * const urls = ['/url1', '/url2', '/url3']
+		 * serial(urls.map(url => () => $.ajax(url)))
+		 *     .then(console.log.bind(console))
+		 */
+		const serial = funcs =>
+			funcs.reduce((promise, func) =>
+		  	promise.then(result => func().then(Array.prototype.concat.bind(result))), Promise.resolve([]));
+
+		let loadingPromises = indexFiles.map(indexFile => () => this.loadIndex(indexFile) );
+
+		let cb = () => new Promise((resolve, reject) => { callback(true); localStorage.setItem('DatabaseStatus', 'Loaded'); resolve([]); } );
+
+		loadingPromises.push(cb);
+
+		serial(loadingPromises).then();
+
+		//console.log.bind(console));
+
+		/*
+		// Load all of the index files
+		let loadingPromises = indexFiles.map(this.loadIndex.bind(this));
+
+		Promise.all(loadingPromises)
+	  .then((results) => {
+	     // We only get here if ALL promises resolve
+	  	this.shareStatus('Database Initialization Complete');
 			
-			// clear the database
-			this.clearDatabase();
+			localStorage.setItem('DatabaseStatus', 'Loaded');
+	  	
+	  	//this.rowCount();
+	    callback(true);
+	  })
+	  .catch((err) => {
+	    // Will catch failure of first failed promise
+	  	this.shareStatus('Database Initialization Failed');
 
-			// Load all of the index files
-			let loadingPromises = indexFiles.map(this.loadIndex.bind(this));
+			localStorage.setItem('DatabaseStatus', 'Failed To Load');
 
-			Promise.all(loadingPromises)
-		  .then((results) => {
-		     // We only get here if ALL promises resolve
-		  	this.shareStatus('Database Initialization Complete');
-				
-				localStorage.setItem('DatabaseStatus', 'Loaded');
-		  	
-		  	//this.rowCount();
-		    callback(true);
-		  })
-		  .catch((err) => {
-		    // Will catch failure of first failed promise
-		  	this.shareStatus('Database Initialization Failed');
+	    callback(false, err);
+	  });
+	  */
 
-				localStorage.setItem('DatabaseStatus', 'Failed To Load');
-
-		    callback(false, err);
-		  });
-		}
 	}
 
-	constructor(onready: () => void) {
+	constructor(strings:LocalizedStringsType, onready: () => void) {
+		this.strings = strings;
 		if(this.runningInBrowser){
 			this.jsondata = [];
 		} else {

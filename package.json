@@ -1,5 +1,5 @@
 {
-    "name": "bdrclib",
+    "name": "org.tbrc.bdrclibapp",
     "displayName": "BDRC Lib",
     "version": "1.0.0",
     "description": "An application for exploring the BDRC library.",
@@ -17,6 +17,8 @@
         "cordova-plugin-device": "^1.1.6",
         "cordova-plugin-file": "^4.3.3",
         "cordova-plugin-globalization": "^1.0.7",
+        "cordova-plugin-google-analytics": "^1.8.2",
+        "cordova-plugin-splashscreen": "^4.0.3",
         "cordova-plugin-whitelist": "^1.3.2",
         "cordova-plugin-x-socialsharing": "^5.1.8",
         "cordova-sqlite-storage": "^2.0.4",
@@ -29,7 +31,9 @@
             "cordova-sqlite-storage": {},
             "cordova-plugin-device": {},
             "cordova-plugin-x-socialsharing": {},
-            "cordova-plugin-globalization": {}
+            "cordova-plugin-globalization": {},
+            "cordova-plugin-splashscreen": {},
+            "cordova-plugin-google-analytics": {}
         },
         "platforms": [
             "android",
