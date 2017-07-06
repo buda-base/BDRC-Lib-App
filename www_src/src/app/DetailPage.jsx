@@ -1,10 +1,12 @@
 // @flow
 declare var cordova: any;
 declare var device: any;
+declare var navigator: any;
+declare var Connection: any;
 
 import React, {Component} from 'react';
 import $ from 'jquery';
-import {Card} from 'react-onsenui';
+import {Card,AlertDialog} from 'react-onsenui';
 import Database, {DatabaseResult} from './Database.js';
 import {Work, Person, Outline, Volume} from './Records.js';
 import type {ImageGroup} from './TypeAliases.js';
@@ -26,19 +28,7 @@ class DetailPage extends Component {
 
 	constructor(props:{db:Database, databaseResult:DatabaseResult, strings:LocalizedStringsType, navigateTo:(databaseResult:DatabaseResult)=>void}) {
 		super(props);
-		// window.ga.trackView(props.databaseResult.nodeId); //, null, false, ()=>{ console.log('success!');  }, (e)=>{ console.log('failed!'); console.log(e); });
-
 		window.ga.trackEvent('DetailPage', 'Load', props.databaseResult.nodeId);
-	  // (screen, campaignUrl, newSession, success, error)
-	  // Sends the event to Google Analytics and
-	  // resubmits the form once the hit is done.
-	  // window.ga('send', 'event', 'Signup Form', 'submit', {
-	  //   hitCallback: function(result) {
-	  //     console.log('bad bad!');
-	  //     console.log(result);
-	  //   }
-	  // });
-
 		let filePath = props.databaseResult.type.toLowerCase()+'s/'+props.databaseResult.nodeId+'.json';				
 		this.state = {
 			work:null,
@@ -59,6 +49,7 @@ class DetailPage extends Component {
 	}
 
 	viewRelatedRecord = (databaseResult:DatabaseResult) => {
+		console.log(databaseResult);
 		this.props.navigateTo(databaseResult);
 	}
 
@@ -108,15 +99,18 @@ class PersonDetail extends Component {
 		if(this.props.person) {
 
 			let shareLink = "https://www.tbrc.org/#!rid="+this.props.person.nodeId;
-			let shareSubject = "A link to BDRC Author "+this.props.person.nodeId;
+			let shareSubject = this.props.strings.linkToAuthorPre+this.props.person.nodeId+this.props.strings.linkToAuthorPost;
 
 			return (
 				<section>
 					<Card modifier="material">
 						<StringSection title={this.props.strings.Name} vals={this.props.person.name} />
+						<StringSection title={this.props.strings.RID} val={this.props.person.nodeId} /> 
 						<StringSection title={this.props.strings.Birth} val={this.props.person.birth} />
 						<StringSection title={this.props.strings.Death} val={this.props.person.death} />
+						
 						<RelatedRecordSection title={this.props.strings.CreatorOf} relatedRecords={this.state.authoredWorks} viewRelatedRecord={this.props.viewRelatedRecord}/>
+
 		    		<div className="action-bar">
 		    			<div className="actions"> 
 		    				<ShareButton strings={this.props.strings} subject={shareSubject} url={shareLink} nodeId={this.props.person.nodeId} />		  	  			
@@ -166,7 +160,7 @@ class WorkDetail extends Component {
 		if(this.props.work) {
 
 			let shareLink = "https://www.tbrc.org/#!rid="+this.props.work.nodeId;
-			let shareSubject = "A link to BDRC work "+this.props.work.nodeId;
+			let shareSubject = this.props.strings.linkToWorkPre+this.props.work.nodeId+this.props.strings.linkToWorkPost;
 
 			let vols = null;
 			if(this.props.work.archiveInfo_vols) {
@@ -175,14 +169,25 @@ class WorkDetail extends Component {
 				} catch(error){ }
 			}
 
-			let status = this.props.work.status? this.props.strings.displayStatus(this.props.work.status) : '';
+			let status = this.props.work.status ? this.props.strings.displayStatus(this.props.work.status) : '';
 
 			return (
 				<section>
 					<Card modifier="material">
-						<StringSection title={this.props.strings.Status} val={status} />
+
 						<StringSection title={this.props.strings.Title} vals={this.props.work.title} />
+
 						<RelatedRecordSection title={this.props.strings.Creator} relatedRecords={this.state.authors} viewRelatedRecord={this.props.viewRelatedRecord}/>
+
+						<StringSection title={this.props.strings.RID} val={this.props.work.nodeId} /> 
+
+						<StringSection title={this.props.strings.PublisherName} val={this.props.work.publisherName} /> 
+						<StringSection title={this.props.strings.PublisherLocation} val={this.props.work.publisherLocation} />
+						<StringSection title={this.props.strings.PublisherDate} val={this.props.work.publisherDate} />
+						<StringSection title={this.props.strings.PrintType} val={this.props.work.printType} />
+
+						<StringSection title={this.props.strings.Status} val={status} />
+
 		    		<div className="action-bar">
 		    			<div className="actions"> 
 		    				<ShareButton strings={this.props.strings} subject={shareSubject} url={shareLink} nodeId={this.props.work.nodeId} />		  	  			
@@ -228,12 +233,14 @@ class VolumeCard extends Component {
 		workId:string
 	};
 	state:{
-		pechaViewerOpen:boolean
+		pechaViewerOpen:boolean,
+		alertOpen:boolean
 	}
 	constructor(props){
 		super(props);
 		this.state = {
-			pechaViewerOpen:false
+			pechaViewerOpen:false,
+			alertOpen:false
 		}
 	}
 
@@ -241,9 +248,17 @@ class VolumeCard extends Component {
 		this.setState({pechaViewerOpen:false});
 	}
 
+	onAlertClose = () =>{
+		this.setState({alertOpen:false});
+	}
 	onViewButtonClicked = () =>{
 		window.ga.trackEvent('DetailPage', 'Gallery', this.props.workId+'-'+this.props.volume.num);
-		this.setState({pechaViewerOpen:true});
+
+		if(navigator.connection.type===Connection.NONE) {
+			this.setState({alertOpen:true});
+		} else {
+			this.setState({pechaViewerOpen:true});
+		}
 	}
 
 	render(){
@@ -258,7 +273,7 @@ class VolumeCard extends Component {
 		return (
 				<Card modifier="material">
 					
-					<div>{this.props.strings.Volume}{this.props.strings.displayNum(this.props.volume.num)}{this.props.strings.pagesPre}{this.props.strings.displayNum(this.props.volume.total)}{this.props.strings.pagesPost}</div>
+					<div>{this.props.strings.Volume} {this.props.strings.displayNum(this.props.volume.num)} &nbsp; {this.props.strings.pagesPre} {this.props.strings.displayNum(this.props.volume.total)} {this.props.strings.pagesPost}</div>
 
 					{/*<div>{this.props.strings.viewWarning}</div>*/}
 
@@ -268,13 +283,35 @@ class VolumeCard extends Component {
 	  	  		</div>
 		    	</div>
 					
-					{this.state.pechaViewerOpen?<PechaViewer workId={this.props.workId} imageGroups={[imageGroup]} onGalleryClose={this.onGalleryClose} />:null}
+					{this.state.pechaViewerOpen?<PechaViewer workId={this.props.workId} imageGroups={[imageGroup]} onGalleryClose={this.onGalleryClose} startPhotoIndex={2} />:null}
+
+					<NetworkAlert show={this.state.alertOpen} onClose={this.onAlertClose} strings={this.props.strings} />
 
 				</Card>
 		);
 	}
 }
 
+class NetworkAlert extends Component {
+	props:{
+		strings:LocalizedStringsType,
+		show:boolean,
+		onClose:()=>void
+	};
+	render() {
+		return (
+      <AlertDialog
+        isOpen={this.props.show}
+        isCancelable={false}>
+        <div className='alert-dialog-title'>{this.props.strings.Alert}</div>
+        <div className='alert-dialog-content'>{this.props.strings.NoInternetMessage}</div>
+        <div className='alert-dialog-footer'>
+          <button onClick={this.props.onClose} className='alert-dialog-button'>{this.props.strings.OK}</button>
+        </div>
+      </AlertDialog>
+		);
+	}
+}
 
 
 class PechaViewer extends Component {
@@ -285,7 +322,8 @@ class PechaViewer extends Component {
 	props:{
 		workId:string, 
 		imageGroups:Array<ImageGroup>, 
-		onGalleryClose:()=>void
+		onGalleryClose:()=>void,
+		startPhotoIndex:number
 	};
 	/**
 	 *	This function provides a workaround for legacy ImageGroup Ids that can be recognized by their lack of alphabetical characters other than the
@@ -304,15 +342,14 @@ class PechaViewer extends Component {
 			s = s.substring(1);
 		}		
 		return s;
-	}
-	*/
-
-	constructor(props:{workId:string, imageGroups:Array<ImageGroup>, onGalleryClose:()=>void}){
+	}*/
+	
+	constructor(props:{workId:string, imageGroups:Array<ImageGroup>, onGalleryClose:()=>void, startPhotoIndex:number}){
 		super(props);
 		let images = [];
 		if(props.imageGroups){
 			for(let x=0;x<props.imageGroups.length;x++){
-				// let ig = this.normalizeIg(props.imageGroups[x].imageGroupId);
+				//let ig = this.normalizeIg(props.imageGroups[x].imageGroupId);
 				let ig = props.imageGroups[x].imageGroupId;
 				for(let i=props.imageGroups[x].start;i<=props.imageGroups[x].end;i++){
 					images.push('https://www.tbrc.org/browser/ImageService?work='+props.workId+'&igroup='+ig+'&image='+i+'&first=1&last='+this.props.imageGroups[x].total+'&fetchimg=yes');
@@ -322,10 +359,9 @@ class PechaViewer extends Component {
 				}
 			}
 		}
-
 		this.state = {
 			images: images,
-			photoIndex:0
+			photoIndex:props.startPhotoIndex 
 		};
 	}
 
@@ -337,12 +373,17 @@ class PechaViewer extends Component {
         prevSrc={this.state.images[(this.state.photoIndex + this.state.images.length - 1) % this.state.images.length]}
         onCloseRequest={this.props.onGalleryClose}
         discourageDownloads={false}
-        onMovePrevRequest={() => this.setState({
-        	photoIndex: (this.state.photoIndex + this.state.images.length - 1) % this.state.images.length,
-        })}
+        onMovePrevRequest={
+        	() => {
+        		let photoIndex = (this.state.photoIndex + this.state.images.length - 1) % this.state.images.length;
+        		console.log(photoIndex);
+        		this.setState({ photoIndex: photoIndex });
+        	}
+        }
         onMoveNextRequest={
         	() => {
         		let photoIndex = (this.state.photoIndex + 1) % this.state.images.length;
+        		console.log(photoIndex);
         		this.setState({photoIndex: photoIndex});
         		let image = this.state.images[photoIndex];
         		let ig_loc = image.indexOf('&igroup=');
@@ -370,8 +411,10 @@ class PechaViewer extends Component {
 class OutlineDetail extends Component {
 	state:{
 		imageGroups: Array<ImageGroup>,
+		relatedWorks:Array<DatabaseResult>,
 		work: Work|null,
-		pechaViewerOpen:boolean	
+		pechaViewerOpen:boolean,
+		alertOpen:boolean
 	};
 	props:{
 		outline:Outline,
@@ -385,7 +428,9 @@ class OutlineDetail extends Component {
 		this.state = {
 			work: null,
 			imageGroups:[],
-			pechaViewerOpen:false
+			pechaViewerOpen:false,
+			relatedWorks: [],
+			alertOpen:false
 		};
 	}
 
@@ -396,6 +441,7 @@ class OutlineDetail extends Component {
 	}
 
 	receiveWorks = (works:Array<DatabaseResult>) => {
+		this.setState({relatedWorks:works});
 		if(works.length>0) {
 			works[0].load( (work:any)=>{this.receiveWork(work)} );
 		}
@@ -453,9 +499,18 @@ class OutlineDetail extends Component {
 		this.setState({pechaViewerOpen:false});
 	}
 
+	onAlertClose = () =>{
+		this.setState({alertOpen:false});
+	}
+
 	onViewButtonClicked = () =>{
 		window.ga.trackEvent('DetailPage', 'Gallery', this.props.outline.nodeId);
-		this.setState({pechaViewerOpen:true});
+
+		if(navigator.connection.type===Connection.NONE) {
+			this.setState({alertOpen:true});
+		} else {
+			this.setState({pechaViewerOpen:true});
+		}
 	}
 
 	render() {
@@ -463,14 +518,14 @@ class OutlineDetail extends Component {
 		if(this.props.outline) {
 
 			let shareLink = "https://www.tbrc.org/#!rid="+this.props.outline.outlineNodeId;
-			let shareSubject = "A link to BDRC text "+this.props.outline.outlineNodeId;
+			let shareSubject = this.props.strings.linkToTextPre+this.props.outline.outlineNodeId+this.props.strings.linkToTextPost;
 
 			return (
 				<section>
 					<Card modifier="material">
 						<StringSection title={this.props.strings.Title} vals={this.props.outline.title} />
-						<StringSection title={this.props.strings.IsOutlineOf} val={this.state.work?this.state.work.title:''} />
-
+						<StringSection title={this.props.strings.RID} val={this.props.outline.nodeId} /> 
+						<RelatedRecordSection title={this.props.strings.IsOutlineOf} relatedRecords={this.state.relatedWorks} viewRelatedRecord={this.props.viewRelatedRecord} />
 		    		<div className="action-bar">
 		    			<div className="actions"> 
 		    				<ShareButton strings={this.props.strings} subject={shareSubject} url={shareLink} nodeId={this.props.outline.nodeId} />		  	  			
@@ -478,7 +533,9 @@ class OutlineDetail extends Component {
 		  	  		</div>
 			    	</div>
 						
-						{this.state.pechaViewerOpen?<PechaViewer workId={this.state.work?this.state.work.nodeId:''} imageGroups={this.state.imageGroups} onGalleryClose={this.onGalleryClose} />:null}
+						{this.state.pechaViewerOpen?<PechaViewer workId={this.state.work?this.state.work.nodeId:''} imageGroups={this.state.imageGroups} onGalleryClose={this.onGalleryClose} startPhotoIndex={0} />:null}
+
+						<NetworkAlert show={this.state.alertOpen} onClose={this.onAlertClose} strings={this.props.strings} />
 
 					</Card>					
 
@@ -519,7 +576,6 @@ class ShareButton extends Component {
 			options, 
 			(success)=>{
 				window.ga.trackEvent('DetailPage', 'Share', this.props.nodeId);
-				// console.log(success);
 			}, 
 			(error)=>{
 				console.log(error);

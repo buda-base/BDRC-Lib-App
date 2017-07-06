@@ -1,6 +1,7 @@
 // @flow
 declare var cordova: any;
 declare var device: any;
+declare var lasca: any;
 
 import FileUtil from './FileUtil.js'
 import WebUtil from './WebUtil.js'
@@ -12,8 +13,9 @@ import type {Record} from './Records.js';
 import type {LocalizedStringsType} from './LocalizedStrings.js';
 
 const indexFiles: Array<IndexFile> = [ 
-	{ type:'Work', filename:'workIndex.json', desc:'Works' },
-	{ type:'Person', filename:'personIndex.json', desc:'Authors' },
+	{ type:'Work', filename:'workIndex-0.json', desc:'Works1' },
+	{ type:'Work', filename:'workIndex-1.json', desc:'Works2' },
+	{ type:'Person', filename:'personIndex-0.json', desc:'Authors' },
 	{ type:'Outline', filename:'outlineIndex-0.json', desc:'Outline1' },
 	{ type:'Outline', filename:'outlineIndex-1.json', desc:'Outline2' },
 	{ type:'Outline', filename:'outlineIndex-2.json', desc:'Outline3' },
@@ -21,9 +23,25 @@ const indexFiles: Array<IndexFile> = [
 	{ type:'Outline', filename:'outlineIndex-4.json', desc:'Outline5' },
 	{ type:'Outline', filename:'outlineIndex-5.json', desc:'Outline6' },
 	{ type:'Outline', filename:'outlineIndex-6.json', desc:'Outline7' },
+	{ type:'Outline', filename:'outlineIndex-7.json', desc:'Outline8' },
+	{ type:'Outline', filename:'outlineIndex-8.json', desc:'Outline9' },
+	{ type:'Outline', filename:'outlineIndex-9.json', desc:'Outline10' },
+	{ type:'Outline', filename:'outlineIndex-10.json', desc:'Outline11' },
+	{ type:'Outline', filename:'outlineIndex-11.json', desc:'Outline12' },
+	{ type:'Outline', filename:'outlineIndex-12.json', desc:'Outline13' },
+	{ type:'Outline', filename:'outlineIndex-13.json', desc:'Outline14' },
+	{ type:'Outline', filename:'outlineIndex-14.json', desc:'Outline15' },
+	{ type:'Outline', filename:'outlineIndex-15.json', desc:'Outline16' },
+	{ type:'Outline', filename:'outlineIndex-16.json', desc:'Outline17' },
+	{ type:'Outline', filename:'outlineIndex-17.json', desc:'Outline18' },
+	{ type:'Outline', filename:'outlineIndex-18.json', desc:'Outline19' },
+	{ type:'Outline', filename:'outlineIndex-19.json', desc:'Outline20' },
+	{ type:'Outline', filename:'outlineIndex-20.json', desc:'Outline21' },
+	{ type:'Outline', filename:'outlineIndex-21.json', desc:'Outline22' },
 	{ type:'OutlineWorkTitle', filename:'outlineWorkTitle.json', desc:'OutlineWorkTitles' },
 ];
 
+const SORT_ENABLED = false;
 
 class DatabaseResult {
 
@@ -98,12 +116,17 @@ class DatabaseResult {
 
 }
 
+const LINE_SEP = "\u2028";
+const PARA_SEP = "\u2029";
+
 const TSHEG = "\u0F0B";
 const RESULT_BATCH_SIZE = 50;
 
 class Database {
 
 	runningInBrowser: boolean = 'browser'===device.platform;
+
+	searchCount:number = 0;
 
 	// Android and IOS database
 	database = {};
@@ -191,7 +214,7 @@ class Database {
 	update(){
 		this.listeners.forEach(listener => {
 			listener();
-		});		
+		});
 	}
 
 	setSelectedDatabaseResult(databaseResult: DatabaseResult){
@@ -211,7 +234,8 @@ class Database {
 					nodeIdsArray.splice(idx, 1);
 				}
 				if(0==nodeIdsArray.length) break;
-			}
+			}	
+
 			callback(results);			
 		} else {
 			let orIds = '';
@@ -247,6 +271,11 @@ class Database {
 	 * @return {void}
 	 */
 	search(searchString:string) {
+
+		//console.log('search');
+		//console.log('------------------------------------');
+		//console.log(searchString);
+
 		this.searchString = searchString;
 
 		let searchByNodeId = true;
@@ -256,97 +285,183 @@ class Database {
 			searchByNodeId = (firstChar==='O' || firstChar==='W' || firstChar==='P');
 		}
 
+		// SEARCH BY STRING
 		if(!searchByNodeId) {
 			let tsheg_loc = searchString.indexOf(TSHEG);
 			this.searchStringIsValid = (tsheg_loc>0 && searchString.length > tsheg_loc+1);
 
-			if(this.searchStringIsValid) {			
+			//console.log(' tsheg_loc '+tsheg_loc);
+
+
+			if(this.searchStringIsValid) {
+
+				//console.log(' searchStringIsValid ');
+
+
+				this.searchCount++;		
+
+				// SEARCH BROWSER ARRAY BY STRING, NO DATABASE
 				if(this.runningInBrowser) {
-					let searchResults = [];
-					let moreSearchResults = [];
+
+					let allSearchResults = [];
+
 					for(let i=0,ii=this.jsondata.length;i<ii;i++) {					
 						if(this.jsondata[i].title===searchString || -1!=this.jsondata[i].title.indexOf(searchString)) {
-							if(searchResults.length<RESULT_BATCH_SIZE) {
-								searchResults.push(this.jsondata[i]);
-							} else {
-								moreSearchResults.push(this.jsondata[i]);
-							}
+							allSearchResults.push(this.jsondata[i]);
 						}
 					}
-					this.searchResults = searchResults;				
-					this.moreSearchResults = moreSearchResults;
+
+					if(SORT_ENABLED) {
+						console.log('About to sort');
+						allSearchResults = lasca.sort(allSearchResults, 'title');
+						console.log('Done sorting');
+					}
+
+					let searchResults = [];
+					let moreSearchResults = [];
+					if(allSearchResults.length>RESULT_BATCH_SIZE){
+						this.searchResults = allSearchResults.slice(0,RESULT_BATCH_SIZE+1);
+						this.moreSearchResults = allSearchResults.slice(RESULT_BATCH_SIZE+1);
+					} else {
+						this.searchResults = allSearchResults;
+						this.moreSearchResults = [];
+					}
+					this.searchCount--;	
 					this.update();
-				} else {
+				} 
+				// SEARCH THE DATABASE BY STRING
+				else {
 					let query = 'SELECT id, title, nodeId, type FROM indices WHERE (title LIKE ?)';
-					this.database.executeSql(query, ['%'+searchString+'%'], (resultSet) => {
-						let searchResults = [];
-						let moreSearchResults = [];
-						for(let x = 0; x < resultSet.rows.length && x < RESULT_BATCH_SIZE; x++) {
-							searchResults.push(new DatabaseResult(this, resultSet.rows.item(x)));
-						}
-						if(resultSet.rows.length>RESULT_BATCH_SIZE){
-							for(let x=resultSet.rows.length-1;x>=RESULT_BATCH_SIZE;x--){
-								moreSearchResults.push(new DatabaseResult(this, resultSet.rows.item(x)));
+					
+					//console.log('  about to execute the query '+query);
+
+					try {
+						this.database.executeSql(query, ['%'+searchString+'%'], (resultSet) => {
+
+							//console.log('  search done, '+resultSet.rows.length+' rows found');
+
+							let rows =  [];					
+							if(SORT_ENABLED) {
+								console.log('About to sort');
+								rows = lasca.sort(resultSet.rows, 'title');			
+								console.log('Done sorting');
+							} else {
+								rows = resultSet.rows;
 							}
-						}
-						this.searchResults = searchResults;
-						this.moreSearchResults = moreSearchResults;
-						this.update();
-					  }, (error) => {
-					    console.log('SELECT SQL statement ERROR: ' + error.message);
-						  this.searchResults = [];
+
+							let searchResults = [];
+							let moreSearchResults = [];						
+
+							for(let x = 0; x < rows.length && x < RESULT_BATCH_SIZE; x++) {
+								searchResults.push(new DatabaseResult(this, rows.item(x)));
+							}
+							if(rows.length>RESULT_BATCH_SIZE){
+								for(let x=rows.length-1;x>=RESULT_BATCH_SIZE;x--){
+									moreSearchResults.push(new DatabaseResult(this, rows.item(x)));
+								}
+							}
+
+							this.searchResults = searchResults;
+							this.moreSearchResults = moreSearchResults;
+							this.searchCount--;	
 							this.update();
-					  }
-					);	
+						  }, (error) => {
+						    console.log('SELECT SQL statement ERROR: ' + error.message);
+							  this.searchResults = [];
+							  this.searchCount--;	
+								this.update();
+						  }
+						);	
+					} catch(badException) {
+						console.log(badException);
+					}
+
+					
 				}
 			} else {
 			  this.searchResults = [];
 				this.update();			
 			}
-		} else {
+		} 
+		// SEARCH BY RID
+		else {
 
 			this.searchStringIsValid = searchString.length > 1;
 
 			if(this.searchStringIsValid){
 				let exactMatchRequired = searchString.charAt(searchString.length-1) === ' ';
 
+				this.searchCount++;		
+
+				// NO DATABASE SEARCH BY RID
 				if(this.runningInBrowser) {
-					let searchResults = [];
-					let moreSearchResults = [];
+
+					let allSearchResults = [];
 					let ss = exactMatchRequired ? searchString.substring(0, searchString.length-1) : searchString;
 					for(let i=0,ii=this.jsondata.length;i<ii;i++) {											
 						if(exactMatchRequired ? ss===this.jsondata[i].nodeId : 0==this.jsondata[i].nodeId.indexOf(searchString)   ) {
-							if(searchResults.length<RESULT_BATCH_SIZE) {
-								searchResults.push(this.jsondata[i]);
-							} else {
-								moreSearchResults.push(this.jsondata[i]);
-							}
+							allSearchResults.push(this.jsondata[i]);
 						}
 					}
-					this.searchResults = searchResults;				
-					this.moreSearchResults = moreSearchResults;
+					
+					if(SORT_ENABLED) {
+						console.log(allSearchResults.length);
+						if(allSearchResults.length>1) {
+							console.log('About to sort');
+							let t1 = performance.now();
+							allSearchResults = lasca.sort(allSearchResults, 'title');
+							let t2 = performance.now();
+							console.log("Sort Time: "+( (t2-t1)/1000 ) + "s " +( (t2-t1)%1000 ) + "ms" );
+							console.log('Done sorting');
+						}
+					}
+
+					if(allSearchResults.length>RESULT_BATCH_SIZE){
+						this.searchResults = allSearchResults.slice(0,RESULT_BATCH_SIZE+1);
+						this.moreSearchResults = allSearchResults.slice(RESULT_BATCH_SIZE+1);
+					} else {
+						this.searchResults = allSearchResults;
+						this.moreSearchResults = [];
+					}
+					this.searchCount--;	
 					this.update();
-				} else {
+				
+
+				} 
+				// DATABASE SEARCH BY RID
+				else {
 
 					let query = 'SELECT id, title, nodeId, type FROM indices WHERE ' + (exactMatchRequired ? '(nodeId = ?)' : '(nodeId LIKE ?)' );
 					let searchParams = exactMatchRequired ? [searchString] :[searchString+'%'];
 					this.database.executeSql(query, searchParams, (resultSet) => {
+
+						let rows =  [];					
+						if(SORT_ENABLED) {
+							console.log('About to sort');
+							rows = lasca.sort(resultSet.rows, 'title');			
+							console.log('Done sorting');
+						} else {
+							rows = resultSet.rows;
+						}
+
 						let searchResults = [];
 						let moreSearchResults = [];
-						for(let x = 0; x < resultSet.rows.length && x < RESULT_BATCH_SIZE; x++) {
-							searchResults.push(new DatabaseResult(this, resultSet.rows.item(x)));
+						for(let x = 0; x < rows.length && x < RESULT_BATCH_SIZE; x++) {
+							searchResults.push(new DatabaseResult(this, rows.item(x)));
 						}
-						if(resultSet.rows.length>RESULT_BATCH_SIZE){
-							for(let x=resultSet.rows.length-1;x>=RESULT_BATCH_SIZE;x--){
-								moreSearchResults.push(new DatabaseResult(this, resultSet.rows.item(x)));
+						if(rows.length>RESULT_BATCH_SIZE){
+							for(let x=rows.length-1;x>=RESULT_BATCH_SIZE;x--){
+								moreSearchResults.push(new DatabaseResult(this, rows.item(x)));
 							}
 						}
 						this.searchResults = searchResults;
 						this.moreSearchResults = moreSearchResults;
+						this.searchCount--;	
 						this.update();
 					  }, (error) => {
 					    console.log('SELECT SQL statement ERROR: ' + error.message);
 						  this.searchResults = [];
+						  this.searchCount--;	
 							this.update();
 					  }
 					);	
@@ -385,18 +500,34 @@ class Database {
 			return this.processOutlineWorkTitleIndex(obj);
 		} else {
 			return new Promise((resolve, reject)=>{ 
+
 				//this.shareStatus(this.strings.IndexFileLoadingDescriptions[obj.indexFile.desc]);
 				if(this.runningInBrowser) {
+
 					let startingIndex = this.jsondata.length;
+
 					for(var key in obj.indexFileContents) {
 						obj.indexFileContents[key].forEach((nodeId)=>{
-							this.jsondata.push( new DatabaseResult(this, {
-								id: startingIndex,
-								title: key,
-								nodeId: nodeId,
-								type: obj.indexFile.type
-							}));
-							startingIndex++;
+							
+							// HACK: Because the work index files contain references not only to alternative titles, but to publishers, 
+							// we do not create database entries for any RIDs that contain a "-" 
+							let thisEntryIsGoodData = true; 
+							let dashIdx = nodeId.indexOf('-');
+							if(-1!=dashIdx && nodeId.charAt(0)==='W') {
+								thisEntryIsGoodData = false;
+							}
+
+							if(thisEntryIsGoodData) {
+								this.jsondata.push( new DatabaseResult(this, {
+									id: startingIndex,
+									title: key,
+									nodeId: nodeId,
+									type: obj.indexFile.type
+								}));
+								startingIndex++;
+							}
+
+
 						});
 					}
 					resolve(obj.indexFile);			
@@ -404,7 +535,32 @@ class Database {
 					let batch = ['CREATE TABLE IF NOT EXISTS indices (id INTEGER PRIMARY KEY, title, nodeId, type)'];
 					for(var key in obj.indexFileContents) {
 						obj.indexFileContents[key].forEach((nodeId)=>{
-							batch.push([ 'INSERT INTO indices VALUES (?,?,?,?)', [null, key, nodeId, obj.indexFile.type] ]);
+
+							// HACK: https://github.com/BuddhistDigitalResourceCenter/BDRC-Lib-App/issues/41							 
+							if(-1!=key.indexOf(LINE_SEP)){
+								key = key.replace(LINE_SEP, '');
+							}
+
+							if(-1!=key.indexOf(PARA_SEP)){
+								key = key.replace(PARA_SEP, '');								
+							}
+
+
+							// HACK: Because the work index files contain references not only to alternative titles, but to publishers, 
+							// we do not create database entries for any RIDs that contain a "-" 
+							let thisEntryIsGoodData = true; 
+							let dashIdx = nodeId.indexOf('-');
+
+							if(-1!=dashIdx && nodeId.charAt(0)==='W') {
+								thisEntryIsGoodData = false;
+							}
+
+						
+							if(thisEntryIsGoodData) {
+								batch.push([ 'INSERT INTO indices VALUES (?,?,?,?)', [null, key, nodeId, obj.indexFile.type] ]);
+							}
+
+
 						});
 					}
 					this.database.sqlBatch(batch, 
@@ -571,6 +727,7 @@ class Database {
 
 	constructor(strings:LocalizedStringsType, onready: () => void) {
 		this.strings = strings;
+		lasca.setLanguage("real_tibetan");
 		if(this.runningInBrowser){
 			this.jsondata = [];
 		} else {

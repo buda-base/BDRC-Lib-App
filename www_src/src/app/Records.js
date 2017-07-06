@@ -1,13 +1,6 @@
 // @flow
 
-import type {WorkJSON, PersonJSON, OutlineJSON, OutlineNode, VolumeJSON} from './TypeAliases.js';
-
-// type WorkJSON = {
-// 	title: Array<string>;
-// 	hasCreator: Array<string>;
-// 	status: ('seekingOut'|'acquiring'|'accessioned'|'released');
-// 	archiveInfo_vols: string;	
-// };
+import type {WorkJSON, PersonJSON, OutlineJSON, VolumeJSON} from './TypeAliases.js';
 
 class Work {
 	nodeId: string;
@@ -16,14 +9,24 @@ class Work {
 	status: ('seekingOut'|'acquiring'|'accessioned'|'released');
 	archiveInfo_vols: string;
 	volumeMap: Array<Volume>
+	publisherName: string;
+	publisherDate: string;
+	publisherLocation: string;
+	printType: string;
 
 	constructor(json: WorkJSON, nodeId:string){
+
 		this.nodeId = nodeId;
 		this.title = json.title;
 		this.hasCreator = json.hasCreator;
 		this.status = json.status;
 		this.title = json.title;
 		this.archiveInfo_vols = json.archiveInfo_vols;
+		this.publisherName = json.publisherName;
+		this.publisherDate = json.publisherDate;
+		this.publisherLocation = json.publisherLocation;
+		this.printType = json.printType;
+
 		if(json.volumeMap) {
 			this.volumeMap = [];
 			for(let i=0;i<json.volumeMap.length;i++) {
@@ -63,12 +66,6 @@ class Person {
 
 }
 
-// type OutlineNode = {
-// 	id: string,
-// 	title: Array<string>
-// };
-
-
 class Outline {
 	nodeId: string;
 	outlineNodeId: string;
@@ -80,7 +77,6 @@ class Outline {
   title: Array<string>;
 
 	constructor(json: OutlineJSON, nodeId: string, outlineNodeId: string) {
-		console.log(nodeId);
 		this.nodeId = nodeId;
 		this.outlineNodeId = outlineNodeId;
 		this.isOutlineOf = json.isOutlineOf;
@@ -96,7 +92,6 @@ class Outline {
 		}
 	}
 }
-
 
 
 

@@ -31,6 +31,19 @@ Webpack configuration for this command is webpack.config.production.babel.js
 npm run build
 ```
 
+## Cordova Android dev build
+
+cordova run android
+
+NOTE: You may need to set JAVA_HOME if you are running an older JVM by default, like so on MacOS X in the case where you also have JDK 1.8.0.101:
+```export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_101.jdk/Contents/Home```
+
+## Cordova Android signed build
+
+cordova run android --release -- --keystore=KEYSTORE.jks --storePassword=STORE_PASSWORD --alias=ALIAS --password=ALIAS_PASSWORD
+
+NOTE: You may need to set JAVA_HOME if you are running an older JVM by default, like so on MacOS X in the case where you also have JDK 1.8.0.101:
+```export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_101.jdk/Contents/Home```
 
 ## Phonegap (for web)
 
@@ -118,6 +131,7 @@ https://github.com/litehelpers/Cordova-sqlite-storage
 https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin
 https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-file/
 https://github.com/danwilson/google-analytics-plugin
+https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-network-information/index.html
 
 #### Other Info
 
@@ -127,7 +141,8 @@ https://cordova.apache.org/docs/en/latest/guide/platforms/ios/
 __Icon Generation__
 https://www.npmjs.com/package/cordova-icon
 
-
+__Splash Generation__
+https://github.com/AlexDisler/cordova-splash
 
 
 ### NOTES
@@ -135,5 +150,9 @@ __Disable CORS in browser__
 https://vxlabs.com/2016/03/17/fixing-the-cordova-browser-platform-access-control-allow-origin-error/
 
 /Applications/Chromium.app/Contents/MacOS/Chromium --user-data-dir=/tmp/temp_chrome_user_data --disable-web-security &
+
+__Enable Tib Keyboard__
+
+http://en.ironrabbit.org/howto
 
 

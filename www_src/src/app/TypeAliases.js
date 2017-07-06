@@ -23,7 +23,11 @@ export type WorkJSON = {
 	hasCreator: Array<string>;
 	status: ('seekingOut'|'acquiring'|'accessioned'|'released');
 	archiveInfo_vols: string;	
-	volumeMap: Array<VolumeJSON>
+	volumeMap: Array<VolumeJSON>;
+	publisherName: string;
+	publisherDate: string;
+	publisherLocation: string;
+	printType: string;
 };
 
 export type VolumeJSON = {

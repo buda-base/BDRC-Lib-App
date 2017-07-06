@@ -14,7 +14,7 @@ import {en, bo} from './LocalizedStrings.js';
 
 var db:Database;
 var APP_VERSION = '0.9';
-let strings = en;
+let strings = bo; //bo;
 
 var app = {
   initialize: function() {

@@ -17,7 +17,8 @@ class SearchResults extends Component {
 		searchResults: Array<DatabaseResult>,
 		searchString: string,
 		searchStringIsValid: boolean,
-		moreResultsAvailable: boolean
+		moreResultsAvailable: boolean,
+		stillSearching:boolean
 	}
 
 	constructor(props:{ db: Database, navigateTo:(DatabaseResult)=>void, strings:LocalizedStringsType}){
@@ -27,7 +28,8 @@ class SearchResults extends Component {
 			searchResults: props.db.searchResults,
 			searchString: props.db.searchString,
 			searchStringIsValid: props.db.searchStringIsValid,
-			moreResultsAvailable: moreResultsAvailable
+			moreResultsAvailable: moreResultsAvailable,
+			stillSearching:0!=props.db.searchCount
 		};
 	}
 
@@ -41,7 +43,8 @@ class SearchResults extends Component {
 
 	updateSearchResults = () => {
 		let moreResultsAvailable = this.props.db.moreResultsAvailable();
-		this.setState({searchResults: this.props.db.searchResults, searchString:this.props.db.searchString, searchStringIsValid: this.props.db.searchStringIsValid, moreResultsAvailable:moreResultsAvailable});
+		let stillSearching = 0!=this.props.db.searchCount;
+		this.setState({searchResults: this.props.db.searchResults, searchString:this.props.db.searchString, searchStringIsValid: this.props.db.searchStringIsValid, moreResultsAvailable:moreResultsAvailable, stillSearching:stillSearching});
 	}
 
 	selectSearchResult = (databaseResult:DatabaseResult) => {
@@ -67,7 +70,7 @@ class SearchResults extends Component {
 				<div className="search-results">
 					<div className="status">{this.props.strings.resultsFoundPre}{this.props.strings.displayNum(totalFoundResults)}{this.props.strings.resultsFoundPost}</div>
 					<ul className="list list--material">
-
+					<BubbleWrapper show={this.state.stillSearching} />
 					{this.state.searchResults.map((item:DatabaseResult)=><SearchResult key={item.id} item={item} selectItem={this.selectSearchResult} />)}
 					</ul>
 
@@ -82,7 +85,7 @@ class SearchResults extends Component {
 		} else {
 			return (
 				<div className="search-results">
-					<div className="status">{this.props.strings.searchRequirementText}</div>
+					{/*<div className="status">{this.props.strings.searchRequirementText}</div>*/}
 				</div>
 			);
 		}

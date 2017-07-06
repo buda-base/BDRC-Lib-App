@@ -135,7 +135,9 @@ class Top extends Component {
       pageKey='search';
   	} else if(route.page===detailRoute.page)  {
   		content = <DetailPage strings={this.props.strings} db={this.props.db} databaseResult={route.data.databaseResult} navigateTo={(databaseResult)=>this.navigateTo(databaseResult, navigator)} />;
-  		pageTitle = route.data.databaseResult.nodeId;		
+      pageTitle = route.data.databaseResult.title;  
+      // pageTitle = route.data.databaseResult.nodeId;		
+
       // Account for compound nodeId that is brought in with the Outline Index files in order to provide both the 
       // filename of the outline, and the node within the outline that the title represents.
       let dashIndex = pageTitle.indexOf('-');
