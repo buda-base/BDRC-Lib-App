@@ -105,7 +105,7 @@ class PersonDetail extends Component {
 				<section>
 					<Card modifier="material">
 						<StringSection title={this.props.strings.Name} vals={this.props.person.name} />
-						<StringSection title={this.props.strings.RID} val={this.props.person.nodeId} /> 
+						<StringSection title={this.props.strings.PersonRID} val={this.props.person.nodeId} /> 
 						<StringSection title={this.props.strings.Birth} val={this.props.person.birth} />
 						<StringSection title={this.props.strings.Death} val={this.props.person.death} />
 						
@@ -179,7 +179,7 @@ class WorkDetail extends Component {
 
 						<RelatedRecordSection title={this.props.strings.Creator} relatedRecords={this.state.authors} viewRelatedRecord={this.props.viewRelatedRecord}/>
 
-						<StringSection title={this.props.strings.RID} val={this.props.work.nodeId} /> 
+						<StringSection title={this.props.strings.WorkRID} val={this.props.work.nodeId} /> 
 
 						<StringSection title={this.props.strings.PublisherName} val={this.props.work.publisherName} /> 
 						<StringSection title={this.props.strings.PublisherLocation} val={this.props.work.publisherLocation} />
@@ -524,7 +524,7 @@ class OutlineDetail extends Component {
 				<section>
 					<Card modifier="material">
 						<StringSection title={this.props.strings.Title} vals={this.props.outline.title} />
-						<StringSection title={this.props.strings.RID} val={this.props.outline.nodeId} /> 
+						<StringSection title={this.props.strings.OutlineRID} val={this.props.outline.nodeId} /> 
 						<RelatedRecordSection title={this.props.strings.IsOutlineOf} relatedRecords={this.state.relatedWorks} viewRelatedRecord={this.props.viewRelatedRecord} />
 		    		<div className="action-bar">
 		    			<div className="actions"> 

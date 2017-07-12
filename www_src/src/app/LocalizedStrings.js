@@ -17,6 +17,9 @@ type LocalizedStringsType = {
 	Creator:string;	
 	Title:string;	
 	RID:string;
+	PersonRID:string;
+	WorkRID:string;
+	OutlineRID:string;
 	PublisherName:string;
 	PublisherDate:string;
 	PublisherLocation:string;
@@ -108,6 +111,9 @@ var en:LocalizedStringsType = {
 	Creator:'Creator',	
 	Title:'Title',	
 	RID:'RID',
+	PersonRID:'Person RID',
+	WorkRID:'Work RID',
+	OutlineRID:'Outline RID',
 	PublisherName:'Publisher Name',
 	PublisherDate:'Publisher Date',
 	PublisherLocation:'Publisher Location',
@@ -196,13 +202,16 @@ var bo:LocalizedStringsType = {
 	searchRequirementText: 'ཉུང་མཐར་ཚེག་བར་གཉིས་འཚོལ་དགོས།',
 	resultsFoundPre:'འཚོལ་འབྲས་ ',
 	resultsFoundPost:'',
-	Name:'མཚན།',	
-	CreatorOf:'མཛད་པ་པོ།',	
+	Name:'མཚན།',
+	CreatorOf:'བརྩམས་ཆོས།',	
 	Birth:'འཁྲུངས་ལོ།',	
 	Death:'འདས་ལོ།',	
 	Status:'གནས་བབས།',	
 	Creator:'མཛད་པ་པོ།',	
 	RID:'བརྩམས་ཆོས་ངོ་རྟགས།',
+	PersonRID:'མི་སྣའི་ཨང་རྟགས།',
+	WorkRID:'བརྩམས་ཆོས་ཨང་རྟགས།',
+	OutlineRID:'ས་བཅད་ཨང་རྟགས།',
 	Title:'མཚན་བྱང་།',	
 	PublisherName:'པར་མཁན།',
 	PublisherDate:'པར་དུས།',
