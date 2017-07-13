@@ -219,7 +219,7 @@ var bo:LocalizedStringsType = {
 	PrintType:'པར་གཞི།',
 	Volume:'པོད་',
 	Volumes:'པོད་གྲངས།',	
-	IsOutlineOf:'ས་བཅད།',	
+	IsOutlineOf:'ཁུངས།',		
 	VIEW:'ཀློག',
 	SHARE:'བརྒྱུད་བསྐུར།',
 	pagesPre:' ཤོག་གྲངས་',

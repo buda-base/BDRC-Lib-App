@@ -514,7 +514,6 @@ class OutlineDetail extends Component {
 	}
 
 	render() {
-
 		if(this.props.outline) {
 
 			let shareLink = "https://www.tbrc.org/#!rid="+this.props.outline.outlineNodeId;
@@ -531,24 +530,18 @@ class OutlineDetail extends Component {
 		    				<ShareButton strings={this.props.strings} subject={shareSubject} url={shareLink} nodeId={this.props.outline.nodeId} />		  	  			
 		    				<ViewButton strings={this.props.strings} handleViewButtonClicked={this.onViewButtonClicked}/>	
 		  	  		</div>
-			    	</div>
-						
+			    	</div>						
 						{this.state.pechaViewerOpen?<PechaViewer workId={this.state.work?this.state.work.nodeId:''} imageGroups={this.state.imageGroups} onGalleryClose={this.onGalleryClose} startPhotoIndex={0} />:null}
-
 						<NetworkAlert show={this.state.alertOpen} onClose={this.onAlertClose} strings={this.props.strings} />
-
 					</Card>					
-
-
 				</section>				
 			);
+
 		} else {
 			return null;
 		}
 	}
 }
-
-
 
 
 class ViewButton  extends Component {
