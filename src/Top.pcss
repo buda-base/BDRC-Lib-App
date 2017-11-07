@@ -1,0 +1,75 @@
+
+#PleaseWait {
+	position: absolute;
+	top:-10000;
+	background-color: rgba(255, 255, 255, .75);
+	display: flex;
+  	justify-content: center;
+  	align-items: center;
+	flex-direction: column;
+
+	& p {
+		color:#1f1f21;
+		font-family: Roboto,Noto,sans-serif;
+		font-size:16px;
+	}
+	
+	&.show {
+		position:fixed;
+		top:0;
+		left:0;
+		right:0;
+		bottom:0;
+		z-index:10000;
+	}
+
+}
+
+
+
+div.selectLanguage {
+	height:80%;
+	margin:16px;
+	text-align:center;
+  	display: flex;
+  	align-items: center;
+  	justify-content: center;
+
+	& h2 {
+		font-size:18px;
+		font-weight:normal;
+		line-height:24px;
+	}
+}
+
+
+/* hack to get rid of onsenui double BackButton */
+ons-back-button {	
+	& svg {
+		display:none;
+	}
+}
+
+/* android */
+ons-toolbar:not([inline]) {
+    padding-top: 5px;
+}
+
+
+.toolbar--material + .page__background + .page__content {
+  top: 56px;
+}
+
+/* ios */
+.page[status-bar-fill] > .toolbar {
+	padding-top:10px;
+}
+.page[status-bar-fill] > .toolbar--material:not(.toolbar-transparent) + .page__background, 
+.page[status-bar-fill] > .toolbar--material:not(.toolbar--cover-content) + .page__background + .page__content {
+	top:66px;
+}
+
+
+.button--material {
+	padding-top:4px;
+}

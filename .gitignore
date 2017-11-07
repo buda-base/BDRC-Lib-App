@@ -1,7 +1,12 @@
 node_modules
 plugins
 platforms
+platform
 www
 .idea
 __ DATA
 __ Play Store Assets
+___OLD
+hooks
+onsenui_css_theming_tools
+

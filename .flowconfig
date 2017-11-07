@@ -1,0 +1,17 @@
+[ignore]
+.*/__ DATA/.*
+.*/__ Play Store Assets/.*
+.*/hooks/.*
+.*/onsenui_css_theming_tools/.*
+.*/platforms/.*
+.*/plugins/.*
+.*/res/.*
+.*/www/.*
+.*/static/.*
+
+[include]
+
+[libs]
+
+[options]
+module.name_mapper='.+\.p?css' -> 'empty/object'
