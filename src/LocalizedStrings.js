@@ -243,7 +243,7 @@ export const cn:LocalizedStringsType = {
 	statusReleased: '发布',
 	statusUnknown: '未知',
 	appName: '佛教数字资源中心图书资料库',	
-	searchHintText: '检索',
+	searchHintText: '用书名、作者或RID编号检索',
 	searchRequirementText: '检索时须输入两个音节',
 	resultsFoundPre:'',
 	resultsFoundPost:'检索结果',
@@ -320,7 +320,7 @@ export const cn:LocalizedStringsType = {
 	chinese:'中文',
 	interfaceLanguage:'界面语言',
 	pleaseSelectInterfaceLanguage:'请选择界面语言',
-	searchHelpText: '首先在上方栏位中输入一个藏文关键词来进行检索，如བཀའ་འགྱུར或输入BDRC RID（编号）如W22084。',
+	searchHelpText: '在上方输入检索关键词：书名，如བཀའ་འགྱུར；作者，如བུ་སྟོན།；文本名，如བཀྲ་ཤིས་ཆེན་པོའི་མདོ།；BDRC RID编号如W22084。除了BDRC RID编号外，输入de关键词必须是 Unicode编码的藏文。',
 	PDF:'PDF',
 	pleaseWaitWhileWeGenerateYourPDF:'请稍候，我们正在生成您的PDF。',
 	yourPDFHasBeenGenerated:'您的PDF已经生成。',
@@ -333,11 +333,11 @@ export const cn:LocalizedStringsType = {
 	OnWeChatInChina:'如您在中国，请使用以下微信公众号与我们联系：',
 	OnFacebookMessenger: '如您住在中国以外地区，请扫描以下的二维码：',
 	OrContactUsEmail:'或者透过电子邮件与我们联系： inquiry@tbrc.org。',
-	snackbarLinkCopiedToClipboard:'དྲ་ཐག་བཤུས་ཡོད།',
-	snackbarFailedToCopyLink:'དྲ་ཐག་བཤུས་ཐུབ་མ་སོང་།',
-	snackbarDownloading:'ཁ་པར་ནང་ཕབ་ལེན་བྱེད་བཞིན་ཡོད།',
-	snackbarDownloadFailed:'ཕབ་ལེན་བྱེད་ཐུབ་མ་སོང་།',
-	invalidSearchText:'[Only Unicode Tibetan or BDRC RIDs will find valid results.]',
+	snackbarLinkCopiedToClipboard:'将链接复制到剪贴板',
+	snackbarFailedToCopyLink:'无法复制链接',
+	snackbarDownloading:'正在下载',
+	snackbarDownloadFailed:'下载失败',
+	invalidSearchText:'只有Unicode编码的藏文或BDRC的RID编号会得有效的检索结果。',
 };
 
 
@@ -346,7 +346,10 @@ export const bo:LocalizedStringsType = {
 	id:'bo',
 	displayNum(num:number){
 		let result = '';
-		if(num  && num == parseInt(num)) {
+
+		if(0===num) return bo_nums[0];
+
+		if(num && num == parseInt(num)) {
 			while(num>0){
 				let v = num%10;
 				result = bo_nums[v]+result;
@@ -368,7 +371,7 @@ export const bo:LocalizedStringsType = {
 	statusReleased: 'སྤེལ་ཟིན་པ།',
 	statusUnknown: 'མི་གསལ།',
 	appName: 'དཔེ་ཀློག་མཉེན་ཆས།',
-	searchHintText: 'དཔེ་ཆའི་མཚན་བྱང་ངམ་མཛད་པ་པོའི་མཚན་འཚོལ།',
+	searchHintText: 'དཔེ་ཆའི་མཚན་བྱང་ངམ་མཛད་པ་པོའི་མཚན་བྲིས་ཏེ་འཚོལ།',
 	searchRequirementText: 'ཉུང་མཐར་ཚེག་བར་གཉིས་འབྲི་དགོས།',
 	resultsFoundPre:'བཙལ་འབྲས་ ',
 	resultsFoundPost:'',
@@ -398,7 +401,7 @@ export const bo:LocalizedStringsType = {
 	viewWarning:'ཀློག་འདོན་བྱེད་པར་དྲ་རྒྱ་བརྟན་པོ་ཡོད་དགོས།',
 	Information:'པར་སྐྲུན་གནས་ཚུལ།',
 	BuddhistDigitalResourceCenter:'ནང་བསྟན་དཔེ་ཚོགས་ལྟེ་གནས།',
-	OK:'ལེགས་སོ།',
+	OK:'འགྲིག་སོང་།',
 	BACK:'ཕྱིར་ལོག',
 	InitializingDatabase:'དཔེ་མཛོད་མ་ལག་སྒྲིག་མུས་ཡིན།',
 	ProcessingPre:'',

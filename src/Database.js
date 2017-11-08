@@ -46,7 +46,7 @@ const indexFiles: Array<IndexFile> = [
 const SORT_ENABLED = false;
 
 /* When this value does not match the stored value, the database is reinitialized. */
-const DATABASE_VERSION = "2017.11.06.02";
+const DATABASE_VERSION = "2017.11.07.01";
 
 class DatabaseResult {
 
@@ -132,7 +132,7 @@ class Database {
 
 	runningInBrowser: boolean = 'browser'===device.platform;
 
-	searchCount:number = 0;
+	// searchCount:number = 0;
 
 	// Android and IOS database
 	database = {};
@@ -147,8 +147,7 @@ class Database {
 	outlineWorkIndex: any = {};
 
 	// data that listeners are interested in
-	searchString: string = '';
-	searchStringIsValid: boolean = false;
+	searchString:string = '';
 	searchResults: Array<DatabaseResult> = [];
 	moreSearchResults: Array<DatabaseResult> = [];
 
@@ -294,17 +293,11 @@ class Database {
 		// SEARCH BY STRING
 		if(!searchByNodeId) {
 			let tsheg_loc = searchString.indexOf(TSHEG);
-			this.searchStringIsValid = (tsheg_loc>0 && searchString.length > tsheg_loc+1);
+			this.appState.searchStringIsValid = (tsheg_loc>0 && searchString.length > tsheg_loc+1);
 
-			//console.log(' tsheg_loc '+tsheg_loc);
+			if(this.appState.searchStringIsValid) {
 
-
-			if(this.searchStringIsValid) {
-
-				// console.log(' searchStringIsValid ');
-
-
-				this.searchCount++;		
+				this.appState.searchCount++;		
 
 				// SEARCH BROWSER ARRAY BY STRING, NO DATABASE
 				if(this.runningInBrowser) {
@@ -332,24 +325,24 @@ class Database {
 						this.searchResults = allSearchResults;
 						this.moreSearchResults = [];
 					}
-					this.searchCount--;	
+					this.appState.searchCount--;	
 					this.update();
 				} 
 				// SEARCH THE DATABASE BY STRING
 				else {
-					//let query = 'SELECT id, title, nodeId, type FROM indices WHERE (title LIKE ?)';
-					let query =  'SELECT id, title, nodeId, type FROM indices WHERE (title MATCH ?)';
-					//console.log('  about to execute the query '+query);
+					let query = 'SELECT id, title, nodeId, type FROM indices WHERE (title LIKE ?)';
+					let queryParams = ['%'+searchString+'%'];
+					if('$'===searchString[0]) {
+						query =  'SELECT id, title, nodeId, type FROM indices WHERE (title MATCH ?)';
+						queryParams = ['"'+searchString+'*"']
+					}
 
 					try {
 						//console.time('Search'+query);
-						//this.database.executeSql(query, ['%'+searchString+'%'], (resultSet) => {
-						this.database.executeSql(query, ['"*'+searchString+'*"'], (resultSet) => {
-							//console.timeEnd('Search'+query);
+						this.database.executeSql(query, queryParams, (resultSet) => {
 
-							//console.log(searchString+' current: '+this.appState.currentQueryString);
 							if(searchString!=this.appState.currentQueryString) {
-								this.searchCount--;	
+								this.appState.searchCount--;	
 								return;
 							}	
 
@@ -371,7 +364,7 @@ class Database {
 							}
 
 							if(searchString!=this.appState.currentQueryString) {
-								this.searchCount--;	
+								this.appState.searchCount--;	
 								return;
 							}	
 
@@ -382,7 +375,7 @@ class Database {
 							}
 
 							if(searchString!=this.appState.currentQueryString) {
-								this.searchCount--;	
+								this.appState.searchCount--;	
 								return;
 							}	
 
@@ -394,12 +387,12 @@ class Database {
 							this.moreSearchResults = moreSearchResults;
 							//console.timeEnd('AssignResults'+query);
 
-							this.searchCount--;	
+							this.appState.searchCount--;	
 							this.update();
 						  }, (error) => {
 						    console.log('SELECT SQL statement ERROR: ' + error.message);
 							  this.searchResults = [];
-							  this.searchCount--;	
+							  this.appState.searchCount--;	
 								this.update();
 						  }
 						);	
@@ -417,12 +410,12 @@ class Database {
 		// SEARCH BY RID
 		else {
 
-			this.searchStringIsValid = searchString.length > 1;
+			this.appState.searchStringIsValid = searchString.length > 1;
 
-			if(this.searchStringIsValid){
+			if(this.appState.searchStringIsValid){
 				let exactMatchRequired = searchString.charAt(searchString.length-1) === ' ';
 
-				this.searchCount++;		
+				this.appState.searchCount++;		
 
 				// NO DATABASE SEARCH BY RID
 				if(this.runningInBrowser) {
@@ -454,7 +447,7 @@ class Database {
 						this.searchResults = allSearchResults;
 						this.moreSearchResults = [];
 					}
-					this.searchCount--;	
+					this.appState.searchCount--;	
 					this.update();
 				
 
@@ -468,7 +461,7 @@ class Database {
 						(resultSet) => {
 
 							if(searchString!=this.appState.currentQueryString) {
-								this.searchCount--;	
+								this.appState.searchCount--;	
 								return;
 							}
 
@@ -488,7 +481,7 @@ class Database {
 							}
 
 							if(searchString!==this.appState.currentQueryString) {
-								this.searchCount--;	
+								this.appState.searchCount--;	
 								return;
 							}	
 
@@ -499,19 +492,19 @@ class Database {
 							}
 
 							if(searchString!=this.appState.currentQueryString) {
-								this.searchCount--;	
+								this.appState.searchCount--;	
 								return;
 							}	
 
 							this.searchResults = searchResults;
 							this.moreSearchResults = moreSearchResults;
-							this.searchCount--;	
+							this.appState.searchCount--;	
 							this.update();
 
 					  }, (error) => {
 					    console.log('SELECT SQL statement ERROR: ' + error.message);
 						  this.searchResults = [];
-						  this.searchCount--;	
+						  this.appState.searchCount--;	
 							this.update();
 					  }
 					);	

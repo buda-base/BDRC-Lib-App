@@ -28,7 +28,10 @@ export default class AppState {
   @observable momOpened:boolean;
   @observable strings:LocalizedStringsType;  
   @observable navigatorAnimation:string; 
+
+  @observable searchStringIsValid:boolean;
   @observable currentQueryString:string;
+  @observable searchCount:number = 0;
 
   @observable snackBarMessage:string;
   @observable closeSnackBarDate:number;
@@ -153,11 +156,11 @@ const AppPage = observer(( props:{route:Route, appState:AppState} ) => {
     let pageKey = '';
 
     if(props.route.page===searchRoute.page) {
-      content = <SearchPage strings={props.appState.strings} db={props.appState.db} navigateTo={(databaseResult:DatabaseResult)=>props.appState.navigateTo(databaseResult)} />;
+      content = <SearchPage strings={props.appState.strings} db={props.appState.db} appState={props.appState} />;
       pageTitle = props.appState.strings.appName;
       pageKey='search';
     } else if(props.route.page===detailRoute.page)  {
-      content = <DetailPage strings={props.appState.strings} appState={props.appState} db={props.appState.db} databaseResult={props.route.data.databaseResult} navigateTo={(databaseResult)=>props.appState.navigateTo(databaseResult)} />;
+      content = <DetailPage strings={props.appState.strings} db={props.appState.db} databaseResult={props.route.data.databaseResult} appState={props.appState}  />; 
       pageTitle = props.route.data.databaseResult.title;  
       // Account for compound nodeId that is brought in with the Outline Index files in order to provide both the 
       // filename of the outline, and the node within the outline that the title represents.

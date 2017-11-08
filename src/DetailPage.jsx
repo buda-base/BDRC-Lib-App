@@ -24,14 +24,23 @@ import type {LocalizedStringsType} from './LocalizedStrings.js';
 
 import styles from './DetailPage.pcss';
 
-class DetailPage extends Component {
+@observer
+export default class DetailPage extends Component {
+
+	props: {
+		db:Database;
+		databaseResult:DatabaseResult;
+		strings:LocalizedStringsType;
+		appState:AppState;
+	};
+
 	state: {
 		work: Work|null,
 		person: Person|null,
 		outline: Outline|null
 	};
 
-	constructor(props:{db:Database, databaseResult:DatabaseResult, strings:LocalizedStringsType, navigateTo:(databaseResult:DatabaseResult)=>void, appState:AppState}) {
+	constructor(props:{db:Database, databaseResult:DatabaseResult, strings:LocalizedStringsType, appState:AppState}) {
 		super(props);
 		window.ga.trackEvent('DetailPage', 'Load', props.databaseResult.nodeId);
 		let filePath = props.databaseResult.type.toLowerCase()+'s/'+props.databaseResult.nodeId+'.json';				
@@ -54,7 +63,7 @@ class DetailPage extends Component {
 	}
 
 	viewRelatedRecord = (databaseResult:DatabaseResult) => {
-		this.props.navigateTo(databaseResult);
+		this.props.appState.navigateTo(databaseResult);
 	}
 
 	render() {
@@ -864,4 +873,3 @@ class RelatedRecordLink extends Component {
 }
 
 
-export default DetailPage;

@@ -5,31 +5,30 @@ import React, {Component} from 'react';
 import Spinner from 'react-spinkit';	// https://github.com/KyleAMathews/react-spinkit
 import Waypoint from 'react-waypoint'; // https://brigade.github.io/react-waypoint/
 import {Page, Button, Input, Icon, ListItem, List} from 'react-onsenui';
+import {observer} from 'mobx-react';
 
 import Database, {DatabaseResult} from './Database.js';
+import AppState from './AppState.jsx';
 import type {Route} from './TypeAliases.js';
 import type {LocalizedStringsType} from './LocalizedStrings.js';
 
 import style from './SearchResults.pcss';
 
+@observer
 class SearchResults extends Component {
 	state: {
 		searchResults: Array<DatabaseResult>,
 		searchString: string,
-		searchStringIsValid: boolean,
-		moreResultsAvailable: boolean,
-		stillSearching:boolean
+		moreResultsAvailable: boolean
 	}
 
-	constructor(props:{ db: Database, navigateTo:(DatabaseResult)=>void, strings:LocalizedStringsType}){
+	constructor(props:{ db:Database, strings:LocalizedStringsType, appState:AppState}){
 		super(props);
 		let moreResultsAvailable = props.db.moreResultsAvailable();
 		this.state = {
 			searchResults: props.db.searchResults,
 			searchString: props.db.searchString,
-			searchStringIsValid: props.db.searchStringIsValid,
-			moreResultsAvailable: moreResultsAvailable,
-			stillSearching:0!=props.db.searchCount
+			moreResultsAvailable: moreResultsAvailable
 		};
 	}
 
@@ -43,13 +42,11 @@ class SearchResults extends Component {
 
 	updateSearchResults = () => {
 		let moreResultsAvailable = this.props.db.moreResultsAvailable();
-		let stillSearching = 0!=this.props.db.searchCount;
-		this.setState({searchResults: this.props.db.searchResults, searchString:this.props.db.searchString, searchStringIsValid: this.props.db.searchStringIsValid, moreResultsAvailable:moreResultsAvailable, stillSearching:stillSearching});
+		this.setState({searchResults: this.props.db.searchResults, searchString:this.props.db.searchString, moreResultsAvailable:moreResultsAvailable});
 	}
 
 	selectSearchResult = (databaseResult:DatabaseResult) => {
-		// this.props.db.setSelectedDatabaseResult(databaseResult);
-		this.props.navigateTo(databaseResult);
+		this.props.appState.navigateTo(databaseResult);
 	}
 	handleWaypointLeave(){
 
@@ -64,13 +61,14 @@ class SearchResults extends Component {
 		}
 	}
 	render(){
-		if(this.state.searchStringIsValid) {
+		if(this.props.appState.searchStringIsValid) {
 			let totalFoundResults = this.props.db.totalFoundResults();
+			let stillSearching = (0!=this.props.appState.searchCount);
 			return (
 				<div className="search-results">
 					<div className="status">{this.props.strings.resultsFoundPre}{this.props.strings.displayNum(totalFoundResults)}{this.props.strings.resultsFoundPost}</div>
 					<ul className="list list--material">
-					<BubbleWrapper show={this.state.stillSearching} />
+					<BubbleWrapper show={stillSearching} />
 					{this.state.searchResults.map((item:DatabaseResult)=><SearchResult key={item.id} item={item} selectItem={this.selectSearchResult} />)}
 					</ul>
 
