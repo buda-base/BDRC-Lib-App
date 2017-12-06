@@ -66,7 +66,7 @@ class SearchResults extends Component {
 			let stillSearching = (0!=this.props.appState.searchCount);
 			return (
 				<div className="search-results">
-					<div className="status">{this.props.strings.resultsFoundPre}{this.props.strings.displayNum(totalFoundResults)}{this.props.strings.resultsFoundPost}</div>
+					{stillSearching?null:<div className="status">{this.props.strings.resultsFoundPre}{this.props.strings.displayNum(totalFoundResults)}{this.props.strings.resultsFoundPost}</div>}
 					<ul className="list list--material">
 					<BubbleWrapper show={stillSearching} />
 					{this.state.searchResults.map((item:DatabaseResult)=><SearchResult key={item.id} item={item} selectItem={this.selectSearchResult} />)}

@@ -4,6 +4,8 @@ export type LocalizedStringsType = {
 	id:string,
 	displayNum: (number)=>string;
 	displayStatus: (string)=>string;
+	accessString: (string)=>string;
+	licenseString: (string)=>string;
 	appName: string;
 	searchHintText: string;
 	searchRequirementText: string;
@@ -43,6 +45,7 @@ export type LocalizedStringsType = {
 	IndexFileLoadingDescriptions:IndexFileLoadingDescriptionsType;
 	Alert:string;
 	NoInternetMessage:string;
+	NoInternetMessagePDF:string;
 	linkToWorkPre:string;
 	linkToWorkPost:string;
 	linkToTextPre:string;
@@ -73,6 +76,55 @@ export type LocalizedStringsType = {
 	snackbarDownloading:string;	
 	snackbarDownloadFailed:string;
 	invalidSearchText:string;
+	type1PDFErrorMessage:string;
+	type2PDFErrorMessage:string;
+	type3PDFErrorMessage:string;
+	ExceptionRaised:string;
+	ProcessTimeout:string;
+	noImages:string;
+	pdfFailed:string;
+	exceptionOccurred:string;
+	unknownError:string;
+	notInArchive:string;
+	noWorkDirectory:string;
+	
+	sampleAccessRight:string;
+	openAccessRight:string;
+	allAccessRight:string;
+	ctcAccessRight:string;
+	openAccessRight:string;
+
+	noAccessRight:string;
+	noneSealedRight:string;
+	noneTemporaryRight:string;
+	noneQualityRight:string;
+	noneTbrcRight:string;
+	noneChinaRight:string;
+
+	fairUseRight:string;
+
+	noneByCopyright:string;
+
+	settings:string;
+	librarySource:string;
+	serverInChina:string;
+	serverInUSA:string;
+	librarySourceTitle:string;
+	librarySourceDescription:string;
+	License:string;
+	Access:string;
+	licenseCopyrighted:string;
+	licensePublicdomain:string;
+	licenseCcby:string;
+	licenseMixed:string;
+	accessOpen:string;
+	accessFairuse:string;
+	accessMixed:string;
+	accessRestrictedinchina:string;
+	accessRestrictedbytbrc:string;
+	accessRestrictedsealed:string;
+	accessRestrictedtemporarily:string;
+	accessRestrictedbyquality:string;
 };
 
 type IndexFileLoadingDescriptionsType = {
@@ -104,7 +156,26 @@ type IndexFileLoadingDescriptionsType = {
 	OutlineWorkTitles:string;
 };
 
+function localizedLicenseString(licenseValue:string, strings:LocalizedStringsType) {
+	if('publicdomain'===licenseValue)return strings.licensePublicdomain;
+	else if('copyrighted'===licenseValue) return strings.licenseCopyrighted;
+	else if('ccby'===licenseValue) return strings.licenseCcby;
+	else if('mixed'===licenseValue) return strings.licenseMixed;
+	else return '';
+}
 
+function localizedAccessString(accessValue:string, strings:LocalizedStringsType) {
+	console.log("accessValue: "+accessValue)
+	if('open'===accessValue)return strings.accessOpen;
+	else if('restrictedbyquality'===accessValue) return strings.accessRestrictedbyquality;
+	else if('restrictedbytbrc'===accessValue) return strings.accessRestrictedbytbrc;
+	else if('restrictedsealed'===accessValue) return strings.accessRestrictedsealed;
+	else if('restrictedtemporarily'===accessValue) return strings.accessRestrictedtemporarily;
+	else if('restrictedinchina'===accessValue) return strings.accessRestrictedinchina;
+	else if('fairuse'===accessValue) return strings.accessFairuse;
+	else if('mixed'===accessValue) return strings.accessMixed;
+	else return '';
+}
 
 export const en:LocalizedStringsType = {
 	id:'en',
@@ -117,6 +188,12 @@ export const en:LocalizedStringsType = {
 		else if(status==='accessioned') return this.statusAccessioned;
 		else if(status==='released') return this.statusReleased;
 		else return this.statusUnknown;
+	},
+	licenseString(licenseValue){
+		return localizedLicenseString(licenseValue, this);
+	},
+	accessString(accessValue){
+		return localizedAccessString(accessValue, this);
 	},
 	statusSeekingOut: 'Seeking Out',
 	statusAcquiring: 'Acquiring',
@@ -189,6 +266,7 @@ export const en:LocalizedStringsType = {
 	},
 	Alert:'Alert',
 	NoInternetMessage:'It appears that you are not connected to the Internet. In order to view scanned pages, you will need an Internet connection - preferably a high speed connection.',
+	NoInternetMessagePDF:'It appears that you are not connected to the Internet. In order to download a PDF, you will need an Internet connection - preferably a high speed connection.',
 	linkToWorkPre:'A link to BDRC work ',
 	linkToWorkPost:'',
 	linkToTextPre:'A link to BDRC text ',
@@ -202,7 +280,7 @@ export const en:LocalizedStringsType = {
 	interfaceLanguage:'Interface Language',
 	pleaseSelectInterfaceLanguage:'Please select interface language.',
 	searchHelpText: 'Search for works by title such as བཀའ་འགྱུར།, authors by name such as བུ་སྟོན།, texts by title such as  བཀྲ་ཤིས་ཆེན་པོའི་མདོ།, or BDRC RIDs such as W22084. Unicode Tibetan must be used, except in the case of an RID.',
-	PDF:'PDF',
+	PDF:'Download',
 	pleaseWaitWhileWeGenerateYourPDF:'Please wait while we generate your PDF.',
 	yourPDFHasBeenGenerated:'Your PDF has been generated.',
 	downloadOrCopyLink:'Download or Copy Link',
@@ -219,6 +297,50 @@ export const en:LocalizedStringsType = {
 	snackbarDownloading:'Downloading in the background',
 	snackbarDownloadFailed:'Download Failed',
 	invalidSearchText:'Only Unicode Tibetan or BDRC RIDs will find valid results.',
+	type1PDFErrorMessage:'We\'re sorry. Something went wrong. Please report this problem to inquiry@tbrc.org',
+	type2PDFErrorMessage:'We\'re sorry, access to this material is restricted.',
+	type3PDFErrorMessage:'We\'re sorry, this material is unavailable due to copyright restrictions.',
+	ExceptionRaised:'Error 101: ',
+	ProcessTimeout:'Error 102: ',
+	noImages:'Error 103: ',
+	pdfFailed:'Error 104: ',
+	exceptionOccurred:'Error 105: ',
+	unknownError:'Error 106: ',
+	notInArchive:'Error 107: ',
+	noWorkDirectory:'Error 108: ',
+	sampleAccessRight:'Error 109: ',
+	openAccessRight:'Error 110: ',
+	allAccessRight:'Error 111: ',
+	ctcAccessRight:'Error 112: ',
+	openAccessRight:'Error 113: ',
+	noAccessRight:'Error 201: ',
+	noneSealedRight:'Error 202: ',
+	noneTemporaryRight:'Error 203: ',
+	noneQualityRight:'Error 204: ',
+	noneTbrcRight:'Error 205: ',
+	noneChinaRight:'Error 206: ',
+	fairUseRight:'Error 207: ',
+	noneByCopyright:'Error 301: ',
+	settings: 'Settings',
+	librarySource: 'Library Source',
+	serverInChina: 'China',
+	serverInUSA: 'USA',
+	librarySourceTitle: 'Please select library source',
+	librarySourceDescription: 'If you are using the BDRC Library app in China, please choose the servers in China so that images and PDFs are visible and downloadable.',
+	License: 'License',
+	Access: 'Access',
+	licenseCopyrighted: 'Copyrighted',
+	licensePublicdomain: 'Public Domain',
+	licenseCcby: 'Creative Commons (CC BY)',
+	licenseMixed: 'Mixed',
+	accessFairuse: 'Fair Use',
+	accessMixed: 'Mixed',
+	accessOpen: 'Open',
+	accessRestrictedinchina: 'Mixed',
+	accessRestrictedbytbrc: 'Restricted by BDRC',
+	accessRestrictedsealed: 'Sealed',
+	accessRestrictedtemporarily: 'Temporarily Restricted',
+	accessRestrictedbyquality: 'Restricted by Quality',
 };
 
 
@@ -236,6 +358,12 @@ export const cn:LocalizedStringsType = {
 		else if(status==='accessioned') return this.statusAccessioned;
 		else if(status==='released') return this.statusReleased;
 		else return this.statusUnknown;
+	},
+	licenseString(licenseValue){
+		return localizedLicenseString(licenseValue, this);
+	},
+	accessString(accessValue){
+		return localizedAccessString(accessValue, this);
 	},
 	statusSeekingOut: '寻找',
 	statusAcquiring: '正在取得该书',
@@ -307,7 +435,8 @@ export const cn:LocalizedStringsType = {
 		OutlineWorkTitles:'数据库初始化完成'	  // means initialization done
 	},
 	Alert:'推送通知',
-	NoInternetMessage:'您没有连接到互联网。为了查看扫描页面，您需要连接到互联网- 最好是高速连接。',
+	NoInternetMessage:'您可能尚未连上互联网。您必须有互联网才能下载PDF-最好有高速的网速。',
+	NoInternetMessagePDF:'',
 	linkToWorkPre:'链接到BDRC藏书',
 	linkToWorkPost:'',
 	linkToTextPre:'链接到BDRC文本',
@@ -320,8 +449,8 @@ export const cn:LocalizedStringsType = {
 	chinese:'中文',
 	interfaceLanguage:'界面语言',
 	pleaseSelectInterfaceLanguage:'请选择界面语言',
-	searchHelpText: '在上方输入检索关键词：书名，如བཀའ་འགྱུར；作者，如བུ་སྟོན།；文本名，如བཀྲ་ཤིས་ཆེན་པོའི་མདོ།；BDRC RID编号如W22084。除了BDRC RID编号外，输入de关键词必须是 Unicode编码的藏文。',
-	PDF:'PDF',
+	searchHelpText: '在上方输入检索关键词：书名，如བཀའ་འགྱུར；作者，如བུ་སྟོན།；文本名，如བཀྲ་ཤིས་ཆེན་པོའི་མདོ།；BDRC RID编号如W22084。除了BDRC RID编号外，输入的关键词必须是 Unicode编码的藏文。',
+	PDF:'下载',
 	pleaseWaitWhileWeGenerateYourPDF:'请稍候，我们正在生成您的PDF。',
 	yourPDFHasBeenGenerated:'您的PDF已经生成。',
 	downloadOrCopyLink:'下载或复制链接',
@@ -338,6 +467,50 @@ export const cn:LocalizedStringsType = {
 	snackbarDownloading:'正在下载',
 	snackbarDownloadFailed:'下载失败',
 	invalidSearchText:'只有Unicode编码的藏文或BDRC的RID编号会得有效的检索结果。',
+	type1PDFErrorMessage:'我们很抱歉，目前系统发生错误。请透过inquiry@tbrc.org将您遇到的这个问题回报给我们。',
+	type2PDFErrorMessage:'我们很抱歉，这个文本只能开放部分浏览。',
+	type3PDFErrorMessage:'我们很抱歉，这个文本因著作版权无法开放下载',
+	ExceptionRaised:'错误101: ',
+	ProcessTimeout:'错误102: ',
+	noImages:'错误103: ',
+	pdfFailed:'错误104: ',
+	exceptionOccurred:'错误105: ',
+	unknownError:'错误106: ',
+	notInArchive:'错误107: ',
+	noWorkDirectory:'错误108: ',
+	sampleAccessRight:'错误109: ',
+	openAccessRight:'错误110: ',
+	allAccessRight:'错误111: ',
+	ctcAccessRight:'错误112: ',
+	openAccessRight:'错误113: ',
+	noAccessRight:'错误201: ',
+	noneSealedRight:'错误202: ',
+	noneTemporaryRight:'错误203: ',
+	noneQualityRight:'错误204: ',
+	noneTbrcRight:'错误205: ',
+	noneChinaRight:'错误206: ',
+	fairUseRight:'错误207: ',
+	noneByCopyright:'错误301: ',
+	settings: '设置',
+	librarySource: '图书馆所在地',
+	serverInChina: '中国',
+	serverInUSA: '美国',
+	librarySourceTitle: '请选择图书馆所在地',
+	librarySourceDescription: '如果您使用的是BDRC在中国的图书资料库程序，请选择在中国的服务器，以确保图档和PDF文件皆能开启及下载。',
+	License: '版权',
+	Access: '使用权限',
+	licenseCopyrighted: '受版权保护',
+	licensePublicdomain: '公共场域',
+	licenseCcby: '知识共享（CC BY）',
+	licenseMixed: '不详',
+	accessOpen:'开放使用',
+	accessFairuse: '合理使用',
+	accessMixed: '不详',
+	accessRestrictedbyquality: '因质量问题限制',
+	accessRestrictedinchina: '不详',
+	accessRestrictedbytbrc: '为BDRC所限制',
+	accessRestrictedsealed: '密封',
+	accessRestrictedtemporarily: '暂时受限',
 };
 
 
@@ -364,6 +537,12 @@ export const bo:LocalizedStringsType = {
 		else if(status==='accessioned') return this.statusAccessioned;
 		else if(status==='released') return this.statusReleased;
 		else return this.statusUnknown;
+	},
+	licenseString(licenseValue){
+		return localizedLicenseString(licenseValue, this);
+	},
+	accessString(accessValue){
+		return localizedAccessString(accessValue, this);
 	},
 	statusSeekingOut: 'འཚོལ་མུས།',
 	statusAcquiring: 'མངགས་ཟིན།',
@@ -439,7 +618,8 @@ export const bo:LocalizedStringsType = {
 		OutlineWorkTitles:'དཔེ་མཛོད་བསྒྲིགས་ཟིན།'	       	// NOTE: This means "initialization done" and because it is the last file processed, everything works out just fine
 	},
 	Alert:'གསལ་བརྡ།',
-	NoInternetMessage:'སྐུ་ཉིད་དྲ་བར་འཐུད་ཐུབ་མེད་པར་སྣང་། དཔེ་ཀློག་གནང་བའི་ཆེད་དུ་དྲ་རྒྱ་ལེགས་པོ་ཡོད་དགོས།',
+	NoInternetMessage:'ཕལ་ཆེར་དྲ་རྒྱར་མཐུད་མེད་པ་འདྲ། PDFཕབ་ལེན་བྱེད་པར་དྲ་རྒྱ་ཤུགས་ཆེ་ཙམ་ཡོད་དགོས།',
+	NoInternetMessagePDF:'',
 	linkToWorkPre:'བརྩམས་ཆོས་ཨང་ ',
 	linkToWorkPost:' གི་དྲ་ཐག',
 	linkToTextPre:'ཆོས་ཚན་ཨང་རྟགས་ ',
@@ -453,7 +633,7 @@ export const bo:LocalizedStringsType = {
 	interfaceLanguage:'སྐད་ཡིག་འདེམ་གསེས།',
 	pleaseSelectInterfaceLanguage:'སྐད་ཡིག་ཅིག་འདེམ་རོགས།',
 	searchHelpText: '',
-	PDF:'PDF',
+	PDF:'ཕབ་ལེན།',
 	pleaseWaitWhileWeGenerateYourPDF:'ཁྱེད་ཀྱི་ PDF བཟོ་མུས་ཡིན།',	
 	yourPDFHasBeenGenerated:'ཁྱེད་ཀྱི་PDF བཟོས་ཟིན།',
 	downloadOrCopyLink:'ཕབ་ལེེན་དང་ཕབ་ལེན་དྲ་ཐག',
@@ -470,5 +650,49 @@ export const bo:LocalizedStringsType = {
 	snackbarDownloading:'ཁ་པར་ནང་ཕབ་ལེན་བྱེད་བཞིན་ཡོད།',
 	snackbarDownloadFailed:'ཕབ་ལེན་བྱེད་ཐུབ་མ་སོང་།',
 	invalidSearchText:'བོད་ཡིག་གམ་BDRCཨང་རྟགས་འབྲི་དགོས།',
+	type1PDFErrorMessage:'དཀའ་ངལ་ཞིག་འཕྲད་སོང་། inquiry@tbrc.org ཐོག་གནད་དོན་དེའི་གསལ་ཁ་སྐྱོན་དང་ང་ཚོས་རམ་འདེགས་བྱ་ངེས།',
+	type2PDFErrorMessage:'དཔེ་ཆ་བཀག་རྒྱ་མ།',
+	type3PDFErrorMessage:'བདག་དབང་ཅན་གྱི་དཔེ་ཆ།',
+	ExceptionRaised:'གནད་དོན་ཨང་༡༠༡ ',
+	ProcessTimeout:'གནད་དོན་ཨང་༡༠༢ ',
+	noImages:'གནད་དོན་ཨང་༡༠༣ ',
+	pdfFailed:'གནད་དོན་ཨང་༡༠༤ ',
+	exceptionOccurred:'གནད་དོན་ཨང་༡༠༥ ',
+	unknownError:'གནད་དོན་ཨང་༡༠༦ ',
+	notInArchive:'གནད་དོན་ཨང་༡༠༧ ',
+	noWorkDirectory:'གནད་དོན་ཨང་༡༠༨ ',
+	sampleAccessRight:'གནད་དོན་ཨང་༡༠༩ ',
+	openAccessRight:'གནད་དོན་ཨང་༡༡༠ ',
+	allAccessRight:'གནད་དོན་ཨང་༡༡༡ ',
+	ctcAccessRight:'གནད་དོན་ཨང་༡༡༢ ',
+	openAccessRight:'གནད་དོན་ཨང་༡༡༣ ',
+	noAccessRight:'གནད་དོན་ཨང་༢༠༡ ',
+	noneSealedRight:'གནད་དོན་ཨང་༢༠༢ ',
+	noneTemporaryRight:'གནད་དོན་ཨང་༢༠༣ ',
+	noneQualityRight:'གནད་དོན་ཨང་༢༠༤ ',
+	noneTbrcRight:'གནད་དོན་ཨང་༢༠༥ ',
+	noneChinaRight:'གནད་དོན་ཨང་༢༠༦ ',
+	fairUseRight:'གནད་དོན་ཨང་༢༠༧ ',
+	noneByCopyright:'གནད་དོན་ཨང་༣༠༡ ',
+	settings: 'སྒྲིག་འགོད།',
+	librarySource: 'ཡིག་ཆ་ལེན་གནས།',
+	serverInChina: 'ཨ་རི།',
+	serverInUSA: 'རྒྱ་ནག',
+	librarySourceTitle: 'ཡིིག་ཆ་ལེན་གནས་གཅིག་འདེམ་རོགས།',
+	librarySourceDescription: 'རྒྱ་ནག་ནང་ཁུལ་དུ་ PDF ཕབ་ལེན་བྱེད་མི་ཐུབ་པའི་དཀའ་ངལ་སེལ་ཕྱིར་ཡིག་ཆ་ལེན་གནས་ལས་རྒྱ་ནག་ཅེས་འདེམ་དགོས།',
+	License: 'བདག་དབང་།',
+	Access: 'བཀག་རྒྱ།',
+	licenseCopyrighted: 'བདག་དབང་ཅན།',
+	licensePublicdomain: 'སྤྱི་སྤྱོད་ཁྱབ་ཁོངས།',
+	licenseCcby: 'གསལ་ཁ་མེད།',
+	licenseMixed: 'གསལ་ཁ་མེད།',
+	accessOpen:'བཀག་རྒྱ་མེད།',
+	accessFairuse: 'ཚུལ་མཐུན་བཀོལ་སྤྱོད།',
+	accessMixed: 'གསལ་ཁ་མེད།',
+	accessRestrictedinchina: 'གསལ་ཁ་མེད།',
+	accessRestrictedbytbrc: 'ངེད་དཔེ་མཛོད་ཀྱི་བཀག་རྒྱ།',
+	accessRestrictedsealed: 'གསང་རྒྱ་ཅན།',
+	accessRestrictedtemporarily: 'གནས་སྐབས་ཀྱི་བཀག་རྒྱ།',
+	accessRestrictedbyquality: 'སྤུས་ཚད་ཞན་པའི་བཀག་རྒྱ།',
 };
 

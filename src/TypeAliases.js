@@ -28,6 +28,8 @@ export type WorkJSON = {
 	publisherDate: string;
 	publisherLocation: string;
 	printType: string;
+	access:string;
+	license:string;
 };
 
 export type VolumeJSON = {
@@ -83,10 +85,11 @@ export type Route = {
 
 
 export type ImageGroup = {
-	imageGroupId:string,
-	total:number,
-	start:number,
-	end:number
+	imageGroupId:string;
+	total:number;
+	start:number;
+	end:number;
+	volumeNum?:number;
 };
 
 

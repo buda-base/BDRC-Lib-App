@@ -10,9 +10,10 @@ import {observer} from 'mobx-react';
 import {observable} from 'mobx';
 
 import Database from './Database.js';
-import AppState, {searchRoute} from './AppState.jsx';
+import AppState, {searchRoute, libChina, libUSA} from './AppState.jsx';
 import type {LocalizedStringsType} from './LocalizedStrings.js';
 import {bo, en, cn} from './LocalizedStrings.js';
+
 
 import styles from './Top.pcss';
 
@@ -25,10 +26,13 @@ export default class Top extends Component {
 
       if(id===en.id) {
         strings = en;
+        this.props.appState.setLibraryServer(libUSA);
       } else if(id===cn.id) {
         strings = cn;
+        this.props.appState.setLibraryServer(libChina);
       } else {       
         strings = bo;
+        this.props.appState.setLibraryServer(libChina);
       }
 
       if(null!=strings) {

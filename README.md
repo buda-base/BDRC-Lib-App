@@ -54,6 +54,31 @@ NOTE: You may need to set JAVA_HOME if you are running a JVM other than 1.8, lik
 npm install -g ios-deploy
 
 
+## Test Searches, easy to type on Tib keyboard:
+
+བཀྲ་ཤིས་
+
+བཀའ་མ
+
+ཞེས་བྱ
+
+using "$" as a prefix will access FTS.
+
+
+## IMPORTANT DEPLOYMENT NOTE
+
+in config.xml the app id is unfortunately different for iOS and Android.
+
+_Android:_
+
+```id="org.tbrc.bdrclibapp" ```
+
+_iOS:_
+
+```id="io.bdrc.bdrclibapp" ```
+
+
+You must change these before building production releases.
 
 
 

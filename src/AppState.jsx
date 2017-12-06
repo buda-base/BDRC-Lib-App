@@ -10,6 +10,7 @@ import SearchPage from './SearchPage.jsx';
 import DetailPage from './DetailPage.jsx';
 import AboutPage from './AboutPage.jsx';
 import HelpPage from './HelpPage.jsx';
+import SettingsPage from './SettingsPage.jsx';
 import Database, {DatabaseResult} from './Database.js';
 import type {Route} from './TypeAliases.js';
 import {bo, en, cn} from './LocalizedStrings.js';
@@ -21,12 +22,33 @@ export const searchRoute: Route = { page: 'Search', hasBackButton: false, isModa
 export const detailRoute: Route = { page: 'Detail', hasBackButton: true, isModal:false, data:{} };
 export const aboutRoute: Route = { page: 'About', hasBackButton: false, isModal:true, data:{} };
 export const helpRoute: Route = { page: 'Help', hasBackButton: false, isModal:true, data:{} };
+export const settingsRoute: Route = { page: 'Settings', hasBackButton: false, isModal:true, data:{} };
+
+export type LibraryServer = {
+  id:string;
+  name:string;
+  url:string;
+}
+
+export const libUSA:LibraryServer = {    
+  id:'USA',
+  name:'USA',
+  url:'https://www.tbrc.org'
+}
+
+export const libChina:LibraryServer = {    
+  id:'China',
+  name:'China',
+  url:'http://www.bdrc.info'
+}
 
 export default class AppState {
 
+  @observable libraryServer:LibraryServer;  
+  @observable strings:LocalizedStringsType; 
+
   @observable infoPanelIsOpen:boolean;
   @observable momOpened:boolean;
-  @observable strings:LocalizedStringsType;  
   @observable navigatorAnimation:string; 
 
   @observable searchStringIsValid:boolean;
@@ -63,6 +85,12 @@ export default class AppState {
   }
 
   @action
+  setLibraryServer = (libraryServer:LibraryServer) => {
+    localStorage.setItem('libraryServerId', libraryServer.id);
+    this.libraryServer = libraryServer;
+  }
+
+  @action
   setInterfaceLocalizationStrings = (strings:LocalizedStringsType) => {
 
     localStorage.setItem('language', strings.id);
@@ -71,7 +99,7 @@ export default class AppState {
     this.momOpened = false;
     this.infoPanelIsOpen = false;
 
-    if(!this.db){    
+    if(!this.db){
       this.db = new Database(this.strings, ()=>{ }, this);
     }
   }
@@ -122,6 +150,15 @@ export default class AppState {
     this.pushPage(route, navigator);    
   }
 
+  constructor() {
+    let libraryServerId = localStorage.getItem('libraryServerId');
+    if(libraryServerId && libUSA.id == libraryServerId) {
+      this.setLibraryServer(libUSA);
+    } else {
+      this.setLibraryServer(libChina);
+    }
+  }
+
 }
 
 
@@ -169,12 +206,16 @@ const AppPage = observer(( props:{route:Route, appState:AppState} ) => {
       pageKey = props.route.data.key; 
     } else if(props.route.page===aboutRoute.page) {
       pageTitle = props.appState.strings.about;
-      content = <AboutPage strings={props.appState.strings}  />;
+      content = <AboutPage appState={props.appState} />;
       pageKey = 'about'; 
     } else if(props.route.page===helpRoute.page) {
       pageTitle = props.appState.strings.NeedHelpAskALibrarian;
       content = <HelpPage strings={props.appState.strings}  />;
       pageKey = 'help'; 
+    } else if(props.route.page===settingsRoute.page) {
+      pageTitle = props.appState.strings.settings;
+      content = <SettingsPage appState={props.appState} />; 
+      pageKey = 'settings'; 
     }
 
     return (

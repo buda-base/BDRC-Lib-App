@@ -13,6 +13,8 @@ class Work {
 	publisherDate: string;
 	publisherLocation: string;
 	printType: string;
+	access: string;
+	license: string;
 
 	constructor(json: WorkJSON, nodeId:string){
 
@@ -26,6 +28,8 @@ class Work {
 		this.publisherDate = json.publisherDate;
 		this.publisherLocation = json.publisherLocation;
 		this.printType = json.printType;
+		this.access = json.access;
+		this.license = json.license;
 
 		if(json.volumeMap) {
 			this.volumeMap = [];

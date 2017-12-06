@@ -230,16 +230,24 @@ class Database {
 	searchForMatchingNodes(nodeIds:Array<string>, callback:(Array<DatabaseResult>)=>void) {
 		
 		if(this.runningInBrowser) {				
+
 			let results = [];
 			let nodeIdsArray = nodeIds.slice(0); // duplicate the array
-			for(let i=0,ii=this.jsondata.length;i<ii;i++) {	
-				let idx = nodeIdsArray.indexOf(this.jsondata[i].nodeId);
-				if(-1!=idx) {
-					results.push(this.jsondata[i]);
-					nodeIdsArray.splice(idx, 1);
-				}
-				if(0==nodeIdsArray.length) break;
-			}	
+
+			for(let n=0;n<nodeIdsArray.length;n++) {
+				let nodeId = nodeIdsArray[n];
+				for(let i=0,ii=this.jsondata.length;i<ii;i++) {	
+					if(nodeId===this.jsondata[i].nodeId) {
+						results.push(this.jsondata[i]);						
+					}
+					// let idx = nodeIdsArray.indexOf(this.jsondata[i].nodeId);				
+					// if(-1!=idx) {
+					// 	results.push(this.jsondata[i]);
+					// 	nodeIdsArray.splice(idx, 1);
+					// }
+					// if(0==nodeIdsArray.length) break;
+				}	
+			}
 
 			callback(results);			
 		} else {

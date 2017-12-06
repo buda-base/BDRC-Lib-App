@@ -7,12 +7,6 @@ export default class HelpPage extends Component {
   props:{
     strings:LocalizedStringsType;
   };
-
-  // constructor(props:{db:Database, databaseResult:DatabaseResult, strings:LocalizedStringsType, navigateTo:(databaseResult:DatabaseResult)=>void}) {
-  //   super(props);
-  //   //window.ga.trackEvent('AboutPage', 'Load', props.databaseResult.nodeId);
-  // }
-
   render() {
     return (
       <div>
