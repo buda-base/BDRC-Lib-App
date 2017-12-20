@@ -46,7 +46,7 @@ const indexFiles: Array<IndexFile> = [
 const SORT_ENABLED = false;
 
 /* When this value does not match the stored value, the database is reinitialized. */
-const DATABASE_VERSION = "2017.11.07.01";
+const DATABASE_VERSION = "2017.12.11.01";
 
 class DatabaseResult {
 
@@ -252,9 +252,16 @@ class Database {
 			callback(results);			
 		} else {
 			let orIds = '';
+
+			// for(let i=0;i<nodeIds.length;i++) {
+			// 	orIds += i>0?" OR nodeId = ?":" nodeId = ?";
+			// }
+			
+
 			for(let i=0;i<nodeIds.length;i++) {
-				orIds += i>0?" OR nodeId = ?":" nodeId = ?";
+				orIds += i>0?" OR nodeId MATCH ?":" nodeId MATCH ?";
 			}
+
 			let query = 'SELECT id, title, nodeId, type FROM indices WHERE '+orIds;
 			this.database.executeSql(query, nodeIds, 
 				(resultSet) => {

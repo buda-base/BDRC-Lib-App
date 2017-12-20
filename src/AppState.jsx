@@ -12,6 +12,7 @@ import AboutPage from './AboutPage.jsx';
 import HelpPage from './HelpPage.jsx';
 import SettingsPage from './SettingsPage.jsx';
 import Database, {DatabaseResult} from './Database.js';
+import { Work, Outline, Person } from './Records.js';
 import type {Route} from './TypeAliases.js';
 import {bo, en, cn} from './LocalizedStrings.js';
 import type {LocalizedStringsType} from './LocalizedStrings.js';
@@ -84,6 +85,12 @@ export default class AppState {
     }
   }
 
+  @action 
+  setLibraryServerFromString = (libraryServerId:string) => {
+    if(libraryServerId===libUSA.id) this.setLibraryServer(libUSA);
+    else if(libraryServerId===libChina.id) this.setLibraryServer(libChina);
+  }
+
   @action
   setLibraryServer = (libraryServer:LibraryServer) => {
     localStorage.setItem('libraryServerId', libraryServer.id);
@@ -146,16 +153,38 @@ export default class AppState {
   
   @action
   navigateTo = (databaseResult:DatabaseResult, navigator:Navigator) => {
-    let route:Route = { page: 'Detail', hasBackButton: true, isModal:false, data:{databaseResult:databaseResult}};
-    this.pushPage(route, navigator);    
+
+    let work:Work|null = null;
+    let person:Person|null = null;
+    let outline:Outline|null = null;
+
+    // Load the file before the page transition to prevent jerky animation
+    databaseResult.load((record:any) => {
+      if(databaseResult.isWork){
+        work = record;
+      } else if(databaseResult.isPerson){
+        person = record;
+      } else if(databaseResult.isOutline){
+        outline = record;
+      }      
+
+      // NOTE: If performance is jerky do to loading related records, either through a database search, or through a file load, 
+      // that work should be done here and passed through the "data" object
+
+      let route:Route = { page: 'Detail', hasBackButton: true, isModal:false, data:{ databaseResult:databaseResult, files:{ work:work, person:person, outline:outline }, relatedDatabaseResults:{}}};
+      this.pushPage(route, navigator);    
+    });
+
   }
 
   constructor() {
     let libraryServerId = localStorage.getItem('libraryServerId');
-    if(libraryServerId && libUSA.id == libraryServerId) {
-      this.setLibraryServer(libUSA);
-    } else {
-      this.setLibraryServer(libChina);
+    if(libraryServerId) {
+      if(libUSA.id == libraryServerId) {
+        this.setLibraryServer(libUSA);
+      } else if(libChina.id == libraryServerId) {
+        this.setLibraryServer(libChina);
+      }
     }
   }
 
@@ -197,7 +226,7 @@ const AppPage = observer(( props:{route:Route, appState:AppState} ) => {
       pageTitle = props.appState.strings.appName;
       pageKey='search';
     } else if(props.route.page===detailRoute.page)  {
-      content = <DetailPage strings={props.appState.strings} db={props.appState.db} databaseResult={props.route.data.databaseResult} appState={props.appState}  />; 
+      content = <DetailPage strings={props.appState.strings} db={props.appState.db} databaseResult={props.route.data.databaseResult} files={props.route.data.files} appState={props.appState}  />; 
       pageTitle = props.route.data.databaseResult.title;  
       // Account for compound nodeId that is brought in with the Outline Index files in order to provide both the 
       // filename of the outline, and the node within the outline that the title represents.

@@ -5,7 +5,7 @@ import type {WorkJSON, PersonJSON, OutlineJSON, VolumeJSON} from './TypeAliases.
 class Work {
 	nodeId: string;
 	title: Array<string>;
-	hasCreator: Array<string>; // references Person records
+	hasCreator: Array<any>; // references Person records
 	status: ('seekingOut'|'acquiring'|'accessioned'|'released');
 	archiveInfo_vols: string;
 	volumeMap: Array<Volume>

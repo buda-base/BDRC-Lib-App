@@ -45,6 +45,10 @@ class app {
       let language = localStorage.getItem('language');
       if(language && language.length>0) this.appState.setInterfaceLocalization(language);
 
+      // initialize server location
+      let location = localStorage.getItem('libraryServerId');
+      if(location && location.length>0) this.appState.setLibraryServerFromString(location);
+
       // https://github.com/danwilson/google-analytics-plugin
       //turn on google tracking
       window.ga.startTrackerWithId('UA-100374893-1', 30)

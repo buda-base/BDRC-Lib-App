@@ -14,37 +14,14 @@ import AppState, {searchRoute, libChina, libUSA} from './AppState.jsx';
 import type {LocalizedStringsType} from './LocalizedStrings.js';
 import {bo, en, cn} from './LocalizedStrings.js';
 
-
 import styles from './Top.pcss';
 
 @observer
 export default class Top extends Component {
 
-  onLocalizedStringsSelection = (id:?string) => {
-    if(id) {
-      let strings:LocalizedStringsType|null = null;
-
-      if(id===en.id) {
-        strings = en;
-        this.props.appState.setLibraryServer(libUSA);
-      } else if(id===cn.id) {
-        strings = cn;
-        this.props.appState.setLibraryServer(libChina);
-      } else {       
-        strings = bo;
-        this.props.appState.setLibraryServer(libChina);
-      }
-
-      if(null!=strings) {
-        this.props.appState.setInterfaceLocalizationStrings(strings);
-      }
-    }
-  }
-
   render() {
-    if(this.props.appState.strings) {
-      return <Main db={this.props.appState.db} appState={this.props.appState} />;
-    } else {
+
+    if(!this.props.appState.strings){
       return (
         <Page modifier="material">
           <div className="selectLanguage">
@@ -55,16 +32,40 @@ export default class Top extends Component {
               <h2>{en.pleaseSelectInterfaceLanguage}</h2>
               <h2>{cn.pleaseSelectInterfaceLanguage}</h2>
 
-              <Button style={{margin: '6px'}} modifier='material' onClick={()=>{this.onLocalizedStringsSelection(bo.id);}}>{bo.tibetan}</Button>
-              <Button style={{margin: '6px'}} modifier='material' onClick={()=>{this.onLocalizedStringsSelection(en.id);}}>{en.english}</Button>
-              <Button style={{margin: '6px'}} modifier='material' onClick={()=>{this.onLocalizedStringsSelection(cn.id);}}>{cn.chinese}</Button>
+              <Button style={{margin: '6px'}} modifier='material' onClick={()=>{this.props.appState.setInterfaceLocalizationStrings(bo);}}>{bo.tibetan}</Button>
+              <Button style={{margin: '6px'}} modifier='material' onClick={()=>{this.props.appState.setInterfaceLocalizationStrings(en);}}>{en.english}</Button>
+              <Button style={{margin: '6px'}} modifier='material' onClick={()=>{this.props.appState.setInterfaceLocalizationStrings(cn);}}>{cn.chinese}</Button>
             </div>
           </div>
         </Page>
       );
+    } else if(!this.props.appState.libraryServer) {
+      return (
+        <Page modifier="material">
+          <div className="selectLanguage">
+            <div>
+              <div><img src="img/bdrc_logo.png" style={{width:'100px'}}/></div>
+
+              <h2>{this.props.appState.strings.pleaseSelectLocation}</h2>
+              <p>{this.props.appState.strings.pleaseSelectLocationDescription}</p>
+
+              <Button style={{margin: '6px'}} modifier='material' onClick={()=>{this.props.appState.setLibraryServer(libChina);}}>{this.props.appState.strings.serverInChina}</Button>
+              <Button style={{margin: '6px'}} modifier='material' onClick={()=>{this.props.appState.setLibraryServer(libUSA);}}>{this.props.appState.strings.serverInUSA}</Button>
+
+            </div>
+          </div>
+        </Page>
+      );
+    } else {
+      return <Main db={this.props.appState.db} appState={this.props.appState} />;            
     }
+
   }
+
 }
+
+
+
 
 
 @observer

@@ -32,45 +32,23 @@ export default class DetailPage extends Component {
 		databaseResult:DatabaseResult;
 		strings:LocalizedStringsType;
 		appState:AppState;
+		files:any;
 	};
 
-	state: {
-		work: Work|null,
-		person: Person|null,
-		outline: Outline|null
-	};
-
-	constructor(props:{db:Database, databaseResult:DatabaseResult, strings:LocalizedStringsType, appState:AppState}) {
+	constructor(props:{db:Database, databaseResult:DatabaseResult, strings:LocalizedStringsType, appState:AppState, files:any}) {
 		super(props);
 		window.ga.trackEvent('DetailPage', 'Load', props.databaseResult.nodeId);
-		let filePath = props.databaseResult.type.toLowerCase()+'s/'+props.databaseResult.nodeId+'.json';				
-		this.state = {
-			work:null,
-			person:null,
-			outline:null
-		};
-		props.databaseResult.load(this.receiveObject);
 	}
-
-	receiveObject = (record:any) => {
-		if(this.props.databaseResult.isWork){
-			this.setState({work:record});
-		} else if(this.props.databaseResult.isPerson){
-			this.setState({person:record});
-		} else if(this.props.databaseResult.isOutline){
-			this.setState({outline:record});
-		}
-	}
-
+	
 	viewRelatedRecord = (databaseResult:DatabaseResult) => {
 		this.props.appState.navigateTo(databaseResult);
 	}
 
 	render() {
 		if(this.props.databaseResult) {
-			if(this.state.person) return <PersonDetail db={this.props.db} strings={this.props.strings} person={this.state.person} viewRelatedRecord={this.viewRelatedRecord}  appState={this.props.appState} />;
-			else if(this.state.work) return <WorkDetail db={this.props.db} strings={this.props.strings} work={this.state.work} viewRelatedRecord={this.viewRelatedRecord} appState={this.props.appState} />;
-			else if(this.state.outline) return <OutlineDetail db={this.props.db} strings={this.props.strings} outline={this.state.outline} viewRelatedRecord={this.viewRelatedRecord} appState={this.props.appState} />;
+			if(this.props.files.person) return <PersonDetail db={this.props.db} strings={this.props.strings} person={this.props.files.person} viewRelatedRecord={this.viewRelatedRecord}  appState={this.props.appState} />;
+			else if(this.props.files.work) return <WorkDetail db={this.props.db} strings={this.props.strings} work={this.props.files.work} viewRelatedRecord={this.viewRelatedRecord} appState={this.props.appState} />;
+			else if(this.props.files.outline) return <OutlineDetail db={this.props.db} strings={this.props.strings} outline={this.props.files.outline} viewRelatedRecord={this.viewRelatedRecord} appState={this.props.appState} />;
 			else return null;
 		} else {
 			return null;
@@ -145,7 +123,7 @@ class WorkDetail extends Component {
 		strings:LocalizedStringsType,
 		db:Database, 
 		viewRelatedRecord:(record:DatabaseResult)=>void,
-		appState:AppState
+		appState:AppState,
 	};
 
 	state: {
@@ -153,7 +131,7 @@ class WorkDetail extends Component {
 	};
 
 
-	constructor(props:{db:Database, work:Work, strings:LocalizedStringsType, viewRelatedRecord:(record:DatabaseResult)=>void, appState:AppState}) {
+	constructor(props:{db:Database, work:Work, strings:LocalizedStringsType, viewRelatedRecord:(record:DatabaseResult)=>void, appState:AppState }) {
 		super(props);		
 		this.state = {
 			authors: []
@@ -162,11 +140,19 @@ class WorkDetail extends Component {
 
 	componentWillMount(){
 		if(this.props.work && this.props.work.hasCreator && this.props.work.hasCreator.length>0){ 
-			this.props.db.searchForMatchingNodes(this.props.work.hasCreator, this.receiveAuthors);
-		}	
+			let creatorKeys = [];
+			// Only want a single author. Push the first key of the first hasCreator 
+			// object, which is in the form { PersonRID:NameOfPerson }
+			creatorKeys.push(Object.keys(this.props.work.hasCreator[0])[0]);
+			this.props.db.searchForMatchingNodes(creatorKeys, this.receiveAuthors);
+		}
 	}
 
 	receiveAuthors = (authors:Array<DatabaseResult>) => {
+		if(authors && authors.length>0) {
+			let title = this.props.work.hasCreator[0][Object.keys( this.props.work.hasCreator[0] )[0]];
+			authors[0].title = title;
+		}
 		this.setState({authors:authors});
 	}
 
@@ -191,7 +177,11 @@ class WorkDetail extends Component {
 
 						<StringSection title={this.props.strings.Title} vals={this.props.work.title} />
 
-						<RelatedRecordSection title={this.props.strings.Creator} relatedRecords={this.state.authors} viewRelatedRecord={this.props.viewRelatedRecord} showOnlyFirstRecord={true} />
+						<RelatedRecordSection title={this.props.strings.Creator} 
+							relatedRecords={this.state.authors} 
+							viewRelatedRecord={this.props.viewRelatedRecord} 
+							showOnlyFirstRecord={true} 
+						/>
 
 						<StringSection title={this.props.strings.WorkRID} val={this.props.work.nodeId} /> 
 
@@ -311,8 +301,8 @@ class VolumeCard extends Component {
 
 		    		<div className="action-bar">
 		    			<div className="actions"> 
-		    				<ViewButton strings={this.props.strings} volume={this.props.volume} handleViewButtonClicked={this.onViewButtonClicked}/>	  		
 			    			<PDFButton strings={this.props.strings} handlePDFButtonClicked={this.onPDFButtonClicked} />	
+		    				<ViewButton strings={this.props.strings} volume={this.props.volume} handleViewButtonClicked={this.onViewButtonClicked}/>	  		
 			  	  	</div>
 			    	</div>
 					
@@ -469,8 +459,8 @@ class OutlineDetail extends Component {
 		    		<div className="action-bar">
 		    			<div className="actions"> 	
 		    				{work ? <ShareButton strings={this.props.strings} subject={shareSubject} url={shareLink} nodeId={this.props.outline.nodeId} /> : null } 	  			
-		    				{work ? <ViewButton strings={this.props.strings} handleViewButtonClicked={this.onViewButtonClicked}/> : null }
 		    				{work && this.state.imageGroups && 1===this.state.imageGroups.length ? <PDFButtonWrapper strings={this.props.strings} appState={this.props.appState} imageGroup={this.state.imageGroups[0]} workId={work?work.nodeId:''} /> : null }
+		    				{work ? <ViewButton strings={this.props.strings} handleViewButtonClicked={this.onViewButtonClicked}/> : null }
 		  	  		</div>
 			    	</div>	
 			    	{work ? (this.state.pechaViewerOpen?<PechaViewer appState={this.props.appState} workId={work.nodeId} imageGroups={this.state.imageGroups} onGalleryClose={this.onGalleryClose} startPhotoIndex={0} />:null):null}

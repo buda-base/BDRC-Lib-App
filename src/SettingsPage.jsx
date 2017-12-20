@@ -1,7 +1,6 @@
 
 // @flow
 import React, {Component} from 'react';
-import {observable} from 'mobx';
 import {observer} from 'mobx-react';
 
 import {List, ListItem, Radio, ListHeader} from 'react-onsenui';
@@ -30,11 +29,10 @@ export default class SettingsPage extends Component {
         </List>
 
         <List modifier="material">
-          <ListHeader modifier="material">{this.props.appState.strings.librarySource}</ListHeader>
-          <ListItem modifier="material"><label className='left'><Radio modifier="material" inputId="usa" onChange={()=>{this.props.appState.setLibraryServer(libUSA);}} checked={this.props.appState.libraryServer.id===libUSA.id} /></label><label htmlFor="usa" className='center'>{strings.serverInUSA}</label></ListItem>
+          <ListHeader modifier="material">{this.props.appState.strings.location}</ListHeader>
           <ListItem modifier="material"><label className='left'><Radio modifier="material" inputId="china" onChange={()=>{this.props.appState.setLibraryServer(libChina);}} checked={this.props.appState.libraryServer.id===libChina.id} /></label><label htmlFor="china" className='center'>{strings.serverInChina}</label></ListItem>
+          <ListItem modifier="material"><label className='left'><Radio modifier="material" inputId="usa" onChange={()=>{this.props.appState.setLibraryServer(libUSA);}} checked={this.props.appState.libraryServer.id===libUSA.id} /></label><label htmlFor="usa" className='center'>{strings.serverInUSA}</label></ListItem>
         </List>
-
 
       </div>
     );
