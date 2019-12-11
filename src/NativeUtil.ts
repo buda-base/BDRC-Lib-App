@@ -1,12 +1,12 @@
 
-import {TextDecoder} from 'text-encoding';
+// import {TextDecoder} from 'text-encoding';
 
 const NativeUtil = {
 
-  loadJSONFile: (filename, callback) => {
+  loadJSONFile: (filename:string, callback:(json:any)=>void) => {
     let filePath = cordova.file.applicationDirectory+'www/data/'+filename;
     window.resolveLocalFileSystemURL(filePath, (fileEntry) => {
-      NativeUtil.readFile(fileEntry, (fileContents) => {
+      NativeUtil.readFile(fileEntry, (fileContents:any) => {
         if(fileContents) {
           try {
             let json = JSON.parse(fileContents);
@@ -24,17 +24,17 @@ const NativeUtil = {
     });   
   },
   
-   readFile: function(fileEntry, callback) {
-    fileEntry.file(function (file) 
+   readFile: function(fileEntry:any, callback:(text:string|null)=>void) {
+    fileEntry.file(function (file:any) 
       {
         var reader = new FileReader();
         reader.onloadend = function() {
-          let decoded = new TextDecoder('utf-8').decode(this.result);
+          const decoded = new TextDecoder('utf-8').decode(reader.result as ArrayBuffer);
           callback(decoded);
         };
         reader.readAsArrayBuffer(file);
       }, 
-      (e) => { console.log(e); callback(null); }
+      (e:any) => { console.log(e); callback(null); }
     );
   }
 

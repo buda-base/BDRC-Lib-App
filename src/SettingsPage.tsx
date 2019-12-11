@@ -1,12 +1,11 @@
 
-// @flow
 import React, {Component} from 'react';
 import {observer} from 'mobx-react';
 
 import {List, ListItem, Radio, ListHeader} from 'react-onsenui';
-import type {LocalizedStringsType} from './LocalizedStrings.js';
-import AppState, {libUSA, libChina} from './AppState.jsx';
-import {en, bo, cn} from './LocalizedStrings.js';
+import {LocalizedStringsType} from './LocalizedStrings';
+import AppState, {libUSA, libChina} from './AppState';
+import {en, bo, cn} from './LocalizedStrings';
 import './SettingsPage.pcss';
 
 @observer

@@ -1,16 +1,15 @@
-// @flow
-import React, {Component} from 'react';
+import * as React from 'react';
 import {observer} from 'mobx-react';
-import {observable} from 'mobx';
+import AppState from './AppState';
 
-export class Menu extends Component {
+interface P_Menu {
+  open:boolean;
+  onClose:()=>void;
+  children?: any;
+}
 
-	props: {
-		open:boolean,
-		onClose:()=>void,
-		children?: any
-	};
-
+@observer
+export class Menu extends React.Component<P_Menu> {
 	menuRef:any;
 
 	componentDidMount() {
@@ -34,7 +33,7 @@ export class Menu extends Component {
   }
 
 	render() {
-    let popStyle= {
+    let popStyle:any = {
       boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 6px, rgba(0, 0, 0, 0.12) 0px 1px 4px',
       borderRadius: '2px',
       position:'fixed', top:'12px', right:'10px', zIndex:'2000',
@@ -57,9 +56,12 @@ export class Menu extends Component {
 
 }
 
+interface P_SnackBar {
+  appState:AppState;
+}
 
 @observer
-export class SnackBar extends Component {
+export class SnackBar extends React.Component<P_SnackBar> {
 
   componentDidMount = () => {
     setTimeout(this.checkForClose, 500);
@@ -96,7 +98,7 @@ export class SnackBar extends Component {
 
 
 
-export class Divider extends Component {
+export class Divider extends React.Component {
   render() {
     return (  
       <hr style={{margin: '7px 0px 8px', height: '1px', border: 'none', backgroundColor: 'rgb(224, 224, 224)'}} />     
@@ -104,9 +106,10 @@ export class Divider extends Component {
   }
 }
 
-export class MenuHeader extends Component {
+@observer
+export class MenuHeader extends React.Component {
   render() {
-    let menuHeaderStyle={
+    const menuHeaderStyle:any = {
       color: 'rgba(0, 0, 0, 0.67)',
       lineHeight: '48px',
       fontSize:'13px',
@@ -121,9 +124,13 @@ export class MenuHeader extends Component {
   }
 }
 
-export class MenuItem extends Component {
+interface P_MenuItem {
+  onClick:(e:any)=>void;
+}
+@observer
+export class MenuItem extends React.Component<P_MenuItem> {
   render() {
-    let menuItemStyle={
+    const menuItemStyle:any ={
       color: 'rgba(0, 0, 0, 0.87)',
       lineHeight: '48px',
       fontSize:'16px',

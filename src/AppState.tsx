@@ -1,23 +1,25 @@
-// @flow
 
-import React, {Component} from 'react';
+
+import * as React from 'react';
 import {observer} from 'mobx-react';
 import {observable, action} from 'mobx';
-import uuidV1 from 'uuid/v1';
-import {Navigator, Page, BackButton, Toolbar, ProgressCircular, Modal, ToolbarButton, Icon, Button, AlertDialog, List, ListItem, ListHeader} from 'react-onsenui';
+import {v1 as uuidV1} from 'uuid';
+import {Navigator, Page, BackButton, Toolbar, ToolbarButton } from 'react-onsenui';
+import FileTool from './FileTool';
 
 import SearchPage from './SearchPage.jsx';
 import DetailPage from './DetailPage.jsx';
-import AboutPage from './AboutPage.jsx';
+import AboutPage from './AboutPage';
 import HelpPage from './HelpPage.jsx';
 import SettingsPage from './SettingsPage.jsx';
-import Database, {DatabaseResult} from './Database.js';
-import { Work, Outline, Person } from './Records.js';
-import type {Route} from './TypeAliases.js';
-import {bo, en, cn} from './LocalizedStrings.js';
-import type {LocalizedStringsType} from './LocalizedStrings.js';
+import Database from './Database';
+import { Work, WorkPart, Person } from './Records';
+import {Route} from './TypeAliases';
+import {bo, en, cn} from './LocalizedStrings';
+import {LocalizedStringsType} from './LocalizedStrings';
 
 import './AppState.pcss';
+import { DatabaseResult } from './DatabaseResult';
 
 export const searchRoute: Route = { page: 'Search', hasBackButton: false, isModal:false, data:{} };
 export const detailRoute: Route = { page: 'Detail', hasBackButton: true, isModal:false, data:{} };
@@ -34,8 +36,14 @@ export type LibraryServer = {
 export const libUSA:LibraryServer = {    
   id:'USA',
   name:'USA',
-  url:'https://www.tbrc.org'
+  url:'https://ssapi.hrdcstl.com'
 }
+
+// export const libUSA:LibraryServer = {    
+//   id:'USA',
+//   name:'USA',
+//   url:'https://www.tbrc.org'
+// }
 
 export const libChina:LibraryServer = {    
   id:'China',
@@ -60,9 +68,33 @@ export default class AppState {
   @observable closeSnackBarDate:number;
   @observable snackBarOpen:boolean;
 
+  @observable hasUpdates:boolean = true;
+
   db:Database;
   navigator:Navigator;
   databaseResultStack:Array<DatabaseResult> = [];
+  fileTool: FileTool;
+
+  @observable fileSystemFailedToLoad:boolean = false;
+  @observable fileSystemLoaded:boolean = false;
+
+  @action initializeFileSystem = () => {
+      // Initialize the file system
+    const fileTool = new FileTool(
+      ()=>{  
+        this.fileTool = fileTool;
+        this.fileSystemFailedToLoad = false;
+        this.fileSystemLoaded = true;
+        console.log('file system initialized');
+        this.fileTool.downloadFile(libUSA.url+'/nescor.jpg', 'data', (progress:number)=>{ console.log(progress); }, (fileUrl:string|null, error?:any)=>{ console.log(fileUrl); console.log(error); });
+      }, 
+      ()=>{ 
+        this.fileSystemFailedToLoad = true;
+        this.fileSystemLoaded = false;
+        console.log('file system failed to initialize');
+      }
+    );    
+  }
 
   @action openSnackBar = (message:string) => {
     this.snackBarMessage = message;
@@ -152,11 +184,11 @@ export default class AppState {
   }
   
   @action
-  navigateTo = (databaseResult:DatabaseResult, navigator:Navigator) => {
+  navigateTo = (databaseResult:DatabaseResult) => { // , navigator:Navigator) => {
 
     let work:Work|null = null;
     let person:Person|null = null;
-    let outline:Outline|null = null;
+    let workPart:WorkPart|null = null;
 
     // Load the file before the page transition to prevent jerky animation
     databaseResult.load((record:any) => {
@@ -164,21 +196,21 @@ export default class AppState {
         work = record;
       } else if(databaseResult.isPerson){
         person = record;
-      } else if(databaseResult.isOutline){
-        outline = record;
+      } else if(databaseResult.isWorkPart){
+        workPart = record;
       }      
 
       // NOTE: If performance is jerky do to loading related records, either through a database search, or through a file load, 
       // that work should be done here and passed through the "data" object
 
-      let route:Route = { page: 'Detail', hasBackButton: true, isModal:false, data:{ databaseResult:databaseResult, files:{ work:work, person:person, outline:outline }, relatedDatabaseResults:{}}};
-      this.pushPage(route, navigator);    
+      const route:Route = { page: 'Detail', hasBackButton: true, isModal:false, data:{ databaseResult:databaseResult, files:{ work:work, person:person, workPart:workPart }, relatedDatabaseResults:{}}};
+      this.pushPage(route); //, navigator);    
     });
 
   }
 
   constructor() {
-    let libraryServerId = localStorage.getItem('libraryServerId');
+    const libraryServerId = localStorage.getItem('libraryServerId');
     if(libraryServerId) {
       if(libUSA.id == libraryServerId) {
         this.setLibraryServer(libUSA);
@@ -201,7 +233,12 @@ const AppToolbar = observer(( props:{route:Route, appState:AppState, pageTitle:s
       toolbarClassName = 'tbmodal';
     } else {
       leftButton = props.route.hasBackButton ? <BackButton modifier="material" onClick={()=>{ props.appState.handleBack(); }}></BackButton> : null;
-      rightButton = <ToolbarButton modifier="material" onClick={()=>{props.appState.openMOM(); }}><i className="zmdi zmdi-more-vert"></i></ToolbarButton>
+      rightButton = (
+        <span>
+          {props.appState.hasUpdates ? <ToolbarButton modifier="material" onClick={()=>{props.appState.openMOM(); }}><i className="zmdi zmdi-notifications hasUpdates"></i></ToolbarButton> : null}
+          <ToolbarButton modifier="material" onClick={()=>{props.appState.openMOM(); }}><i className="zmdi zmdi-more-vert"></i></ToolbarButton>
+        </span>
+        );
     }
 
     return (
@@ -217,7 +254,7 @@ const AppToolbar = observer(( props:{route:Route, appState:AppState, pageTitle:s
 
 
 const AppPage = observer(( props:{route:Route, appState:AppState} ) => {
-    let content = "";
+    let content:any = "";
     let pageTitle = "";
     let pageKey = '';
 
@@ -228,8 +265,8 @@ const AppPage = observer(( props:{route:Route, appState:AppState} ) => {
     } else if(props.route.page===detailRoute.page)  {
       content = <DetailPage strings={props.appState.strings} db={props.appState.db} databaseResult={props.route.data.databaseResult} files={props.route.data.files} appState={props.appState}  />; 
       pageTitle = props.route.data.databaseResult.title;  
-      // Account for compound nodeId that is brought in with the Outline Index files in order to provide both the 
-      // filename of the outline, and the node within the outline that the title represents.
+      // Account for compound nodeId that is brought in with the workPart Index files in order to provide both the 
+      // filename of the workPart, and the node within the workPart that the title represents.
       let dashIndex = pageTitle.indexOf('-');
       if(dashIndex>0){ pageTitle = pageTitle.substring(dashIndex+1);}
       pageKey = props.route.data.key; 
@@ -248,7 +285,7 @@ const AppPage = observer(( props:{route:Route, appState:AppState} ) => {
     }
 
     return (
-      <Page strings={props.appState.strings} modifier="material" key={pageKey} renderToolbar={ () => { return props.appState.renderToolbar(props.route, pageTitle); }}>
+      <Page modifier="material" key={pageKey} renderToolbar={ () => { return props.appState.renderToolbar(props.route, pageTitle); }}>
         {content}    
       </Page>
     );

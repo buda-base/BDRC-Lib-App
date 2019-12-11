@@ -1,55 +1,30 @@
-// @flow
-
-import type {WorkJSON, PersonJSON, OutlineJSON, VolumeJSON} from './TypeAliases.js';
+import {computed} from 'mobx';
+import { PersonRefJSON, WorkJSON, PersonJSON, WorkPartJSON, WorkPartNodeJSON } from './TypeAliases';
 
 class Work {
 	nodeId: string;
 	title: Array<string>;
-	hasCreator: Array<any>; // references Person records
 	status: ('seekingOut'|'acquiring'|'accessioned'|'released');
-	archiveInfo_vols: string;
-	volumeMap: Array<Volume>
 	publisherName: string;
 	publisherDate: string;
 	publisherLocation: string;
 	printType: string;
 	access: string;
-	license: string;
+	creator: Array<PersonRefJSON>;
 
 	constructor(json: WorkJSON, nodeId:string){
-
 		this.nodeId = nodeId;
 		this.title = json.title;
-		this.hasCreator = json.hasCreator;
+		this.creator = json.creator;
 		this.status = json.status;
-		this.title = json.title;
-		this.archiveInfo_vols = json.archiveInfo_vols;
 		this.publisherName = json.publisherName;
 		this.publisherDate = json.publisherDate;
 		this.publisherLocation = json.publisherLocation;
 		this.printType = json.printType;
 		this.access = json.access;
-		this.license = json.license;
-
-		if(json.volumeMap) {
-			this.volumeMap = [];
-			for(let i=0;i<json.volumeMap.length;i++) {
-				this.volumeMap.push(new Volume(json.volumeMap[i]));
-			}
-		}
 	}
 }
 
-class Volume {
-	id: string;
-  total: number;
-  num: number;
-  constructor(json:VolumeJSON){
-  	this.id = json.id;
-  	this.total = json.total;
-  	this.num = json.num;
-  }
-}
 
 // P00KG03924.json contains name=[null]    -- {"creatorOf":["W00KG03892"],"name":[null],"death":"1865","birth":"1822?"}
 
@@ -70,6 +45,46 @@ class Person {
 
 }
 
+class WorkPart {
+	nodeId:string;
+	workTitle:Array<string>;
+	nodes:Array<WorkPartNode>;
+
+	@computed
+	get workId() {
+		const underscoreIdx = this.nodeId.lastIndexOf('_');
+		return -1!=underscoreIdx ? this.nodeId.substring(0, underscoreIdx) : this.nodeId;
+	}
+
+	constructor(json: WorkPartJSON, nodeId:string) {
+		this.nodeId = nodeId;
+		this.workTitle = json.workTitle;
+		this.nodes = [];
+		if(json.nodes) {
+			json.nodes.forEach(nodeJSON=>{
+				this.nodes.push(new WorkPartNode(nodeJSON));
+			});
+		}		
+	}
+}
+
+class WorkPartNode {
+	id:string;
+	title: Array<string>;
+	nodes: Array<WorkPartNode>;
+	constructor(json:WorkPartNodeJSON) {
+		this.id = json.id;
+		this.title = json.title;
+		this.nodes = [];
+		if(json.nodes) {
+			json.nodes.forEach((nodeJSON:WorkPartNodeJSON)=>{
+				this.nodes.push(new WorkPartNode(nodeJSON));
+			});
+		}
+	}
+}
+
+/*
 class Outline {
 	nodeId: string;
 	outlineNodeId: string;
@@ -96,11 +111,11 @@ class Outline {
 		}
 	}
 }
+*/
 
 
-
-export type Record = Work | Person | Outline | null;
-export {Work, Person, Outline, Volume};
+export type Record = Work | Person | WorkPart | null;
+export { Work, Person, WorkPart };
 
 
 

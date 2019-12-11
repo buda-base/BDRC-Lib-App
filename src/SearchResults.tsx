@@ -1,4 +1,4 @@
-// @flow
+
 declare var cordova: any;
 
 import React, {Component} from 'react';
@@ -7,10 +7,10 @@ import Waypoint from 'react-waypoint'; // https://brigade.github.io/react-waypoi
 import {Page, Button, Input, Icon, ListItem, List} from 'react-onsenui';
 import {observer} from 'mobx-react';
 
-import Database, {DatabaseResult} from './Database.js';
-import AppState from './AppState.jsx';
-import type {Route} from './TypeAliases.js';
-import type {LocalizedStringsType} from './LocalizedStrings.js';
+import Database, {DatabaseResult} from './Database';
+import AppState from './AppState';
+import type {Route} from './TypeAliases';
+import {LocalizedStringsType} from './LocalizedStrings';
 
 import style from './SearchResults.pcss';
 
@@ -111,7 +111,7 @@ class SearchResult extends Component {
 
 	render(){
 		let icon = null;
-		let subtitle = null;
+		// let subtitle = null;
 
 		if(this.props.item.type==='Person'){
 			icon = <Icon icon="md-account-circle" modifier="material" size={{default: 40, material: 36}}/>;
@@ -119,7 +119,7 @@ class SearchResult extends Component {
 			icon = <Icon icon="md-collection-text" modifier="material" size={{default: 40, material: 36}}/>;
 		} else {
 			icon = <Icon icon="md-file-text" modifier="material" size={{default: 40, material: 36}} style={{marginLeft: '4px'}} />;
-			subtitle = this.props.item.workTitleForOutline();
+			// subtitle = this.props.item.workTitleForOutline();
 		}
 
 		return (
@@ -129,7 +129,7 @@ class SearchResult extends Component {
 		    </div>
 		    <div className="list-item__center list-item--material__center">
 		      <div className="list-item__title list-item--material__title title" style={{lineHeight:'36px'}}>{this.props.item.title}</div>
-		      {null!=subtitle?<div className="list-item__subtitle list-item--material__subtitle">{subtitle}</div>:null}
+		      {/*null!=subtitle?<div className="list-item__subtitle list-item--material__subtitle">{subtitle}</div>:null*/}
 		      {/*<div className="list-item__subtitle list-item--material__subtitle">{this.props.item.nodeId}</div>*/}
 		    </div>
 		  </li>

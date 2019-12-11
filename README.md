@@ -8,8 +8,17 @@ The application uses Cordova to achieve cross platform deployment (Android, iOS,
 
 All development and deployment modules are installed. 
 ```
-yarn 
+npm run install 
 ```
+
+Make sure to install cordova platforms:
+
+```
+cordova platform add browser
+cordova platform add ios
+cordova platform add android
+```
+
 
 ## Development (React/browser)
 
@@ -17,7 +26,7 @@ The development configuration is located in the webpack.config.babel.js file. Us
 with a target of the Cordova www folder. http://localhost:8080
 
 ```
-yarn run serve
+npm run serve
 ```
 
 This runs the webpack-dev-server, rebuilding and reloading in the browser when a change is made.
@@ -27,7 +36,7 @@ This runs the webpack-dev-server, rebuilding and reloading in the browser when a
 First build the React app:
 
 ```
-yarn run build
+npm run build
 ```
 
 ### Cordova Android dev build
@@ -86,9 +95,8 @@ You must change these before building production releases.
 
 ### For React Dev/Deployment
 
-#### Yarn & npm:
+#### npm:
 https://www.npmjs.com/
-https://yarnpkg.com/en/
 
 #### development tooling
 The development tooling consists of a number of tools for preprocessing and building

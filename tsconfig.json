@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "experimentalDecorators": true,
+        "sourceMap": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "strictNullChecks": true,
+        "allowJs":true,
+        "module": "commonjs",
+        "target": "es5",
+        "lib": [ "dom", "es6" ],
+        "jsx": "react",
+        "moduleResolution": "node",
+        "noEmit": true 
+    },
+    "exclude": [
+        "node_modules",
+        "res",
+        "www",
+        "platforms",
+        "./plugins/cordova-plugin-file/types/index.d.ts",
+        "plugins"
+    ]
+}

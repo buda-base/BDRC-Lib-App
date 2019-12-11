@@ -1,14 +1,17 @@
 
-// @flow
-import React, {Component} from 'react';
+import * as React from 'react';
 import {observer} from 'mobx-react';
 
-import AppState from './AppState.jsx';
+import AppState from './AppState';
 
 import './AboutPage.pcss';
 
+interface P_AboutPage {
+  appState:AppState;
+}
+
 @observer
-export default class AboutPage extends Component {
+export default class AboutPage extends React.Component<P_AboutPage> {
   render() {    
     if('en'===this.props.appState.strings.id) {
       return <EnglishAbout appState={this.props.appState} />;

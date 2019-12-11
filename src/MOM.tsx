@@ -1,12 +1,12 @@
-// @flow
 
-import React, {Component} from 'react';
+
+import * as React from 'react';
 import {observer} from 'mobx-react';
-import {Menu, MenuItem} from './UIWidgets.jsx';
-import AppState, {aboutRoute, helpRoute, settingsRoute} from './AppState.jsx';
+import {Menu, MenuItem} from './UIWidgets';
+import AppState, {aboutRoute, helpRoute, settingsRoute} from './AppState';
 
 @observer
-export default class MOM extends Component {  
+export default class MOM extends React.Component {  
 
   props:{
     appState:AppState

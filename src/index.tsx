@@ -1,19 +1,23 @@
-// @flow
-declare var cordova: any;
+declare var window: any;
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import ons from 'onsenui';
-import uuidV1 from 'uuid/v1';
-import injectTapEventPlugin from 'react-tap-event-plugin';
-injectTapEventPlugin();
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import * as ons from 'onsenui';
+import * as uuidV1 from 'uuid/v1';
+// import injectTapEventPlugin from 'react-tap-event-plugin';
+// injectTapEventPlugin();
 
-import Top from './Top.jsx';
-import MOM from './MOM.jsx';
-import AppState from './AppState.jsx';
-import {SnackBar} from './UIWidgets.jsx';
+import Top from './Top';
+import MOM from './MOM';
+import AppState from './AppState';
+import * as Logger from 'js-logger';
+import {SnackBar} from './UIWidgets';
 
-const APP_VERSION = '1.1';
+const APP_VERSION = '2.0';
+
+// Log messages will be written to the window's console.
+Logger.useDefaults();
+
 
 class app {
   appState:AppState;
@@ -31,15 +35,19 @@ class app {
     this.receivedEvent('deviceready');
   };
 
+
+
   /**
    * Meant to handle any event that needs to communicate with the UI
    * 
    * @param  {[type]} id [description]
    * @return {[type]}    [description]
    */
-  receivedEvent = (id) => {
+  receivedEvent = (id:any) => {
 
     if(id==='deviceready') {
+
+
 
       // initialize language
       let language = localStorage.getItem('language');
@@ -63,8 +71,12 @@ class app {
       window.ga.setAppVersion(APP_VERSION);
       //window.ga.debugMode();      
 
+
+
       // load the UI
       ons.ready(()=>{
+
+        this.appState.initializeFileSystem();
 
         ReactDOM.render( <Top appState={this.appState} />, document.getElementById('AppContainer'));
         ReactDOM.render( <MOM appState={this.appState} />, document.getElementById('MOMContainer'));

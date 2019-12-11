@@ -1,9 +1,8 @@
-// @flow
-import React, {Component} from 'react';
-import type {LocalizedStringsType} from './LocalizedStrings.js';
+import * as React from 'react';
+import {LocalizedStringsType} from './LocalizedStrings';
 import './HelpPage.pcss';
 
-export default class HelpPage extends Component {
+export default class HelpPage extends React.Component {
   props:{
     strings:LocalizedStringsType;
   };

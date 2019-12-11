@@ -1,14 +1,14 @@
-// @flow
+
 declare var cordova: any;
 
 import React, {Component} from 'react';
 import {observer} from 'mobx-react';
 import {observable} from 'mobx';
 
-import Database, {DatabaseResult} from './Database.js';
+import Database, {DatabaseResult} from './Database';
 import AppState from './AppState.jsx';
 import SearchResults from './SearchResults.jsx'; 
-import type {LocalizedStringsType} from './LocalizedStrings.js';
+import {LocalizedStringsType} from './LocalizedStrings';
 
 import style from './SearchPage.pcss';
 

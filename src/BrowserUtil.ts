@@ -1,15 +1,15 @@
-import $ from 'jquery';
+import * as $ from 'jquery';
 
 /**
   This utility is used when in browser mode to load local data files.
 */
 const BrowserUtil = {
-  loadJSONFile: (relativeFilePath, callback) => {
+  loadJSONFile: (relativeFilePath:string, callback:(result:any)=>void) => {
     $.getJSON('data/'+relativeFilePath)
-    .done((json) => {
+    .done((json:any) => {
       callback(json);
     })
-    .fail((xhr, status, err) => {
+    .fail((xhr:any, status:any, err:any) => {
       callback(null);
     });
     }

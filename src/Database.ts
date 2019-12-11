@@ -1,131 +1,48 @@
-// @flow
 declare var cordova: any;
 declare var device: any;
 declare var lasca: any;
+declare var window:any;
 
-import NativeUtil from './NativeUtil.js'
-import BrowserUtil from './BrowserUtil.js'
-import $ from 'jquery';
-import uuidV1 from 'uuid/v1';
-
-import AppState from './AppState.jsx';
-import type {IndexFile} from './TypeAliases.js';
-import {Work, Person, Outline} from './Records.js';
-import type {Record} from './Records.js';
-import type {LocalizedStringsType} from './LocalizedStrings.js';
+import NativeUtil from './NativeUtil'
+import * as $ from 'jquery';
+import AppState from './AppState';
+import {IndexFile} from './TypeAliases';
+import {LocalizedStringsType} from './LocalizedStrings';
+import undefined = require('../_node_modules/sockjs-client/lib/transport/browser/websocket');
+import { DatabaseResult } from './DatabaseResult';
 
 const indexFiles: Array<IndexFile> = [ 
-	{ type:'Work', filename:'workIndex-0.json', desc:'Works1' },
-	{ type:'Work', filename:'workIndex-1.json', desc:'Works2' },
-	{ type:'Person', filename:'personIndex-0.json', desc:'Authors' },
-	{ type:'Outline', filename:'outlineIndex-0.json', desc:'Outline1' },
-	{ type:'Outline', filename:'outlineIndex-1.json', desc:'Outline2' },
-	{ type:'Outline', filename:'outlineIndex-2.json', desc:'Outline3' },
-	{ type:'Outline', filename:'outlineIndex-3.json', desc:'Outline4' },
-	{ type:'Outline', filename:'outlineIndex-4.json', desc:'Outline5' },
-	{ type:'Outline', filename:'outlineIndex-5.json', desc:'Outline6' },
-	{ type:'Outline', filename:'outlineIndex-6.json', desc:'Outline7' },
-	{ type:'Outline', filename:'outlineIndex-7.json', desc:'Outline8' },
-	{ type:'Outline', filename:'outlineIndex-8.json', desc:'Outline9' },
-	{ type:'Outline', filename:'outlineIndex-9.json', desc:'Outline10' },
-	{ type:'Outline', filename:'outlineIndex-10.json', desc:'Outline11' },
-	{ type:'Outline', filename:'outlineIndex-11.json', desc:'Outline12' },
-	{ type:'Outline', filename:'outlineIndex-12.json', desc:'Outline13' },
-	{ type:'Outline', filename:'outlineIndex-13.json', desc:'Outline14' },
-	{ type:'Outline', filename:'outlineIndex-14.json', desc:'Outline15' },
-	{ type:'Outline', filename:'outlineIndex-15.json', desc:'Outline16' },
-	{ type:'Outline', filename:'outlineIndex-16.json', desc:'Outline17' },
-	{ type:'Outline', filename:'outlineIndex-17.json', desc:'Outline18' },
-	{ type:'Outline', filename:'outlineIndex-18.json', desc:'Outline19' },
-	{ type:'Outline', filename:'outlineIndex-19.json', desc:'Outline20' },
-	{ type:'Outline', filename:'outlineIndex-20.json', desc:'Outline21' },
-	{ type:'Outline', filename:'outlineIndex-21.json', desc:'Outline22' },
-	{ type:'OutlineWorkTitle', filename:'outlineWorkTitle.json', desc:'OutlineWorkTitles' },
+	{ type:'Work', filename:'work-0.json', desc:'Works1' },
+	{ type:'Work', filename:'work-1.json', desc:'Works2' },
+	{ type:'Person', filename:'person-0.json', desc:'Authors1' },
+	{ type:'Person', filename:'person-1.json', desc:'Authors2' },
+	{ type:'WorkPart', filename:'workparts-0.json', desc:'WorkParts1' },
+	{ type:'WorkPart', filename:'workparts-1.json', desc:'WorkParts2' },
+	{ type:'WorkPart', filename:'workparts-2.json', desc:'WorkParts3' },
+	{ type:'WorkPart', filename:'workparts-3.json', desc:'WorkParts4' },
+	{ type:'WorkPart', filename:'workparts-4.json', desc:'WorkParts5' },
+	{ type:'WorkPart', filename:'workparts-5.json', desc:'WorkParts6' },
+	{ type:'WorkPart', filename:'workparts-6.json', desc:'WorkParts7' },
+	{ type:'WorkPart', filename:'workparts-7.json', desc:'WorkParts8' },
+	{ type:'WorkPart', filename:'workparts-8.json', desc:'WorkParts9' },
+	{ type:'WorkPart', filename:'workparts-9.json', desc:'WorkParts10' },
+	{ type:'WorkPart', filename:'workparts-10.json', desc:'WorkParts11' },
+	{ type:'WorkPart', filename:'workparts-11.json', desc:'WorkParts12' },
+	{ type:'WorkPart', filename:'workparts-12.json', desc:'WorkParts13' },
 ];
 
 const SORT_ENABLED = false;
 
 /* When this value does not match the stored value, the database is reinitialized. */
-const DATABASE_VERSION = "2017.12.11.01";
-
-class DatabaseResult {
-
-	db:Database;
-
-	id: number;
-	title: string;
-	nodeId: string;
-	type: ('Person'|'Work'|'Outline');
-
-	isPerson:boolean = false;
-	isWork:boolean = false;
-	isOutline:boolean = false;
-
-	_workTitleForOutline: string;
-	
-	workTitleForOutline(){
-		if(this.isOutline) {
-			if(!this._workTitleForOutline) {
-				let dashIndex = this.nodeId.indexOf('-');
-				if(dashIndex!=-1) {
-					this._workTitleForOutline = this.db.outlineWorkIndex[this.nodeId.substring(0,dashIndex)];
-				}
-			}
-			return this._workTitleForOutline;
-		}
-		return null;
-	}
-
-	load = (callback:(record:Work|Person|Outline|null)=>void) => {
-		let filename = this.nodeId;
-    // Account for compound nodeId that is brought in with the Outline Index files in order to provide both the 
-    // filename of the outline, and the node within the outline that the title represents.
-		if(this.isOutline) {
-			let dashIndex = this.nodeId.indexOf('-');
-			filename = filename.substring(0,dashIndex);
-		}
-		let relativeFilePath = this.type.toLowerCase()+'s/'+filename+'.json';
-		if('browser'===device.platform) {
-			BrowserUtil.loadJSONFile(relativeFilePath, (json) => { this.loaded(json, callback); });			
-		} else {
-			NativeUtil.loadJSONFile(relativeFilePath, (json) => { this.loaded(json, callback); });
-		}
-	}
-
-	loaded = (json:any, callback:(record:Work|Person|Outline|null)=>void) => {
-		if(null==json) {
-			callback(null);
-		} else if(this.isPerson) {
-			callback(new Person(json, this.nodeId));
-		} else if(this.isWork) {
-			callback(new Work(json, this.nodeId));
-		} else if(this.isOutline) {
-			let dashIndex = this.nodeId.indexOf('-');
-			let nodeId = this.nodeId.substring(dashIndex+1);
-			let outlineNodeId = this.nodeId.substring(0, dashIndex);
-			callback(new Outline(json, nodeId, outlineNodeId));
-		}
-	} 
-
-	constructor(db:Database, row: any) {		
-		this.db = db;
-
-		this.id = uuidV1(); //.row.id;
-		this.title = row.title;
-		this.nodeId = row.nodeId;
-		this.type = row.type;
-		if('Person'===this.type) this.isPerson = true;
-		if('Work'===this.type) this.isWork = true;
-		if('Outline'===this.type) this.isOutline = true;
-	}
-
-}
+const DATABASE_VERSION = "2019.11.26.01";
 
 const LINE_SEP = "\u2028";
 const PARA_SEP = "\u2029";
 
 const TSHEG = "\u0F0B";
 const RESULT_BATCH_SIZE = 50;
+
+type StatusListenerFunc = (message:string) => void;
 
 class Database {
 	appState:AppState;
@@ -135,16 +52,13 @@ class Database {
 	// searchCount:number = 0;
 
 	// Android and IOS database
-	database = {};
+	database:any = {};
 
 	// localization
 	strings:LocalizedStringsType;
 
 	// browser database, just for testing
 	jsondata: Array<DatabaseResult> = [];
-
-	// lookup table for mobile and browser
-	outlineWorkIndex: any = {};
 
 	// data that listeners are interested in
 	searchString:string = '';
@@ -157,7 +71,10 @@ class Database {
 
 	loadMoreResults():void{
 		for(let i=0;i<RESULT_BATCH_SIZE && this.moreSearchResults.length>0;i++){
-			this.searchResults.push(this.moreSearchResults.pop());
+			const result:DatabaseResult|undefined = this.moreSearchResults.pop();
+			if(undefined!=result) {
+				this.searchResults.push(result);
+			}
 		}
 		this.update();
 	}
@@ -168,16 +85,16 @@ class Database {
 
 	selectedDatabaseResult: DatabaseResult;
 
-	statusListeners = [];
+	statusListeners:Array<StatusListenerFunc> = [];
 
-	addStatusListener(listenerToAdd: (string)=>void ) {
+	addStatusListener(listenerToAdd:StatusListenerFunc ) {
 		var idx = this.statusListeners.indexOf(listenerToAdd);
 		if(-1===idx) {
 			this.statusListeners.push(listenerToAdd);
 		}
 	}
 
-	removeStatusListener(listenerToRemove: (string)=>void ) {
+	removeStatusListener(listenerToRemove:StatusListenerFunc ) {
 		var idx = this.statusListeners.indexOf(listenerToRemove);
 		if(-1!=idx){
 			this.statusListeners.splice(idx, 1);
@@ -194,7 +111,7 @@ class Database {
 	// data that listeners might want to hear
 	// about, the listeners in this array are 
 	// notified
-	listeners = [];
+	listeners:Array<()=>void> = [];
 
 	addChangeListener(listenerToAdd: ()=>void ) {
 		var idx = this.listeners.indexOf(listenerToAdd);
@@ -227,7 +144,7 @@ class Database {
 		this.update();
 	}
 
-	searchForMatchingNodes(nodeIds:Array<string>, callback:(Array<DatabaseResult>)=>void) {
+	searchForMatchingNodes(nodeIds:Array<string>, callback:(results:Array<DatabaseResult>)=>void) {
 		
 		if(this.runningInBrowser) {				
 
@@ -264,7 +181,7 @@ class Database {
 
 			let query = 'SELECT id, title, nodeId, type FROM indices WHERE '+orIds;
 			this.database.executeSql(query, nodeIds, 
-				(resultSet) => {
+				(resultSet:any) => {
 					let searchResults = [];
 					let moreSearchResults = [];
 					for(let x = 0; x < resultSet.rows.length; x++) {
@@ -272,7 +189,7 @@ class Database {
 					}
 					callback(searchResults);
 				}, 
-				(error) => {
+				(error:any) => {
 			    console.log('SELECT SQL statement ERROR: ' + error.message);
 				  this.searchResults = [];
 					callback([]);
@@ -290,20 +207,35 @@ class Database {
 	 * @param  {string} searchString 
 	 * @return {void}
 	 */
-	search(searchString:string) {
-		this.appState.currentQueryString = searchString;
-		//console.log('search');
-		//console.log('------------------------------------');
-		//console.log(searchString);
+	search(searchStringSrc:string) {
+		this.appState.currentQueryString = searchStringSrc;
+		this.searchString = searchStringSrc;
 
-		this.searchString = searchString;
 
-		let searchByNodeId = true;
 
+		let searchByNodeId = false;
+		let searchString = searchStringSrc;
+
+		// Figure out whether this is a node id search, and 
+		// allow for a namespaced or non-namespaced version 
+		// of the search
 		if(searchString && searchString.length>0) {
-			let firstChar = searchString.charAt(0);
-			searchByNodeId = (firstChar==='O' || firstChar==='W' || firstChar==='P');
+			const namespaceIdx = searchString.indexOf(":");
+			let nodeIdStartIdx = 0;
+			if(namespaceIdx>0) {
+				nodeIdStartIdx = namespaceIdx + 1;
+			} 
+			if(searchString.length>nodeIdStartIdx) {
+				const testChar = searchString.charAt(nodeIdStartIdx);
+				searchByNodeId = (testChar==='W' || testChar==='P');
+
+				// Add the namespace if it is not included
+				if(searchByNodeId && 0==nodeIdStartIdx) {
+					searchString = "bdr:"+searchString;
+				}
+			}			
 		}
+
 
 		// SEARCH BY STRING
 		if(!searchByNodeId) {
@@ -354,7 +286,7 @@ class Database {
 
 					try {
 						//console.time('Search'+query);
-						this.database.executeSql(query, queryParams, (resultSet) => {
+						this.database.executeSql(query, queryParams, (resultSet:any) => {
 
 							if(searchString!=this.appState.currentQueryString) {
 								this.appState.searchCount--;	
@@ -404,7 +336,7 @@ class Database {
 
 							this.appState.searchCount--;	
 							this.update();
-						  }, (error) => {
+						  }, (error:any) => {
 						    console.log('SELECT SQL statement ERROR: ' + error.message);
 							  this.searchResults = [];
 							  this.appState.searchCount--;	
@@ -438,6 +370,9 @@ class Database {
 					let allSearchResults = [];
 					let ss = exactMatchRequired ? searchString.substring(0, searchString.length-1) : searchString;
 					for(let i=0,ii=this.jsondata.length;i<ii;i++) {											
+						if(i<5) {
+							console.log(this.jsondata[i].nodeId);
+						}
 						if(exactMatchRequired ? ss===this.jsondata[i].nodeId : 0==this.jsondata[i].nodeId.indexOf(searchString)   ) {
 							allSearchResults.push(this.jsondata[i]);
 						}
@@ -473,7 +408,7 @@ class Database {
 					//let searchParams = exactMatchRequired ? [searchString] :[searchString+'%'];
 					let searchParams = exactMatchRequired ? [searchString] :['"'+searchString+'*"'];
 					this.database.executeSql(query, searchParams, 
-						(resultSet) => {
+						(resultSet:any) => {
 
 							if(searchString!=this.appState.currentQueryString) {
 								this.appState.searchCount--;	
@@ -516,7 +451,7 @@ class Database {
 							this.appState.searchCount--;	
 							this.update();
 
-					  }, (error) => {
+					  }, (error:any) => {
 					    console.log('SELECT SQL statement ERROR: ' + error.message);
 						  this.searchResults = [];
 						  this.appState.searchCount--;	
@@ -536,10 +471,10 @@ class Database {
 		if(this.runningInBrowser){
 			console.log('Record count: ' + this.jsondata.length);
 		} else {
-			this.database.executeSql('SELECT count(*) AS mycount FROM indices', [], (rs)=>{
+			this.database.executeSql('SELECT count(*) AS mycount FROM indices', [], (rs:any)=>{
 				// alert(rs.rows.item(0).mycount+' records!');
 		    console.log('Record count: ' + rs.rows.item(0).mycount);
-		  }, (error) => {
+		  }, (error:any) => {
 		    console.log('SELECT SQL statement ERROR: ' + error.message);
 		  });		
 		}
@@ -554,9 +489,7 @@ class Database {
 	 */
 	processIndex(obj: {indexFile: IndexFile,indexFileContents: any}){
 
-		if(obj.indexFile.type==='OutlineWorkTitle') {
-			return this.processOutlineWorkTitleIndex(obj);
-		} else {
+
 			return new Promise((resolve, reject)=>{ 
 
 				//this.shareStatus(this.strings.IndexFileLoadingDescriptions[obj.indexFile.desc]);
@@ -564,9 +497,14 @@ class Database {
 
 					let startingIndex = this.jsondata.length;
 
+					let debugIdx = 0;
+
 					for(var key in obj.indexFileContents) {
-						obj.indexFileContents[key].forEach((nodeId)=>{
+						obj.indexFileContents[key].forEach((nodeId:string)=>{
+						  
+						  debugIdx++;	
 							
+							/*
 							// HACK: Because the work index files contain references not only to alternative titles, but to publishers, 
 							// we do not create database entries for any RIDs that contain a "-" 
 							let thisEntryIsGoodData = true; 
@@ -576,6 +514,11 @@ class Database {
 							}
 
 							if(thisEntryIsGoodData) {
+								
+								if(debugIdx<10) {
+									console.log(startingIndex+' '+key+' '+nodeId+' '+obj.indexFile.type);
+								}
+
 								this.jsondata.push( new DatabaseResult(this, {
 									id: startingIndex,
 									title: key,
@@ -583,7 +526,20 @@ class Database {
 									type: obj.indexFile.type
 								}));
 								startingIndex++;
+							}*/
+
+
+							if(debugIdx<10) {
+								console.log(startingIndex+' '+key+' '+nodeId+' '+obj.indexFile.type);
 							}
+
+							this.jsondata.push( new DatabaseResult(this, {
+								id: startingIndex,
+								title: key,
+								nodeId: nodeId,
+								type: obj.indexFile.type
+							}));
+							startingIndex++;
 
 
 						});
@@ -592,9 +548,9 @@ class Database {
 				} else {
 					//let batch = ['CREATE TABLE IF NOT EXISTS indices (id INTEGER PRIMARY KEY, title, nodeId, type)']; //, 'CREATE INDEX nodeId_index ON indices (nodeId)', 'CREATE INDEX title_index ON indices (title)'];
 					// CREATE VIRTUAL TABLE indices USING fts3()
-					let batch = []; //, 'CREATE INDEX nodeId_index ON indices (nodeId)', 'CREATE INDEX title_index ON indices (title)'];
+					let batch:Array<Array<any>> = []; //, 'CREATE INDEX nodeId_index ON indices (nodeId)', 'CREATE INDEX title_index ON indices (title)'];
 					for(var key in obj.indexFileContents) {
-						obj.indexFileContents[key].forEach((nodeId)=>{
+						obj.indexFileContents[key].forEach((nodeId:string)=>{
 
 							// HACK: https://github.com/BuddhistDigitalResourceCenter/BDRC-Lib-App/issues/41							 
 							if(-1!=key.indexOf(LINE_SEP)){
@@ -606,6 +562,7 @@ class Database {
 							}
 
 
+							/*
 							// HACK: Because the work index files contain references not only to alternative titles, but to publishers, 
 							// we do not create database entries for any RIDs that contain a "-" 
 							let thisEntryIsGoodData = true; 
@@ -619,7 +576,9 @@ class Database {
 							if(thisEntryIsGoodData) {
 								batch.push([ 'INSERT INTO indices VALUES (?,?,?,?)', [null, key, nodeId, obj.indexFile.type] ]);
 							}
+							*/
 
+							batch.push([ 'INSERT INTO indices VALUES (?,?,?,?)', [null, key, nodeId, obj.indexFile.type] ]);
 
 						});
 					}
@@ -627,37 +586,14 @@ class Database {
 				  	()=>{
 			    		resolve(obj.indexFile);
 				  	}, 
-				  	(error)=>{
+				  	(error:any)=>{
 				    	reject({ indexFile: obj.indexFile, error:error});
 				  	}
 				  );
 				}
 			});
-		}
+		
 	}
-
-/**
- * [processOutlineWorkTitleIndex description]
- *
- * {
- *   "O1KG10746": "ས་ར་ཧ་པའི་རྡོ་རྗེའི་གསུང་རྣམས་ཕྱོགས་བསྒྲིགས།",
- *   "O1KG2938": "རྒྱན་འགྲེལ་སྤྱི་དོན་རོལ་མཚོ།（ཀྲུང་གོ་བོད་ཀྱི་ཤེས་རིག་དཔེ་སྐྲུན་ཁང་／）",
- *   "O00EGS109598": "གསུང་འབུམ། འཇམ་དབྱངས་དཔལ་ལྡན་རྒྱ་མཚོ",
- *   ...
- * }
- * 
- * @param  {[type]} obj: {indexFile:  IndexFile,indexFileContents: any} [description]
- * @return {[type]}      [description]
- */
-	processOutlineWorkTitleIndex(obj: {indexFile: IndexFile,indexFileContents: any}) {
-		return new Promise((resolve, reject)=>{ 
-			// this.shareStatus('Processing '+obj.indexFile.desc);
-			localStorage.setItem('OutlineWorkIndex', JSON.stringify(obj.indexFileContents));
-			this.outlineWorkIndex = obj.indexFileContents;
-			resolve(obj.indexFile);
-		});		
-	}
-
 
 
 
@@ -668,11 +604,12 @@ class Database {
 	 * @return {Promise}
 	 */
 	loadIndex(indexFile: IndexFile){
+		console.log('loadIndex '+indexFile.filename);
 		if(this.runningInBrowser) {
-
+			console.log('runningInBrowser');
 			return new Promise((resolve, reject) => {
 				//this.shareStatus('loading '+indexFile.desc);
-				this.shareStatus(this.strings.IndexFileLoadingDescriptions[indexFile.desc]);
+				this.shareStatus((this.strings.IndexFileLoadingDescriptions as any)[indexFile.desc]);
 	    	$.getJSON('data/'+indexFile.filename)
 	      	.done((json) => {
 	      		resolve({indexFile:indexFile, indexFileContents:json});
@@ -683,10 +620,10 @@ class Database {
 		} else {
 			return new Promise((resolve, reject)=>{ 
 				// this.shareStatus('loading '+indexFile.desc);
-				this.shareStatus(this.strings.IndexFileLoadingDescriptions[indexFile.desc]);
+				this.shareStatus((this.strings.IndexFileLoadingDescriptions as any)[indexFile.desc]);
 				let filePath = cordova.file.applicationDirectory+'www/data/'+indexFile.filename;
-				window.resolveLocalFileSystemURL(filePath, (fileEntry) => {
-		 			NativeUtil.readFile(fileEntry, (fileContents)=> {
+				window.resolveLocalFileSystemURL(filePath, (fileEntry:any) => {
+		 			NativeUtil.readFile(fileEntry, (fileContents:any)=> {
 		 				if(fileContents) {
 		 					try {
 		 						let json = JSON.parse(fileContents);
@@ -737,7 +674,9 @@ class Database {
 	 * @param  {[type]} callback:(success:boolean, error:any     [description]
 	 * @return {[type]}                            [description]
 	 */
-	initialize(callback:(success:boolean, error:any)=>void, statusListener:(string)=>void) {
+	initialize(callback:(success:boolean, error?:any)=>void, statusListener:StatusListenerFunc) {
+
+		console.log('initialize');
 
 		this.addStatusListener(statusListener);
 	
@@ -754,13 +693,13 @@ class Database {
 		 * serial(urls.map(url => () => $.ajax(url)))
 		 *     .then(console.log.bind(console))
 		 */
-		const serial = funcs =>
+		const serial = (funcs:Array<any>) =>
 			funcs.reduce((promise, func) =>
-		  	promise.then(result => func().then(Array.prototype.concat.bind(result))), Promise.resolve([]));
+		  	promise.then((result:any) => func().then(Array.prototype.concat.bind(result))), Promise.resolve([]));
 
-		let loadingPromises = indexFiles.map(indexFile => () => this.loadIndex(indexFile) );
+		const loadingPromises = indexFiles.map(indexFile => () => this.loadIndex(indexFile) );
 
-		let cb = () => new Promise(
+		const cb = () => new Promise(
 			(resolve, reject) => { 
 				callback(true); 
 				localStorage.setItem('DatabaseStatus', 'Loaded'); 
@@ -787,16 +726,6 @@ class Database {
 				this.database.executeSql('DROP TABLE IF EXISTS indices');
 			}
 
-			// revive the workIndex
-			let _outlineWorkIndex = localStorage.getItem('OutlineWorkIndex');
-			if(null!=_outlineWorkIndex) {
-				try {
-					this.outlineWorkIndex = JSON.parse(_outlineWorkIndex);
-				} catch(e){
-					console.log(e);
-				}
-			}
-
 		}
 
   	onready();
@@ -805,4 +734,3 @@ class Database {
 }
 
 export default Database;
-export {DatabaseResult};

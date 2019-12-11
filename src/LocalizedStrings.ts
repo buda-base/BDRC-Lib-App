@@ -1,11 +1,9 @@
-// @flow
- 
-export type LocalizedStringsType = {
+
+export interface LocalizedStringsType	 {
 	id:string,
-	displayNum: (number)=>string;
-	displayStatus: (string)=>string;
-	accessString: (string)=>string;
-	licenseString: (string)=>string;
+	displayNum: (num:number)=>string;
+	displayStatus: (str:string)=>string;
+	accessString: (str:string)=>string;
 	appName: string;
 	searchHintText: string;
 	searchRequirementText: string;
@@ -21,7 +19,7 @@ export type LocalizedStringsType = {
 	RID:string;
 	PersonRID:string;
 	WorkRID:string;
-	OutlineRID:string;
+	WorkPartRID:string;
 	PublisherName:string;
 	PublisherDate:string;
 	PublisherLocation:string;
@@ -29,7 +27,7 @@ export type LocalizedStringsType = {
 	VolumePre:string;
 	VolumePost:string;
 	Volumes:string;	
-	IsOutlineOf:string;	
+	IsWorkPartOf:string;	
 	VIEW:string;
 	SHARE:string;
 	pagesPre:string;
@@ -92,8 +90,13 @@ export type LocalizedStringsType = {
 	openAccessRight:string;
 	allAccessRight:string;
 	ctcAccessRight:string;
-	openAccessRight:string;
 
+	statusSeekingOut:string;
+	statusAcquiring:string;
+	statusAccessioned:string;
+	statusUnknown:string;
+	statusReleased:string;
+	
 	noAccessRight:string;
 	noneSealedRight:string;
 	noneTemporaryRight:string;
@@ -111,12 +114,7 @@ export type LocalizedStringsType = {
 	serverInUSA:string;
 	librarySourceTitle:string;
 	librarySourceDescription:string;
-	License:string;
 	Access:string;
-	licenseCopyrighted:string;
-	licensePublicdomain:string;
-	licenseCcby:string;
-	licenseMixed:string;
 	accessOpen:string;
 	accessFairuse:string;
 	accessMixed:string;
@@ -132,42 +130,39 @@ export type LocalizedStringsType = {
 	SELECT:string;
 };
 
-type IndexFileLoadingDescriptionsType = {
+interface IndexFileLoadingDescriptionsType {
 	Works1:string;
 	Works2:string;
-	Authors:string;
-	Outline1:string;
-	Outline2:string;
-	Outline3:string;
-	Outline4:string;
-	Outline5:string;
-	Outline6:string;
-	Outline7:string;
-	Outline8:string;
-	Outline9:string;
-	Outline10:string;
-	Outline11:string;
-	Outline12:string;
-	Outline13:string;
-	Outline14:string;
-	Outline15:string;
-	Outline16:string;
-	Outline17:string;
-	Outline18:string;
-	Outline19:string;
-	Outline20:string;
-	Outline21:string;
-	Outline22:string;
-	OutlineWorkTitles:string;
+	Works3:string;
+	Works4:string;
+	Works5:string;
+	Authors1:string;
+	Authors2:string;
+	Authors3:string;
+	Authors4:string;
+	Authors5:string;
+	WorkPart1:string;
+	WorkPart2:string;
+	WorkPart3:string;
+	WorkPart4:string;
+	WorkPart5:string;
+	WorkPart6:string;
+	WorkPart7:string;
+	WorkPart8:string;
+	WorkPart9:string;
+	WorkPart10:string;
+	WorkPart11:string;
+	WorkPart12:string;
+	WorkPart13:string;
+	WorkPart14:string;	
+	WorkPart15:string;	
+	WorkPart16:string;	
+	WorkPart17:string;	
+	WorkPart18:string;	
+	WorkPart19:string;	
+	WorkPart20:string;	
 };
 
-function localizedLicenseString(licenseValue:string, strings:LocalizedStringsType) {
-	if('publicdomain'===licenseValue)return strings.licensePublicdomain;
-	else if('copyrighted'===licenseValue) return strings.licenseCopyrighted;
-	else if('ccby'===licenseValue) return strings.licenseCcby;
-	else if('mixed'===licenseValue) return strings.licenseMixed;
-	else return '';
-}
 
 function localizedAccessString(accessValue:string, strings:LocalizedStringsType) {
 	if('open'===accessValue)return strings.accessOpen;
@@ -175,9 +170,9 @@ function localizedAccessString(accessValue:string, strings:LocalizedStringsType)
 	else if('restrictedbytbrc'===accessValue) return strings.accessRestrictedbytbrc;
 	else if('restrictedsealed'===accessValue) return strings.accessRestrictedsealed;
 	else if('restrictedtemporarily'===accessValue) return strings.accessRestrictedtemporarily;
-	else if('restrictedinchina'===accessValue) return strings.accessRestrictedinchina;
+	//else if('restrictedinchina'===accessValue) return strings.accessRestrictedinchina;
 	else if('fairuse'===accessValue) return strings.accessFairuse;
-	else if('mixed'===accessValue) return strings.accessMixed;
+	//else if('mixed'===accessValue) return strings.accessMixed;
 	else return '';
 }
 
@@ -192,9 +187,6 @@ export const en:LocalizedStringsType = {
 		else if(status==='accessioned') return this.statusAccessioned;
 		else if(status==='released') return this.statusReleased;
 		else return this.statusUnknown;
-	},
-	licenseString(licenseValue){
-		return localizedLicenseString(licenseValue, this);
 	},
 	accessString(accessValue){
 		return localizedAccessString(accessValue, this);
@@ -219,7 +211,7 @@ export const en:LocalizedStringsType = {
 	RID:'RID',
 	PersonRID:'Person RID',
 	WorkRID:'Work RID',
-	OutlineRID:'Outline RID',
+	WorkPartRID:'Work Part RID',
 	PublisherName:'Publisher Name',
 	PublisherDate:'Publisher Date',
 	PublisherLocation:'Publisher Location',
@@ -227,7 +219,7 @@ export const en:LocalizedStringsType = {
 	VolumePre:'Volume ',
 	VolumePost:'',
 	Volumes:'Volumes',	
-	IsOutlineOf:'Is Outline Of',	
+	IsWorkPartOf:'Is Part Of',	
 	VIEW:'VIEW',
 	SHARE:'WEB LINK',
 	pagesPre:', ',
@@ -243,30 +235,34 @@ export const en:LocalizedStringsType = {
 	IndexFileLoadingDescriptions:{
 		Works1:'Loading Works 1',
 		Works2:'Loading Works 2',
-		Authors:'Loading Authors',
-		Outline1:'Loading Outline 1',
-		Outline2:'Loading Outline 2',
-		Outline3:'Loading Outline 3',
-		Outline4:'Loading Outline 4',
-		Outline5:'Loading Outline 5',
-		Outline6:'Loading Outline 6',
-		Outline7:'Loading Outline 7',
-		Outline8:'Loading Outline 8',
-		Outline9:'Loading Outline 9',
-		Outline10:'Loading Outline 10',
-		Outline11:'Loading Outline 11',
-		Outline12:'Loading Outline 12',
-		Outline13:'Loading Outline 13',
-		Outline14:'Loading Outline 14',
-		Outline15:'Loading Outline 15',
-		Outline16:'Loading Outline 16',
-		Outline17:'Loading Outline 17',
-		Outline18:'Loading Outline 18',
-		Outline19:'Loading Outline 19',
-		Outline20:'Loading Outline 20',
-		Outline21:'Loading Outline 21',
-		Outline22:'Loading Outline 22',
-		OutlineWorkTitles:'Loading Outline Work Titles'	
+		Works3:'Loading Works 3',
+		Works4:'Loading Works 4',
+		Works5:'Loading Works 5',
+		Authors1:'Loading Authors 1',
+		Authors2:'Loading Authors 2',
+		Authors3:'Loading Authors 3',
+		Authors4:'Loading Authors 4',
+		Authors5:'Loading Authors 5',
+		WorkPart1:'Loading WorkPart 1',
+		WorkPart2:'Loading WorkPart 2',
+		WorkPart3:'Loading WorkPart 3',
+		WorkPart4:'Loading WorkPart 4',
+		WorkPart5:'Loading WorkPart 5',
+		WorkPart6:'Loading WorkPart 6',
+		WorkPart7:'Loading WorkPart 7',
+		WorkPart8:'Loading WorkPart 8',
+		WorkPart9:'Loading WorkPart 9',
+		WorkPart10:'Loading WorkPart 10',
+		WorkPart11:'Loading WorkPart 11',
+		WorkPart12:'Loading WorkPart 12',
+		WorkPart13:'Loading WorkPart 13',
+		WorkPart14:'Loading WorkPart 14',
+		WorkPart15:'Loading WorkPart 15',
+		WorkPart16:'Loading WorkPart 16',
+		WorkPart17:'Loading WorkPart 17',
+		WorkPart18:'Loading WorkPart 18',
+		WorkPart19:'Loading WorkPart 19',
+		WorkPart20:'Loading WorkPart 20',
 	},
 	Alert:'Alert',
 	NoInternetMessage:'It appears that you are not connected to the Internet. In order to view scanned pages, you will need an Internet connection - preferably a high speed connection.',
@@ -317,7 +313,6 @@ export const en:LocalizedStringsType = {
 	openAccessRight:'', // 'Error 110: ',
 	allAccessRight:'', // 'Error 111: ',
 	ctcAccessRight:'', // 'Error 112: ',
-	openAccessRight:'', // 'Error 113: ',
 	noAccessRight:'', // 'Error 201: ',
 	noneSealedRight:'', // 'Error 202: ',
 	noneTemporaryRight:'', // 'Error 203: ',
@@ -333,12 +328,7 @@ export const en:LocalizedStringsType = {
 	serverInUSA: 'All other countries',
 	librarySourceTitle: 'Please select library source',
 	librarySourceDescription: 'If you are using the BDRC Library app in China, please choose the servers in China so that images and PDFs are visible and downloadable.',
-	License: 'License',
 	Access: 'Access',
-	licenseCopyrighted: 'Copyrighted',
-	licensePublicdomain: 'Public Domain',
-	licenseCcby: 'Creative Commons (CC BY)',
-	licenseMixed: 'Mixed',
 	accessFairuse: 'Fair Use',
 	accessMixed: 'Mixed',
 	accessOpen: 'Open',
@@ -370,9 +360,6 @@ export const cn:LocalizedStringsType = {
 		else if(status==='released') return this.statusReleased;
 		else return this.statusUnknown;
 	},
-	licenseString(licenseValue){
-		return localizedLicenseString(licenseValue, this);
-	},
 	accessString(accessValue){
 		return localizedAccessString(accessValue, this);
 	},
@@ -396,7 +383,7 @@ export const cn:LocalizedStringsType = {
 	RID:'资源编号',
 	PersonRID:'作者编号',
 	WorkRID:'藏书编号',
-	OutlineRID:'目录编号',
+	WorkPartRID:'目录编号',
 	PublisherName:'发行人名称',
 	PublisherDate:'发行日期',
 	PublisherLocation:'发行地点',
@@ -404,7 +391,7 @@ export const cn:LocalizedStringsType = {
 	VolumePre:'第',
 	VolumePost:'卷',
 	Volumes:'卷',	
-	IsOutlineOf:'概述',	
+	IsWorkPartOf:'概述',	
 	VIEW:'阅读',
 	SHARE:'网站',
 	pagesPre:' ',
@@ -420,30 +407,34 @@ export const cn:LocalizedStringsType = {
 	IndexFileLoadingDescriptions:{
 		Works1:'正在处理文本1',
 		Works2:'正在处理文本2',
-		Authors:'正在处理作者',
-		Outline1:'正在处理图书目录1',
-		Outline2:'正在处理图书目录2',
-		Outline3:'正在处理图书目录3',
-		Outline4:'正在处理图书目录4',
-		Outline5:'正在处理图书目录5',
-		Outline6:'正在处理图书目录6',
-		Outline7:'正在处理图书目录7',
-		Outline8:'正在处理图书目录8',
-		Outline9:'正在处理图书目录9',
-		Outline10:'正在处理图书目录10',
-		Outline11:'正在处理图书目录11',
-		Outline12:'正在处理图书目录12',
-		Outline13:'正在处理图书目录13',
-		Outline14:'正在处理图书目录14',
-		Outline15:'正在处理图书目录15',
-		Outline16:'正在处理图书目录16',
-		Outline17:'正在处理图书目录17',
-		Outline18:'正在处理图书目录18',
-		Outline19:'正在处理图书目录19',
-		Outline20:'正在处理图书目录20',
-		Outline21:'正在处理图书目录21',
-		Outline22:'正在处理图书目录22',
-		OutlineWorkTitles:'数据库初始化完成'	  // means initialization done
+		Works3:'正在处理文本3',
+		Works4:'正在处理文本4',
+		Works5:'正在处理文本5',
+		Authors1:'正在处理作者1',
+		Authors2:'正在处理作者2',
+		Authors3:'正在处理作者3',
+		Authors4:'正在处理作者4',
+		Authors5:'正在处理作者5',
+		WorkPart1:'正在处理图书目录1',
+		WorkPart2:'正在处理图书目录2',
+		WorkPart3:'正在处理图书目录3',
+		WorkPart4:'正在处理图书目录4',
+		WorkPart5:'正在处理图书目录5',
+		WorkPart6:'正在处理图书目录6',
+		WorkPart7:'正在处理图书目录7',
+		WorkPart8:'正在处理图书目录8',
+		WorkPart9:'正在处理图书目录9',
+		WorkPart10:'正在处理图书目录10',
+		WorkPart11:'正在处理图书目录11',
+		WorkPart12:'正在处理图书目录12',
+		WorkPart13:'正在处理图书目录13',
+		WorkPart14:'正在处理图书目录14',
+		WorkPart15:'正在处理图书目录15',
+		WorkPart16:'正在处理图书目录16',
+		WorkPart17:'正在处理图书目录17',
+		WorkPart18:'正在处理图书目录18',
+		WorkPart19:'正在处理图书目录19',
+		WorkPart20:'正在处理图书目录20',
 	},
 	Alert:'推送通知',
 	NoInternetMessage:'您可能尚未连上互联网。您必须有互联网才能下载PDF-最好有高速的网速。',
@@ -494,7 +485,6 @@ export const cn:LocalizedStringsType = {
 	openAccessRight:'', // '错误110: ',
 	allAccessRight:'', // '错误111: ',
 	ctcAccessRight:'', // '错误112: ',
-	openAccessRight:'', // '错误113: ',
 	noAccessRight:'', // '错误201: ',
 	noneSealedRight:'', // '错误202: ',
 	noneTemporaryRight:'', // '错误203: ',
@@ -510,12 +500,7 @@ export const cn:LocalizedStringsType = {
 	serverInUSA: '国外',
 	librarySourceTitle: '请选择图书馆所在地',
 	librarySourceDescription: '如果您使用的是BDRC在中国的图书资料库程序，请选择在中国的服务器，以确保图档和PDF文件皆能开启及下载。',
-	License: '版权',
 	Access: '使用权限',
-	licenseCopyrighted: '受版权保护',
-	licensePublicdomain: '公共场域',
-	licenseCcby: '知识共享（CC BY）',
-	licenseMixed: '不详',
 	accessOpen:'开放使用',
 	accessFairuse: '合理使用',
 	accessMixed: '不详',
@@ -539,12 +524,11 @@ export const bo:LocalizedStringsType = {
 		let result = '';
 
 		if(0===num) return bo_nums[0];
-
-		if(num && num == parseInt(num)) {
+		if(num) {
 			while(num>0){
 				let v = num%10;
 				result = bo_nums[v]+result;
-				num = parseInt(num/10);
+				num = num/10;
 			}
 		}
 		return result;
@@ -556,9 +540,7 @@ export const bo:LocalizedStringsType = {
 		else if(status==='released') return this.statusReleased;
 		else return this.statusUnknown;
 	},
-	licenseString(licenseValue){
-		return localizedLicenseString(licenseValue, this);
-	},
+
 	accessString(accessValue){
 		return localizedAccessString(accessValue, this);
 	},
@@ -581,7 +563,7 @@ export const bo:LocalizedStringsType = {
 	RID:'ཨང་རྟགས།',
 	PersonRID:'མི་སྣ་ཨང་།',
 	WorkRID:'བརྩམས་ཆོས་ཨང་།',
-	OutlineRID:'ས་བཅད་ཨང་།',
+	WorkPartRID:'ས་བཅད་ཨང་།',
 	Title:'མཚན་བྱང་།',	
 	PublisherName:'པར་མཁན།',
 	PublisherDate:'པར་དུས།',
@@ -590,7 +572,7 @@ export const bo:LocalizedStringsType = {
 	VolumePre:'པོད་ཨང་ ',
 	VolumePost:'',
 	Volumes:'པོད་གྲངས།',	
-	IsOutlineOf:'ཁུངས།',		
+	IsWorkPartOf:'ཁུངས།',		
 	VIEW:'ཀློག',
 	SHARE:'དྲ་ཚིགས།',
 	pagesPre:' ཤོག་གྲངས་',
@@ -601,39 +583,46 @@ export const bo:LocalizedStringsType = {
 	OK:'འགྲིག་སོང་།',
 	BACK:'ཕྱིར་ལོག',
 	InitializingDatabase:'དཔེ་མཛོད་མ་ལག་སྒྲིག་མུས་ཡིན།',
-	ProcessingPre:'',
-	ProcessingPost:' སྒྲིག་མུས་ཡིན།',
-	LoadingPre:'Loading ',
-	LoadingPost:'',
+	//ProcessingPre:'',
+	//ProcessingPost:' སྒྲིག་མུས་ཡིན།',
+	//LoadingPre:'Loading ',
+	//LoadingPost:'',
 	Welcome:'བྱོན་པ་ལེགས། མཉེན་ཆས་ནང་དཔེ་མཛོད་མ་ལག་སྒྲིག་དགོས་པས་སྐར་མ་འགར་སྒུགས།',
 	databaseInitFailed: 'དཔེ་མཛོད་མ་ལག་བསྒྲིགས་ཐུབ་མ་སོང་། མཉེན་ཆས་སྒོ་བརྒྱབ་ནས་བསྐྱར་དུ་འབྱེད་རོགས།',
 	IndexFileLoadingDescriptions:{
 		Works1:'མཚན་བྱང་སྒྲིག་མུས་ཡིན།',
 		Works2:'མཚན་བྱང་སྒྲིག་མུས་ཡིན།',
-		Authors:'མཛད་པ་པོ་སྒྲིག་མུས་ཡིན།',
-		Outline1:'དཀར་ཆག་ཨང་ ༡ སྒྲིག་མུས་ཡིན།',
-		Outline2:'དཀར་ཆག་ཨང་ ༢ སྒྲིག་མུས་ཡིན།',
-		Outline3:'དཀར་ཆག་ཨང་ ༣ སྒྲིག་མུས་ཡིན།',
-		Outline4:'དཀར་ཆག་ཨང་ ༤ སྒྲིག་མུས་ཡིན།',
-		Outline5:'དཀར་ཆག་ཨང་ ༥ སྒྲིག་མུས་ཡིན།',
-		Outline6:'དཀར་ཆག་ཨང་ ༦ སྒྲིག་མུས་ཡིན།',
-		Outline7:'དཀར་ཆག་ཨང་ ༧ སྒྲིག་མུས་ཡིན།',
-		Outline8:'དཀར་ཆག་ཨང་ ༨ སྒྲིག་མུས་ཡིན།',
-		Outline9:'དཀར་ཆག་ཨང་ ༩ སྒྲིག་མུས་ཡིན།',
-		Outline10:'དཀར་ཆག་ཨང་ ༡༠ སྒྲིག་མུས་ཡིན།',
-		Outline11:'དཀར་ཆག་ཨང་ ༡༡ སྒྲིག་མུས་ཡིན།',
-		Outline12:'དཀར་ཆག་ཨང་ ༡༢ སྒྲིག་མུས་ཡིན།',
-		Outline13:'དཀར་ཆག་ཨང་ ༡༣ སྒྲིག་མུས་ཡིན།',
-		Outline14:'དཀར་ཆག་ཨང་ ༡༤ སྒྲིག་མུས་ཡིན།',
-		Outline15:'དཀར་ཆག་ཨང་ ༡༥ སྒྲིག་མུས་ཡིན།',
-		Outline16:'དཀར་ཆག་ཨང་ ༡༦ སྒྲིག་མུས་ཡིན།',
-		Outline17:'དཀར་ཆག་ཨང་ ༡༧ སྒྲིག་མུས་ཡིན།',
-		Outline18:'དཀར་ཆག་ཨང་ ༡༨ སྒྲིག་མུས་ཡིན།',
-		Outline19:'དཀར་ཆག་ཨང་ ༡༩ སྒྲིག་མུས་ཡིན།',
-		Outline20:'དཀར་ཆག་ཨང་ ༢༠ སྒྲིག་མུས་ཡིན།',
-		Outline21:'དཀར་ཆག་ཨང་ ༢༡ སྒྲིག་མུས་ཡིན།',
-		Outline22:'དཀར་ཆག་ཨང་ ༢༢ སྒྲིག་མུས་ཡིན།',
-		OutlineWorkTitles:'དཔེ་མཛོད་བསྒྲིགས་ཟིན།'	       	// NOTE: This means "initialization done" and because it is the last file processed, everything works out just fine
+		Works3:'མཚན་བྱང་སྒྲིག་མུས་ཡིན།',
+		Works4:'མཚན་བྱང་སྒྲིག་མུས་ཡིན།',
+		Works5:'མཚན་བྱང་སྒྲིག་མུས་ཡིན།',
+		Authors1:'མཛད་པ་པོ་སྒྲིག་མུས་ཡིན།',
+		Authors2:'མཛད་པ་པོ་སྒྲིག་མུས་ཡིན།',
+		Authors3:'མཛད་པ་པོ་སྒྲིག་མུས་ཡིན།',
+		Authors4:'མཛད་པ་པོ་སྒྲིག་མུས་ཡིན།',
+		Authors5:'མཛད་པ་པོ་སྒྲིག་མུས་ཡིན།',
+		WorkPart1:'དཀར་ཆག་ཨང་ ༡ སྒྲིག་མུས་ཡིན།',
+		WorkPart2:'དཀར་ཆག་ཨང་ ༢ སྒྲིག་མུས་ཡིན།',
+		WorkPart3:'དཀར་ཆག་ཨང་ ༣ སྒྲིག་མུས་ཡིན།',
+		WorkPart4:'དཀར་ཆག་ཨང་ ༤ སྒྲིག་མུས་ཡིན།',
+		WorkPart5:'དཀར་ཆག་ཨང་ ༥ སྒྲིག་མུས་ཡིན།',
+		WorkPart6:'དཀར་ཆག་ཨང་ ༦ སྒྲིག་མུས་ཡིན།',
+		WorkPart7:'དཀར་ཆག་ཨང་ ༧ སྒྲིག་མུས་ཡིན།',
+		WorkPart8:'དཀར་ཆག་ཨང་ ༨ སྒྲིག་མུས་ཡིན།',
+		WorkPart9:'དཀར་ཆག་ཨང་ ༩ སྒྲིག་མུས་ཡིན།',
+		WorkPart10:'དཀར་ཆག་ཨང་ ༡༠ སྒྲིག་མུས་ཡིན།',
+		WorkPart11:'དཀར་ཆག་ཨང་ ༡༡ སྒྲིག་མུས་ཡིན།',
+		WorkPart12:'དཀར་ཆག་ཨང་ ༡༢ སྒྲིག་མུས་ཡིན།',
+		WorkPart13:'དཀར་ཆག་ཨང་ ༡༣ སྒྲིག་མུས་ཡིན།',
+		WorkPart14:'དཀར་ཆག་ཨང་ ༡༤ སྒྲིག་མུས་ཡིན།',
+		WorkPart15:'དཀར་ཆག་ཨང་ ༡༥ སྒྲིག་མུས་ཡིན།',
+		WorkPart16:'དཀར་ཆག་ཨང་ ༡༦ སྒྲིག་མུས་ཡིན།',
+		WorkPart17:'དཀར་ཆག་ཨང་ ༡༧ སྒྲིག་མུས་ཡིན།',
+		WorkPart18:'དཀར་ཆག་ཨང་ ༡༨ སྒྲིག་མུས་ཡིན།',
+		WorkPart19:'དཀར་ཆག་ཨང་ ༡༩ སྒྲིག་མུས་ཡིན།',
+		WorkPart20:'དཀར་ཆག་ཨང་ ༢༠ སྒྲིག་མུས་ཡིན།',
+		// WorkPart21:'དཀར་ཆག་ཨང་ ༢༡ སྒྲིག་མུས་ཡིན།',
+		// WorkPart22:'དཀར་ཆག་ཨང་ ༢༢ སྒྲིག་མུས་ཡིན།',
+		// WorkPartWorkTitles:'དཔེ་མཛོད་བསྒྲིགས་ཟིན།'	       	// NOTE: This means "initialization done" and because it is the last file processed, everything works out just fine
 	},
 	Alert:'གསལ་བརྡ།',
 	NoInternetMessage:'ཕལ་ཆེར་དྲ་རྒྱར་མཐུད་མེད་པ་འདྲ། PDFཕབ་ལེན་བྱེད་པར་དྲ་རྒྱ་ཤུགས་ཆེ་ཙམ་ཡོད་དགོས།',
@@ -684,7 +673,6 @@ export const bo:LocalizedStringsType = {
 	openAccessRight:'', // 'གནད་དོན་ཨང་༡༡༠ ',
 	allAccessRight:'', // 'གནད་དོན་ཨང་༡༡༡ ',
 	ctcAccessRight:'', // 'གནད་དོན་ཨང་༡༡༢ ',
-	openAccessRight:'', // 'གནད་དོན་ཨང་༡༡༣ ',
 	noAccessRight:'', // 'གནད་དོན་ཨང་༢༠༡ ',
 	noneSealedRight:'', // 'གནད་དོན་ཨང་༢༠༢ ',
 	noneTemporaryRight:'', // 'གནད་དོན་ཨང་༢༠༣ ',
@@ -700,12 +688,7 @@ export const bo:LocalizedStringsType = {
 	serverInUSA: 'ཕྱི་རྒྱལ།',
 	librarySourceTitle: 'ཡིིག་ཆ་ལེན་གནས་གཅིག་འདེམ་རོགས།',
 	librarySourceDescription: 'རྒྱ་ནག་ནང་ཁུལ་དུ་ PDF ཕབ་ལེན་བྱེད་མི་ཐུབ་པའི་དཀའ་ངལ་སེལ་ཕྱིར་ཡིག་ཆ་ལེན་གནས་ལས་རྒྱ་ནག་ཅེས་འདེམ་དགོས།',
-	License: 'བདག་དབང་།',
 	Access: 'བཀག་རྒྱ།',
-	licenseCopyrighted: 'བདག་དབང་ཅན།',
-	licensePublicdomain: 'སྤྱི་སྤྱོད་ཁྱབ་ཁོངས།',
-	licenseCcby: 'གསལ་ཁ་མེད།',
-	licenseMixed: 'གསལ་ཁ་མེད།',
 	accessOpen:'བཀག་རྒྱ་མེད།',
 	accessFairuse: 'ཚུལ་མཐུན་བཀོལ་སྤྱོད།',
 	accessMixed: 'གསལ་ཁ་མེད།',
