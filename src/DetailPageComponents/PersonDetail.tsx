@@ -2,7 +2,7 @@ import * as React from 'react';
 import {observer} from 'mobx-react';
 import {Person} from '../Records';
 import Database from '../Database';
-import {LocalizedStringsType} from '../LocalizedStrings';
+import {ILocalizedStrings} from '../LocalizedStrings';
 import AppState from '../AppState';
 import {Card} from 'react-onsenui';
 import {StringSection} from './StringSection'; 
@@ -17,13 +17,13 @@ export class PersonDetail extends React.Component {
   };
   props:{
     person:Person|null,
-    strings:LocalizedStringsType,
+    strings:ILocalizedStrings,
     db:Database, 
     viewRelatedRecord:(record:DatabaseResult)=>void,
     appState:AppState
   };
 
-  constructor(props:{db:Database, person:any, strings:LocalizedStringsType, viewRelatedRecord:(record:DatabaseResult)=>void, appState:AppState}) {
+  constructor(props:{db:Database, person:any, strings:ILocalizedStrings, viewRelatedRecord:(record:DatabaseResult)=>void, appState:AppState}) {
     super(props);   
     this.state = {
       authoredWorks: []

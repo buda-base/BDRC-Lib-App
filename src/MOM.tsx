@@ -1,16 +1,14 @@
-
-
 import * as React from 'react';
 import {observer} from 'mobx-react';
 import {Menu, MenuItem} from './UIWidgets';
 import AppState, {aboutRoute, helpRoute, settingsRoute} from './AppState';
 
-@observer
-export default class MOM extends React.Component {  
+interface P_MOM {
+  appState:AppState;
+}
 
-  props:{
-    appState:AppState
-  };
+@observer
+export class MOM extends React.Component<P_MOM> {  
 
   toggleInfoPanel = () => {
     this.props.appState.momOpened = false;    

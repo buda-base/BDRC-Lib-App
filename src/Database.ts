@@ -7,7 +7,7 @@ import NativeUtil from './NativeUtil'
 import * as $ from 'jquery';
 import AppState from './AppState';
 import {IndexFile} from './TypeAliases';
-import {LocalizedStringsType} from './LocalizedStrings';
+import {ILocalizedStrings} from './LocalizedStrings';
 import undefined = require('../_node_modules/sockjs-client/lib/transport/browser/websocket');
 import { DatabaseResult } from './DatabaseResult';
 
@@ -55,7 +55,7 @@ class Database {
 	database:any = {};
 
 	// localization
-	strings:LocalizedStringsType;
+	strings:ILocalizedStrings;
 
 	// browser database, just for testing
 	jsondata: Array<DatabaseResult> = [];
@@ -714,7 +714,7 @@ class Database {
 
 	}
 
-	constructor(strings:LocalizedStringsType, onready: () => void, appState:AppState) {
+	constructor(strings:ILocalizedStrings, onready: () => void, appState:AppState) {
 		this.strings = strings;
 		this.appState = appState;
 		lasca.setLanguage("real_tibetan");

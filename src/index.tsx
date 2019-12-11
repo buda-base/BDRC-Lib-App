@@ -7,8 +7,8 @@ import * as uuidV1 from 'uuid/v1';
 // import injectTapEventPlugin from 'react-tap-event-plugin';
 // injectTapEventPlugin();
 
-import Top from './Top';
-import MOM from './MOM';
+import { Top } from './Top';
+import { MOM } from './MOM';
 import AppState from './AppState';
 import * as Logger from 'js-logger';
 import {SnackBar} from './UIWidgets';

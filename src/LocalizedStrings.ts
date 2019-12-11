@@ -1,5 +1,4 @@
-
-export interface LocalizedStringsType	 {
+export interface ILocalizedStrings	 {
 	id:string,
 	displayNum: (num:number)=>string;
 	displayStatus: (str:string)=>string;
@@ -164,7 +163,7 @@ interface IndexFileLoadingDescriptionsType {
 };
 
 
-function localizedAccessString(accessValue:string, strings:LocalizedStringsType) {
+function localizedAccessString(accessValue:string, strings:ILocalizedStrings) {
 	if('open'===accessValue)return strings.accessOpen;
 	else if('restrictedbyquality'===accessValue) return strings.accessRestrictedbyquality;
 	else if('restrictedbytbrc'===accessValue) return strings.accessRestrictedbytbrc;
@@ -176,7 +175,7 @@ function localizedAccessString(accessValue:string, strings:LocalizedStringsType)
 	else return '';
 }
 
-export const en:LocalizedStringsType = {
+export const en:ILocalizedStrings = {
 	id:'en',
 	displayNum(num:number){
 		return ''+num;
@@ -348,7 +347,7 @@ export const en:LocalizedStringsType = {
 
 
 
-export const cn:LocalizedStringsType = {
+export const cn:ILocalizedStrings = {
 	id:'cn',
 	displayNum(num:number){
 		return ''+num;
@@ -518,7 +517,7 @@ export const cn:LocalizedStringsType = {
 
 
 const bo_nums = ["༠","༡","༢","༣","༤","༥","༦","༧","༨","༩"];
-export const bo:LocalizedStringsType = {
+export const bo:ILocalizedStrings = {
 	id:'bo',
 	displayNum(num:number){
 		let result = '';

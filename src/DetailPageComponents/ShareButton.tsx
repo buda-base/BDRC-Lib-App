@@ -1,16 +1,15 @@
-
 declare var device: any;
 declare var window: any;
 
 import * as React from 'react';
 import {observer} from 'mobx-react';
-import {LocalizedStringsType} from '../LocalizedStrings';
+import {ILocalizedStrings} from '../LocalizedStrings';
 
 
 interface P_ShareButton {
   subject:string;
   url:string;
-  strings:LocalizedStringsType;
+  strings:ILocalizedStrings;
   nodeId:string;
 }
 

@@ -1,11 +1,12 @@
 import * as React from 'react';
-import {LocalizedStringsType} from './LocalizedStrings';
+import {ILocalizedStrings} from './LocalizedStrings';
 import './HelpPage.pcss';
 
-export default class HelpPage extends React.Component {
-  props:{
-    strings:LocalizedStringsType;
-  };
+interface P_HelpPage {
+  strings:ILocalizedStrings;
+}
+
+export class HelpPage extends React.Component<P_HelpPage> {
   render() {
     return (
       <div>

@@ -1,31 +1,29 @@
-
 declare var window:any;
 
 import * as React from 'react';
 import {observer} from 'mobx-react';
 import Database from './Database';
 import AppState from './AppState';
-import {LocalizedStringsType} from './LocalizedStrings';
-import {PersonDetail} from './DetailComponents/PersonDetail';
-import {WorkDetail} from './DetailComponents/WorkDetail';
-import {WorkPartDetail} from './DetailComponents/WorkPartDetail';
-
-import './DetailPage.pcss';
+import {ILocalizedStrings} from './LocalizedStrings';
+import {PersonDetail} from './DetailPageComponents/PersonDetail';
+import {WorkDetail} from './DetailPageComponents/WorkDetail';
+import {WorkPartDetail} from './DetailPageComponents/WorkPartDetail';
 import { DatabaseResult } from './DatabaseResult';
 
+import './DetailPage.pcss';
+
+interface P_DetailPage {
+	db:Database;
+	databaseResult:DatabaseResult;
+	strings:ILocalizedStrings;
+	appState:AppState;
+	files:any;
+}
 
 @observer
-export default class DetailPage extends React.Component {
+export class DetailPage extends React.Component<P_DetailPage> {
 
-	props: {
-		db:Database;
-		databaseResult:DatabaseResult;
-		strings:LocalizedStringsType;
-		appState:AppState;
-		files:any;
-	};
-
-	constructor(props:{db:Database, databaseResult:DatabaseResult, strings:LocalizedStringsType, appState:AppState, files:any}) {
+	constructor(props:P_DetailPage) {
 		super(props);
 		window.ga.trackEvent('DetailPage', 'Load', props.databaseResult.nodeId);
 	}

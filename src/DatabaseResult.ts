@@ -1,3 +1,5 @@
+declare var device: any;
+
 import { Work, Person, WorkPart } from './Records';
 import Database from './Database';
 import BrowserUtil from './BrowserUtil';

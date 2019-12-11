@@ -11,7 +11,7 @@ interface P_Top {
 }
 
 @observer
-export default class Top extends React.Component<P_Top> {
+export class Top extends React.Component<P_Top> {
 
   render() {
 

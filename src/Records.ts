@@ -1,4 +1,4 @@
-import {computed} from 'mobx';
+import { computed } from 'mobx';
 import { PersonRefJSON, WorkJSON, PersonJSON, WorkPartJSON, WorkPartNodeJSON } from './TypeAliases';
 
 class Work {

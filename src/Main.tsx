@@ -2,9 +2,12 @@ import * as React from 'react';
 import { observer } from 'mobx-react';
 import { observable } from 'mobx';
 import Database from './Database';
-import AppState from './AppState';
+import AppState, { searchRoute } from './AppState';
 import * as ons from 'onsenui';
 import {Navigator} from 'react-onsenui';
+import { PleaseWait } from './PleaseWait';
+import { Route } from './TypeAliases';
+import { AppPage } from './AppPage';
 
 interface P_Main {
   db:Database;
@@ -67,8 +70,10 @@ export class Main extends React.Component<P_Main> {
 		return (
       <div>
   			<Navigator 
-  				modifier="material"
-  				renderPage={this.props.appState.renderPage}
+  				renderPage={(route:Route, navigator:Navigator) => {
+            this.props.appState.navigator = navigator;
+            return <AppPage appState={this.props.appState} route={route} />;
+          }}
   				initialRoute={searchRoute}
   			/>
         <PleaseWait showStatusMessage={this.showStatusMessage} statusMessage={this.statusMessage} />

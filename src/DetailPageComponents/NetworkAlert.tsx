@@ -1,10 +1,9 @@
-
 import * as React from 'react';
-import {LocalizedStringsType} from '../LocalizedStrings';
+import {ILocalizedStrings} from '../LocalizedStrings';
 import {AlertDialog} from 'react-onsenui';
 
 interface P_NetworkAlert {
-  strings:LocalizedStringsType;
+  strings:ILocalizedStrings;
   show:boolean;
   onClose:()=>void;
 }

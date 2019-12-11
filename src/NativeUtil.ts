@@ -1,3 +1,5 @@
+declare var window: any;
+declare var cordova: any;
 
 // import {TextDecoder} from 'text-encoding';
 
@@ -5,7 +7,7 @@ const NativeUtil = {
 
   loadJSONFile: (filename:string, callback:(json:any)=>void) => {
     let filePath = cordova.file.applicationDirectory+'www/data/'+filename;
-    window.resolveLocalFileSystemURL(filePath, (fileEntry) => {
+    window.resolveLocalFileSystemURL(filePath, (fileEntry:any) => {
       NativeUtil.readFile(fileEntry, (fileContents:any) => {
         if(fileContents) {
           try {

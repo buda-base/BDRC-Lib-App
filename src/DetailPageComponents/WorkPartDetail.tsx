@@ -1,4 +1,3 @@
-
 declare var navigator: any;
 declare var Connection: any;
 declare var window: any;
@@ -7,7 +6,7 @@ import * as React from 'react';
 import {observer} from 'mobx-react';
 import {Work, WorkPart} from '../Records';
 import Database from '../Database';
-import {LocalizedStringsType} from '../LocalizedStrings';
+import {ILocalizedStrings} from '../LocalizedStrings';
 import AppState from '../AppState';
 import {Card} from 'react-onsenui';
 import {StringSection} from './StringSection';
@@ -17,6 +16,15 @@ import {ViewButton} from './ViewButton';
 import {NetworkAlert} from './NetworkAlert';
 import { DatabaseResult } from '../DatabaseResult';
 import { observable } from 'mobx';
+
+interface P_WorkPartDetail {
+  workPart:WorkPart;
+  strings:ILocalizedStrings;
+  db:Database;
+  viewRelatedRecord:(record:DatabaseResult)=>void;
+  appState:AppState;
+}
+
 /**
  *
  *  This class renders an WorkPart
@@ -26,30 +34,11 @@ import { observable } from 'mobx';
  *
  */
 @observer
-export class WorkPartDetail extends React.Component {
-  state:{
-    relatedWorks:Array<DatabaseResult>,
-    work: Work|null,
-    alertOpen:boolean
-  };
-  props:{
-    workPart:WorkPart,
-    strings:LocalizedStringsType,
-    db:Database, 
-    viewRelatedRecord:(record:DatabaseResult)=>void,
-    appState:AppState
-  };
-
+export class WorkPartDetail extends React.Component<P_WorkPartDetail> {
+  @observable relatedWorks:Array<DatabaseResult> = [];
+  @observable work: Work|null = null;
+  @observable alertOpen:boolean = false;
   @observable downloadPDFOpen:boolean = false;
-
-  constructor(props:{db:Database, workPart:WorkPart, strings:LocalizedStringsType, viewRelatedRecord:(record:DatabaseResult)=>void, appState:AppState} ) {
-    super(props);
-    this.state = {
-      work: null,
-      relatedWorks: [],
-      alertOpen:false
-    };
-  }
 
   componentWillMount(){
     if(this.props.workPart && this.props.workPart.workId){ 
@@ -66,9 +55,7 @@ export class WorkPartDetail extends React.Component {
 
   receiveWork = (work:Work) => {
     if(work) {
-      let state = this.state;
-      state.work = work;
-      this.setState(state);
+      this.work = work;
     }
   }
 
@@ -78,7 +65,7 @@ export class WorkPartDetail extends React.Component {
   }
 
   onAlertClose = () =>{
-    this.setState({alertOpen:false});
+    this.alertOpen = false;
   }
 
 
@@ -87,7 +74,7 @@ export class WorkPartDetail extends React.Component {
     window.ga.trackEvent('DetailPage', 'Gallery', this.props.workPart.nodeId);
 
     if(navigator.connection.type===Connection.NONE) {
-      this.setState({alertOpen:true});
+      this.alertOpen = true;
     } else {
       // this.setState({pechaViewerOpen:true});
     }
@@ -97,7 +84,7 @@ export class WorkPartDetail extends React.Component {
   render() {
     if(this.props.workPart) {
 
-      const work = this.state.work;
+      const work = this.work;
 
 
       // /#!rid=O4JW333|O4JW3334CZ90006$W22084
@@ -109,14 +96,14 @@ export class WorkPartDetail extends React.Component {
           <Card modifier="material">
             <StringSection title={this.props.strings.Title} vals={this.props.workPart.workTitle} />
             <StringSection title={this.props.strings.WorkPartRID} val={this.props.workPart.nodeId} /> 
-            <RelatedRecordSection title={this.props.strings.IsWorkPartOf} relatedRecords={this.state.relatedWorks} viewRelatedRecord={this.props.viewRelatedRecord} />            
+            <RelatedRecordSection title={this.props.strings.IsWorkPartOf} relatedRecords={this.relatedWorks} viewRelatedRecord={this.props.viewRelatedRecord} />            
             <div className="action-bar">
               <div className="actions">   
                 {work ? <ShareButton strings={this.props.strings} subject={shareSubject} url={shareLink} nodeId={this.props.workPart.nodeId} /> : null }          
                 {work ? <ViewButton strings={this.props.strings} handleViewButtonClicked={this.onViewButtonClicked}/> : null }
               </div>
             </div>  
-            {this.state.alertOpen?<NetworkAlert show={this.state.alertOpen} onClose={this.onAlertClose} strings={this.props.strings} />:null}
+            {this.alertOpen?<NetworkAlert show={this.alertOpen} onClose={this.onAlertClose} strings={this.props.strings} />:null}
           </Card>
         </section>        
       );

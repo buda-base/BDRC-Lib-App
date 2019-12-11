@@ -14,12 +14,15 @@
         "moduleResolution": "node",
         "noEmit": true 
     },
-    "exclude": [
-        "node_modules",
-        "res",
-        "www",
-        "platforms",
-        "./plugins/cordova-plugin-file/types/index.d.ts",
-        "plugins"
+    "include" : [
+        "./src/**/*"
     ]
+    // "exclude": [
+    //     "node_modules",
+    //     "res",
+    //     "www",
+    //     "platforms",
+    //     "./plugins/cordova-plugin-file/types/index.d.ts",
+    //     "plugins"
+    // ]
 }

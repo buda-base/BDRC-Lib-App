@@ -1,35 +1,36 @@
-
-declare var cordova: any;
-
-import React, {Component} from 'react';
-import Spinner from 'react-spinkit';	// https://github.com/KyleAMathews/react-spinkit
-import Waypoint from 'react-waypoint'; // https://brigade.github.io/react-waypoint/
-import {Page, Button, Input, Icon, ListItem, List} from 'react-onsenui';
-import {observer} from 'mobx-react';
-
-import Database, {DatabaseResult} from './Database';
+import * as React from 'react';
+import { Waypoint } from 'react-waypoint'; // https://brigade.github.io/react-waypoint/
+import { observer } from 'mobx-react';
+import Database from './Database';
 import AppState from './AppState';
-import type {Route} from './TypeAliases';
-import {LocalizedStringsType} from './LocalizedStrings';
+import { ILocalizedStrings } from './LocalizedStrings';
+import { observable } from 'mobx';
 
-import style from './SearchResults.pcss';
+import './SearchResults.pcss';
+import { DatabaseResult } from './DatabaseResult';
+import { BubbleWrapper } from './SearchPageComponents/BubbleWrapper';
+import { SearchResult } from './SearchPageComponents/SearchResult';
+
+interface P_SearchResults { 
+	db:Database; 
+	strings:ILocalizedStrings;
+	appState:AppState;
+}
 
 @observer
-class SearchResults extends Component {
-	state: {
-		searchResults: Array<DatabaseResult>,
-		searchString: string,
-		moreResultsAvailable: boolean
-	}
+export class SearchResults extends React.Component<P_SearchResults> {
+	@observable searchResults: Array<DatabaseResult>;
+	@observable searchString: string;
+	@observable moreResultsAvailable: boolean;
 
-	constructor(props:{ db:Database, strings:LocalizedStringsType, appState:AppState}){
+	constructor(props:P_SearchResults){
 		super(props);
-		let moreResultsAvailable = props.db.moreResultsAvailable();
-		this.state = {
-			searchResults: props.db.searchResults,
-			searchString: props.db.searchString,
-			moreResultsAvailable: moreResultsAvailable
-		};
+
+		// TODO: document the reasoning behind this ordering 
+		const moreResultsAvailable = props.db.moreResultsAvailable();
+		this.searchResults = props.db.searchResults;
+		this.searchString = props.db.searchString;
+		this.moreResultsAvailable = moreResultsAvailable;
 	}
 
 	componentDidMount(){
@@ -52,7 +53,7 @@ class SearchResults extends Component {
 
 	}
 	handleWaypointEnter = () => {
-		if(this.state.moreResultsAvailable){
+		if(this.moreResultsAvailable){
 			// wait 1/4 of a second before dispatching the request
 			// (UI effect, not a technical requirement)
 			setTimeout(()=> {
@@ -69,14 +70,14 @@ class SearchResults extends Component {
 					{stillSearching?null:<div className="status">{this.props.strings.resultsFoundPre}{this.props.strings.displayNum(totalFoundResults)}{this.props.strings.resultsFoundPost}</div>}
 					<ul className="list list--material">
 					<BubbleWrapper show={stillSearching} />
-					{this.state.searchResults.map((item:DatabaseResult)=><SearchResult key={item.id} item={item} selectItem={this.selectSearchResult} />)}
+					{this.searchResults.map((item:DatabaseResult)=><SearchResult key={item.id} item={item} selectItem={this.selectSearchResult} />)}
 					</ul>
 
 						<Waypoint
 						  onEnter={this.handleWaypointEnter}
 						  onLeave={this.handleWaypointLeave}
 						/>
-						<BubbleWrapper show={this.state.moreResultsAvailable} />
+						<BubbleWrapper show={this.moreResultsAvailable} />
 
 				</div>
 			);
@@ -88,7 +89,7 @@ class SearchResults extends Component {
 			return (
 				<div className="search-results">
 					{/*<div className="status">{this.props.strings.searchRequirementText}</div>*/}
-					{this.state.searchString?null:
+					{this.searchString?null:
 						<div style={helpTextStyle}>
 							{this.props.strings.searchHelpText}
 						</div>
@@ -98,61 +99,3 @@ class SearchResults extends Component {
 		}
 	}
 }
-
-
-class SearchResult extends Component {
-	constructor(props: {item:DatabaseResult, selectItem:(DatabaseResult)=>{}}){
-		super(props);
-	}
-
-	handleSelect = (e) => {
-		this.props.selectItem(this.props.item);
-	}
-
-	render(){
-		let icon = null;
-		// let subtitle = null;
-
-		if(this.props.item.type==='Person'){
-			icon = <Icon icon="md-account-circle" modifier="material" size={{default: 40, material: 36}}/>;
-		} else if(this.props.item.type==='Work'){
-			icon = <Icon icon="md-collection-text" modifier="material" size={{default: 40, material: 36}}/>;
-		} else {
-			icon = <Icon icon="md-file-text" modifier="material" size={{default: 40, material: 36}} style={{marginLeft: '4px'}} />;
-			// subtitle = this.props.item.workTitleForOutline();
-		}
-
-		return (
-		  <li className="list-item list-item--material" onTouchTap={this.handleSelect}>
-		    <div className="list-item__left list-item--material__left">
-					{icon}
-		    </div>
-		    <div className="list-item__center list-item--material__center">
-		      <div className="list-item__title list-item--material__title title" style={{lineHeight:'36px'}}>{this.props.item.title}</div>
-		      {/*null!=subtitle?<div className="list-item__subtitle list-item--material__subtitle">{subtitle}</div>:null*/}
-		      {/*<div className="list-item__subtitle list-item--material__subtitle">{this.props.item.nodeId}</div>*/}
-		    </div>
-		  </li>
-		);
-	}
-}
-
-
-
-class BubbleWrapper extends Component {
-	render(){
-		if(this.props.show){
-			return (
-				<div className="bubbleWrapper">
-					<Spinner name="three-bounce" fadeIn="none" />
-				</div>
-			);
-		} else {
-			return <span></span>;
-		}
-	}	
-}
-
-
-
-export default SearchResults;

@@ -1,11 +1,9 @@
-
 import * as React from 'react';
 import {observer} from 'mobx-react';
-import {LocalizedStringsType} from '../LocalizedStrings';
-
+import {ILocalizedStrings} from '../LocalizedStrings';
 
 interface P_ViewButton {
-  strings:LocalizedStringsType;
+  strings:ILocalizedStrings;
   handleViewButtonClicked:(e:any)=>void;
 }
 

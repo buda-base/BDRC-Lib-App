@@ -1,24 +1,12 @@
-
-
-import * as React from 'react';
-import {observer} from 'mobx-react';
-import {observable, action} from 'mobx';
-import {v1 as uuidV1} from 'uuid';
-import {Navigator, Page, BackButton, Toolbar, ToolbarButton } from 'react-onsenui';
+import { observable, action } from 'mobx';
+import { v1 as uuidV1 } from 'uuid';
+import { Navigator } from 'react-onsenui';
 import FileTool from './FileTool';
-
-import SearchPage from './SearchPage.jsx';
-import DetailPage from './DetailPage.jsx';
-import AboutPage from './AboutPage';
-import HelpPage from './HelpPage.jsx';
-import SettingsPage from './SettingsPage.jsx';
 import Database from './Database';
 import { Work, WorkPart, Person } from './Records';
-import {Route} from './TypeAliases';
-import {bo, en, cn} from './LocalizedStrings';
-import {LocalizedStringsType} from './LocalizedStrings';
-
-import './AppState.pcss';
+import { Route } from './TypeAliases';
+import { bo, en, cn } from './LocalizedStrings';
+import { ILocalizedStrings} from './LocalizedStrings';
 import { DatabaseResult } from './DatabaseResult';
 
 export const searchRoute: Route = { page: 'Search', hasBackButton: false, isModal:false, data:{} };
@@ -27,7 +15,7 @@ export const aboutRoute: Route = { page: 'About', hasBackButton: false, isModal:
 export const helpRoute: Route = { page: 'Help', hasBackButton: false, isModal:true, data:{} };
 export const settingsRoute: Route = { page: 'Settings', hasBackButton: false, isModal:true, data:{} };
 
-export type LibraryServer = {
+export interface LibraryServer {
   id:string;
   name:string;
   url:string;
@@ -54,7 +42,7 @@ export const libChina:LibraryServer = {
 export default class AppState {
 
   @observable libraryServer:LibraryServer;  
-  @observable strings:LocalizedStringsType; 
+  @observable strings:ILocalizedStrings; 
 
   @observable infoPanelIsOpen:boolean;
   @observable momOpened:boolean;
@@ -130,7 +118,7 @@ export default class AppState {
   }
 
   @action
-  setInterfaceLocalizationStrings = (strings:LocalizedStringsType) => {
+  setInterfaceLocalizationStrings = (strings:ILocalizedStrings) => {
 
     localStorage.setItem('language', strings.id);
 
@@ -146,17 +134,6 @@ export default class AppState {
   @action
   openMOM = () => {
     this.momOpened = true;
-  }
-
-  @action
-  renderToolbar = (route:Route, pageTitle:string) => {
-    return <AppToolbar appState={this} route={route} pageTitle={pageTitle} />; 
-  }
-
-  @action
-  renderPage = (route:Route, navigator:Navigator) => {
-    this.navigator = navigator;
-    return <AppPage appState={this} route={route} />; // navigator={navigator} />; 
   }
 
   @action
@@ -221,75 +198,3 @@ export default class AppState {
   }
 
 }
-
-
-const AppToolbar = observer(( props:{route:Route, appState:AppState, pageTitle:string} ) => {
-    let leftButton = null;
-    let rightButton = null;
-    let toolbarClassName = '';
-
-    if(props.route.isModal) {
-      rightButton = <ToolbarButton modifier="material" onClick={()=>{ props.appState.handleClose(); }}><i className="zmdi zmdi-close"></i></ToolbarButton>;
-      toolbarClassName = 'tbmodal';
-    } else {
-      leftButton = props.route.hasBackButton ? <BackButton modifier="material" onClick={()=>{ props.appState.handleBack(); }}></BackButton> : null;
-      rightButton = (
-        <span>
-          {props.appState.hasUpdates ? <ToolbarButton modifier="material" onClick={()=>{props.appState.openMOM(); }}><i className="zmdi zmdi-notifications hasUpdates"></i></ToolbarButton> : null}
-          <ToolbarButton modifier="material" onClick={()=>{props.appState.openMOM(); }}><i className="zmdi zmdi-more-vert"></i></ToolbarButton>
-        </span>
-        );
-    }
-
-    return (
-      <Toolbar modifier="material" className={toolbarClassName}>
-        <div className='left'>{leftButton}</div>
-        <div className='center'>{props.pageTitle}</div>
-        <div className='right'>{rightButton}</div>
-      </Toolbar>
-    );
-  }
-);
-
-
-
-const AppPage = observer(( props:{route:Route, appState:AppState} ) => {
-    let content:any = "";
-    let pageTitle = "";
-    let pageKey = '';
-
-    if(props.route.page===searchRoute.page) {
-      content = <SearchPage strings={props.appState.strings} db={props.appState.db} appState={props.appState} />;
-      pageTitle = props.appState.strings.appName;
-      pageKey='search';
-    } else if(props.route.page===detailRoute.page)  {
-      content = <DetailPage strings={props.appState.strings} db={props.appState.db} databaseResult={props.route.data.databaseResult} files={props.route.data.files} appState={props.appState}  />; 
-      pageTitle = props.route.data.databaseResult.title;  
-      // Account for compound nodeId that is brought in with the workPart Index files in order to provide both the 
-      // filename of the workPart, and the node within the workPart that the title represents.
-      let dashIndex = pageTitle.indexOf('-');
-      if(dashIndex>0){ pageTitle = pageTitle.substring(dashIndex+1);}
-      pageKey = props.route.data.key; 
-    } else if(props.route.page===aboutRoute.page) {
-      pageTitle = props.appState.strings.about;
-      content = <AboutPage appState={props.appState} />;
-      pageKey = 'about'; 
-    } else if(props.route.page===helpRoute.page) {
-      pageTitle = props.appState.strings.NeedHelpAskALibrarian;
-      content = <HelpPage strings={props.appState.strings}  />;
-      pageKey = 'help'; 
-    } else if(props.route.page===settingsRoute.page) {
-      pageTitle = props.appState.strings.settings;
-      content = <SettingsPage appState={props.appState} />; 
-      pageKey = 'settings'; 
-    }
-
-    return (
-      <Page modifier="material" key={pageKey} renderToolbar={ () => { return props.appState.renderToolbar(props.route, pageTitle); }}>
-        {content}    
-      </Page>
-    );
-  }
-);
-
-

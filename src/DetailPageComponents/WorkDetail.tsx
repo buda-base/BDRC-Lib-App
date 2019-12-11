@@ -1,8 +1,6 @@
-
-
 import * as React from 'react';
 import Database from '../Database';
-import {LocalizedStringsType} from '../LocalizedStrings';
+import {ILocalizedStrings} from '../LocalizedStrings';
 import AppState from '../AppState';
 import {observer} from 'mobx-react';
 import {StringSection} from './StringSection';
@@ -13,10 +11,9 @@ import {Card} from 'react-onsenui';
 import { observable } from 'mobx';
 import { DatabaseResult } from '../DatabaseResult';
 
-
 interface P_WorkDetail {
   work:Work;
-  strings:LocalizedStringsType;
+  strings:ILocalizedStrings;
   db:Database;
   viewRelatedRecord:(record:DatabaseResult)=>void;
   appState:AppState;

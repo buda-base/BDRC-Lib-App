@@ -1,6 +1,8 @@
 declare var zip: any;
+declare var navigator: any;
 
 import AppState from './AppState';
+import { observable } from 'mobx';
 
 
 class UpdateData {
@@ -9,7 +11,7 @@ class UpdateData {
   @observable downloading:boolean = false;
   @observable downloaded:boolean = false;
   @observable unpacking:boolean = false;
-  @observable downloadProgress:number = false;
+  @observable downloadProgress:number = 0;
 
   private appState:AppState;
 
@@ -23,17 +25,17 @@ class UpdateData {
   }
 
   downloadZip = () => {
+    const uri = this.appState.libraryServer + 'bdrc-lib-update.zip';
     try {
-      const uri = this.appState.libraryServer + 'bdrc-lib-update.zip';
-
       this.appState.fileTool.downloadFile(
         uri,
-        (downloadProgress)=>{
+        '',
+        (downloadProgress:number) => {
           this.downloadProgress = downloadProgress;
         }, 
         (result:any, error:any)=>{
           if(null==result) {
-            downloadFailed(error, 'downloadZip-01: failed to download '+uri);
+            this.downloadFailed(error, 'downloadZip-01: failed to download '+uri);
           } else {
             alert('successful download!');
             //unzipAssets(result);
@@ -41,14 +43,14 @@ class UpdateData {
         }
       );
     } catch(err) {
-      downloadFailed(err, 'downloadZip-02: failed to download '+uri);
+      this.downloadFailed(err, 'downloadZip-02: failed to download '+uri);
     } 
   }
 
   downloadFailed = (error:any, message:string) => {     
     this.downloading = false;
     this.downloaded = false;      
-    this.logger.error('downloadFailed/' + message);                   
+    //this.logger.error('downloadFailed/' + message);                   
     navigator.notification.alert('Failed to download guide. Your Internet connection may be unstable. Please try again.', ()=>{}, "Error", "ok");                
   }
 

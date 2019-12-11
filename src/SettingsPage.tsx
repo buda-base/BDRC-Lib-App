@@ -1,18 +1,15 @@
-
-import React, {Component} from 'react';
+import * as React from 'react';
 import {observer} from 'mobx-react';
-
 import {List, ListItem, Radio, ListHeader} from 'react-onsenui';
-import {LocalizedStringsType} from './LocalizedStrings';
-import AppState, {libUSA, libChina} from './AppState';
-import {en, bo, cn} from './LocalizedStrings';
-import './SettingsPage.pcss';
+import AppState, { libUSA, libChina } from './AppState';
+import { en, bo, cn } from './LocalizedStrings';
+
+interface P_SettingsPage {
+  appState:AppState; 
+}
 
 @observer
-export default class SettingsPage extends Component {
-  props:{
-    appState:AppState; 
-  };
+export class SettingsPage extends React.Component<P_SettingsPage> {
   render() {    
     let strings = this.props.appState.strings;
     return (

@@ -3,7 +3,7 @@
 /*
 @observer
 class PDFButton extends Component {
-  constructor(props:{strings:LocalizedStringsType, handlePDFButtonClicked:()=>void}) {
+  constructor(props:{strings:ILocalizedStrings, handlePDFButtonClicked:()=>void}) {
     super(props)
   }
   render(){
