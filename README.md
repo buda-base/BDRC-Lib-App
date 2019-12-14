@@ -89,6 +89,9 @@ _iOS:_
 
 You must change these before building production releases.
 
+## linking out rules:
+
+https://github.com/buda-base/public-digital-library/issues/106
 
 
 ## Technologies

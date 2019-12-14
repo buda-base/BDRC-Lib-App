@@ -19,12 +19,14 @@ export interface LibraryServer {
   id:string;
   name:string;
   url:string;
+  viewerUrl:string;
 }
 
 export const libUSA:LibraryServer = {    
   id:'USA',
   name:'USA',
-  url:'https://ssapi.hrdcstl.com'
+  url:'https://ssapi.hrdcstl.com',
+  viewerUrl:'http://library.bdrc.io/view/'
 }
 
 // export const libUSA:LibraryServer = {    
@@ -36,7 +38,8 @@ export const libUSA:LibraryServer = {
 export const libChina:LibraryServer = {    
   id:'China',
   name:'China',
-  url:'http://www.bdrc.info'
+  url:'http://www.bdrc.info',
+  viewerUrl:'http://library.bdrc.io/view/'
 }
 
 export default class AppState {
@@ -129,6 +132,10 @@ export default class AppState {
     if(!this.db){
       this.db = new Database(this.strings, ()=>{ }, this);
     }
+  }
+
+  generateViewLink = (id:string) => {
+    return this.libraryServer.viewerUrl+id;
   }
 
   @action

@@ -2,8 +2,8 @@ import * as React from 'react';
 import { observer } from 'mobx-react';
 import { observable } from 'mobx';
 import Database from './Database';
-import AppState from './AppState.js';
-import { SearchResults } from './SearchResults.js'; 
+import AppState from './AppState';
+import { SearchResults } from './SearchResults'; 
 import { ILocalizedStrings } from './LocalizedStrings';
 
 import './SearchPage.pcss';

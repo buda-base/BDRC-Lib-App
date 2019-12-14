@@ -10,6 +10,8 @@ import {ShareButton} from './ShareButton';
 import {Card} from 'react-onsenui';
 import { observable } from 'mobx';
 import { DatabaseResult } from '../DatabaseResult';
+import { ViewButton } from './ViewButton';
+import { openExternalLink } from './openExternalLink';
 
 interface P_WorkDetail {
   work:Work;
@@ -37,7 +39,10 @@ export class WorkDetail extends React.Component<P_WorkDetail> {
     if(authors && authors.length>0) {
       authors[0].title = this.props.work.creator[0].name;
     }
-    this.setState({authors:authors});
+    this.authors = authors;
+  }
+  handleViewButtonClicked = () => {
+    openExternalLink(this.props.appState.generateViewLink(this.props.work.nodeId));
   }
 
   render() {
@@ -74,6 +79,7 @@ export class WorkDetail extends React.Component<P_WorkDetail> {
             <div className="action-bar">
               <div className="actions"> 
                 <ShareButton strings={this.props.strings} subject={shareSubject} url={shareLink} nodeId={this.props.work.nodeId} />               
+                <ViewButton strings={this.props.strings} handleViewButtonClicked={this.handleViewButtonClicked} />
               </div>
             </div>
           </Card>         

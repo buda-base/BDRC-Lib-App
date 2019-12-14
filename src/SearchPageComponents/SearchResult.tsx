@@ -1,12 +1,14 @@
 import * as React from 'react';
 import { Icon } from 'react-onsenui';
 import { DatabaseResult } from '../DatabaseResult';
+import { observer } from 'mobx-react';
 
 interface P_SearchResult {
 	item:DatabaseResult;
 	selectItem:(result:DatabaseResult)=>void;
 }
 
+@observer
 export class SearchResult extends React.Component<P_SearchResult> {
 
 	handleSelect = (e:any) => {

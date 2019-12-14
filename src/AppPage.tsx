@@ -1,14 +1,14 @@
 import * as React from 'react';
 import {observer} from 'mobx-react';
 import { Page } from 'react-onsenui';
-import { SearchPage } from './SearchPage.jsx';
-import { DetailPage } from './DetailPage.jsx';
+import { SearchPage } from './SearchPage';
+import { DetailPage } from './DetailPage';
 import { AboutPage } from './AboutPage';
-import { HelpPage } from './HelpPage.jsx';
-import { SettingsPage } from './SettingsPage.jsx';
+import { HelpPage } from './HelpPage';
+import { SettingsPage } from './SettingsPage';
 import {Route} from './TypeAliases';
 import AppState, { searchRoute, detailRoute, aboutRoute, helpRoute, settingsRoute } from './AppState';
-import { AppToolbar } from './AppToolbar.js';
+import { AppToolbar } from './AppToolbar';
 
 export const AppPage = observer(( props:{route:Route, appState:AppState} ) => {
   let content:any = "";

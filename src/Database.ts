@@ -114,6 +114,7 @@ class Database {
 	listeners:Array<()=>void> = [];
 
 	addChangeListener(listenerToAdd: ()=>void ) {
+		console.log('Adding a change listener');
 		var idx = this.listeners.indexOf(listenerToAdd);
 		if(-1===idx) {
 			this.listeners.push(listenerToAdd);
@@ -134,6 +135,8 @@ class Database {
 	 * @return {void}
 	 */
 	update(){
+		console.log('notifying listeners');
+
 		this.listeners.forEach(listener => {
 			listener();
 		});

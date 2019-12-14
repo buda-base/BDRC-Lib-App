@@ -1,5 +1,5 @@
 /**
- * Used in Database.js, defines an Index file that is loaded on the initial run
+ * Used in Database.ts, defines an Index file that is loaded on the initial run
  * 
  */
 export interface IndexFile {
@@ -9,7 +9,7 @@ export interface IndexFile {
 }
 
 /**
- * Used in Records.js to describe the content of the Work JSON file
+ * Used in Records.ts to describe the content of the Work JSON file
  * 
  */
 export interface WorkJSON {
@@ -32,7 +32,7 @@ export interface PersonRefJSON {
 
 
 /**
- * Used in Records.js to describe the content of the Person JSON file
+ * Used in Records.ts to describe the content of the Person JSON file
  * 
  */
 export interface PersonJSON {

@@ -4,7 +4,7 @@ const autoprefixer = require('autoprefixer')
 const webpack = require('webpack')
 
 module.exports = {
-  entry: ["whatwg-fetch", "./src/index.tsx"],
+  entry: "./src/index.tsx", //["whatwg-fetch", "./src/index.tsx"],
   output: {
     filename: "bundle.js",
     path: path.join(__dirname, "www")

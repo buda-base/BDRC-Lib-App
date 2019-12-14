@@ -19,7 +19,7 @@ interface P_SearchResults {
 
 @observer
 export class SearchResults extends React.Component<P_SearchResults> {
-	@observable searchResults: Array<DatabaseResult>;
+	@observable searchResults: Array<DatabaseResult> = [];
 	@observable searchString: string;
 	@observable moreResultsAvailable: boolean;
 
@@ -43,7 +43,9 @@ export class SearchResults extends React.Component<P_SearchResults> {
 
 	updateSearchResults = () => {
 		let moreResultsAvailable = this.props.db.moreResultsAvailable();
-		this.setState({searchResults: this.props.db.searchResults, searchString:this.props.db.searchString, moreResultsAvailable:moreResultsAvailable});
+		this.searchResults = this.props.db.searchResults;
+		this.searchString = this.props.db.searchString;
+		this.moreResultsAvailable = moreResultsAvailable;
 	}
 
 	selectSearchResult = (databaseResult:DatabaseResult) => {
