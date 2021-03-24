@@ -1,15 +1,15 @@
 import * as React from 'react';
-import Database from '../Database';
-import {ILocalizedStrings} from '../LocalizedStrings';
-import AppState from '../AppState';
+import Database from '../data/Database';
+import {ILocalizedStrings} from '../data/LocalizedStrings';
+import AppState from '../data/AppState';
 import {observer} from 'mobx-react';
 import {StringSection} from './StringSection';
 import {RelatedRecordSection} from './RelatedRecordSection';
-import {Work} from '../Records';
+import {Work} from '../data/Records';
 import {ShareButton} from './ShareButton';
 import {Card} from 'react-onsenui';
 import { observable } from 'mobx';
-import { DatabaseResult } from '../DatabaseResult';
+import { DatabaseResult } from '../data/DatabaseResult';
 import { ViewButton } from './ViewButton';
 import { openExternalLink } from './openExternalLink';
 
@@ -27,18 +27,19 @@ export class WorkDetail extends React.Component<P_WorkDetail> {
   @observable authors: Array<DatabaseResult> = [];
 
   componentWillMount(){
-    if(this.props.work && this.props.work.creator && this.props.work.creator.length>0){ 
-      const creatorKeys = [];
+    if(this.props.work && this.props.work.creator && this.props.work.creator.length>0){
+      // Only want a single author.
+      const creatorKeys = [this.props.work.creator[0]];
       // Only want a single author. 
-      creatorKeys.push(this.props.work.creator[0].id);
+      //creatorKeys.push(this.props.work.creator[0].id);
       this.props.db.searchForMatchingNodes(creatorKeys, this.receiveAuthors);
     }
   }
 
   receiveAuthors = (authors:Array<DatabaseResult>) => {
-    if(authors && authors.length>0) {
-      authors[0].title = this.props.work.creator[0].name;
-    }
+    // if(authors && authors.length>0) {
+    //   authors[0].title = this.props.work.creator[0].name;
+    // }
     this.authors = authors;
   }
   handleViewButtonClicked = () => {
@@ -48,11 +49,8 @@ export class WorkDetail extends React.Component<P_WorkDetail> {
   render() {
     if(this.props.work) {
 
-      const shareLink = this.props.appState.libraryServer.url+"/#!rid="+this.props.work.nodeId;
+      const shareLink = this.props.appState.generateShareLink(this.props.work.nodeId);
       const shareSubject = this.props.strings.linkToWorkPre+this.props.work.nodeId+this.props.strings.linkToWorkPost;
-
-
-      const status = this.props.work.status ? this.props.strings.displayStatus(this.props.work.status) : '';
 
       return (
         <section>
@@ -72,9 +70,7 @@ export class WorkDetail extends React.Component<P_WorkDetail> {
             <StringSection title={this.props.strings.PublisherLocation} val={this.props.work.publisherLocation} />
             <StringSection title={this.props.strings.PublisherDate} val={this.props.work.publisherDate} />
             <StringSection title={this.props.strings.PrintType} val={this.props.work.printType} />
-            <StringSection title={this.props.strings.Access} val={this.props.strings.accessString(this.props.work.access)} /> 
 
-            <StringSection title={this.props.strings.Status} val={status} />
 
             <div className="action-bar">
               <div className="actions"> 

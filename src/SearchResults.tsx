@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { Waypoint } from 'react-waypoint'; // https://brigade.github.io/react-waypoint/
 import { observer } from 'mobx-react';
-import Database from './Database';
-import AppState from './AppState';
-import { ILocalizedStrings } from './LocalizedStrings';
+import Database from './data/Database';
+import AppState from './data/AppState';
+import { ILocalizedStrings } from './data/LocalizedStrings';
 import { observable } from 'mobx';
 
 import './SearchResults.pcss';
-import { DatabaseResult } from './DatabaseResult';
+import { DatabaseResult } from './data/DatabaseResult';
 import { BubbleWrapper } from './SearchPageComponents/BubbleWrapper';
 import { SearchResult } from './SearchPageComponents/SearchResult';
 

@@ -49,13 +49,16 @@ div.selectLanguage {
 
 
 /* hack to get rid of onsenui double BackButton */
+
 ons-back-button {	
 	& svg {
 		display:none;
 	}
 }
 
+
 /* android */
+
 ons-toolbar:not([inline]) {
     padding-top: 5px;
 }
@@ -65,7 +68,6 @@ ons-toolbar:not([inline]) {
   top: 56px;
 }
 
-/* ios */
 .page[status-bar-fill] > .toolbar {
 	padding-top:10px;
 }
@@ -77,4 +79,8 @@ ons-toolbar:not([inline]) {
 
 .button--material {
 	padding-top:4px;
+}
+
+#AppContainer .page--material__background {
+	background-color:white;
 }

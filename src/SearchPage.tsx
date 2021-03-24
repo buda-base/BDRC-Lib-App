@@ -1,10 +1,14 @@
+import * as ons from "onsenui";
+
+declare var document:any;
+
 import * as React from 'react';
 import { observer } from 'mobx-react';
 import { observable } from 'mobx';
-import Database from './Database';
-import AppState from './AppState';
+import Database from './data/Database';
+import AppState from './data/AppState';
 import { SearchResults } from './SearchResults'; 
-import { ILocalizedStrings } from './LocalizedStrings';
+import { ILocalizedStrings } from './data/LocalizedStrings';
 
 import './SearchPage.pcss';
 
@@ -18,10 +22,11 @@ interface P_SearchPage {
 export class SearchPage extends React.Component<P_SearchPage> {
   @observable query:string = '';
   @observable queryIsValid:boolean = false;
+	@observable searchInputFocused:boolean = false;
 
-	handleSearch = (e:Event) => {
-		this.props.db.search(this.query);
-	}
+	// handleSearch = () => {
+	// 	this.props.db.search(this.query);
+	// }
 
 	handleQueryChange = (e:any) => {		
 		let query = e.currentTarget.value;
@@ -32,7 +37,21 @@ export class SearchPage extends React.Component<P_SearchPage> {
 	render(){
 		return (
 			<div>
-				<input id="SearchInput" onChange={this.handleQueryChange} type="search" value={this.query} placeholder={this.props.strings.searchHintText} className="search-input search-input--material pasteArea" style={{width: '100%'}} />
+				<input
+
+					id="SearchInput" 
+					onFocus={()=>{ this.searchInputFocused = true;}}
+					onBlur={()=>{ this.searchInputFocused = false; }}
+					onChange={this.handleQueryChange}
+					type="search"
+					value={this.query}
+					placeholder={this.searchInputFocused?'':this.props.strings.searchHintText} 
+					className={`search-input search-input--material pasteArea ${this.searchInputFocused?'focused':''}`} 
+					style={{width: '100%', userSelect:'all'}}
+					onClick={(e)=>{
+						document.getElementById("SearchInput").focus();
+					}}
+				/>
 				<SearchResults strings={this.props.strings} db={this.props.db} appState={this.props.appState} />
 			</div>
 		);

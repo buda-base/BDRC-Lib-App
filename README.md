@@ -164,11 +164,8 @@ https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-network-infor
 __IOS Deployment__
 https://cordova.apache.org/docs/en/latest/guide/platforms/ios/
 
-__Icon Generation__
-https://www.npmjs.com/package/cordova-icon
-
-__Splash Generation__
-https://github.com/AlexDisler/cordova-splash
+__Icon and Splash Generation__
+https://github.com/ionic-team/cordova-res
 
 
 ### NOTES
@@ -182,3 +179,39 @@ __Enable Tib Keyboard__
 http://en.ironrabbit.org/howto
 
 
+### Compile IOS:
+
+There are lines in the plugin-file-transfer that needs to be removed:
+https://github.com/apache/cordova-plugin-file-transfer/issues/258
+```
+By removing lines 107-110 from CDVFileTransfer.m I was able to compile:
+
+    NSString* userAgent = [self.commandDelegate userAgent];
+    if (userAgent) {
+        [req setValue:userAgent forHTTPHeaderField:@"User-Agent"];
+    }
+```
+## Android Deployment
+
+
+STEP 1: Update config.xml with the VERSION, the attribute "android-versionCode" and "version" both should be updated, commit these changes.
+
+STEP 2: Update config.xml id attribute to ```org.tbrc.bdrclibapp```
+
+STEP 3: Build the javascript ```npm run build```
+
+STEP 4: open platforms/android/ in Android Studio (Hit Ok to allow gradle installation, also upgrade gradle if needed)
+
+STEP 5. Build / Generate Signed Bundle
+
+STEP 6. select the /Volumes/Data/android/keystores/bdrc.jks and enter the passwords, etc...  NEXT
+```
+/Volumes/Data/android/keystores/bdrc.jks
+```
+STEP 7: select release  FINISH. 
+_update Gradle plugin if Android Studio requests it_
+
+STEP 8. the android bundle will be placed here:
+```
+/Volumes/Data/Clients/BDRC/bdrc-lib-app/platforms/android/app/release/app-release.aab
+```

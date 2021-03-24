@@ -3,7 +3,7 @@ declare var window: any;
 
 import * as React from 'react';
 import {observer} from 'mobx-react';
-import {ILocalizedStrings} from '../LocalizedStrings';
+import {ILocalizedStrings} from '../data/LocalizedStrings';
 
 
 interface P_ShareButton {

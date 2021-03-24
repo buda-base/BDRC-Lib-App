@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {observer} from 'mobx-react';
-import { DatabaseResult } from '../DatabaseResult';
+import { DatabaseResult } from '../data/DatabaseResult';
 
 interface P_RelatedRecordSection {
   relatedRecords:Array<DatabaseResult>;

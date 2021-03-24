@@ -1,13 +1,11 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
-import { observable } from 'mobx';
-import Database from './Database';
-import AppState, { searchRoute } from './AppState';
-import * as ons from 'onsenui';
+import Database from './data/Database';
+import AppState, { searchRoute } from './data/AppState';
 import {Navigator} from 'react-onsenui';
-import { PleaseWait } from './PleaseWait';
-import { Route } from './TypeAliases';
+import { PleaseWait } from './widgets/PleaseWait';
 import { AppPage } from './AppPage';
+import {Route} from "./data/interfaces/Route";
 
 interface P_Main {
   db:Database;
@@ -17,53 +15,10 @@ interface P_Main {
 @observer
 export class Main extends React.Component<P_Main> {
 
-  @observable statusMessage:string;
-  @observable showStatusMessage:boolean;
-
   constructor(props:P_Main){
     super(props);
-    this.statusMessage = props.appState.strings.InitializingDatabase;
-    this.showStatusMessage = true; 
-  }
-
-  componentDidMount() {
-    if(!this.props.db.isInitialized()) {
-      ons.notification.alert(
-        {
-          title:this.props.appState.strings.Alert,
-          buttonLabel:this.props.appState.strings.OK,
-          message: this.props.appState.strings.Welcome,
-          callback: () => {
-            this.props.db.initialize(
-              (success, error)=>{
-                if(!success) {
-                  ons.notification.alert(
-                    { 
-                      message: this.props.appState.strings.databaseInitFailed,
-                      title:this.props.appState.strings.Alert,
-                      buttonLabel:this.props.appState.strings.OK
-                    }
-                  );
-                }
-                setTimeout(this.hideStatusMessage, 2000);
-              }, 
-              this.handleStatusUpdate
-            );
-          }
-        }
-      );
-    } else {
-      setTimeout(this.hideStatusMessage, 1000);
-    }
-  }  
-
-  handleStatusUpdate = (statusMessage:string) =>{
-    this.statusMessage = statusMessage;
-  }
-
-  hideStatusMessage = () => {
-    this.statusMessage = '';
-    this.showStatusMessage = false;
+    props.appState.statusMessage = '';
+    props.appState.showStatusMessage = false;
   }
 
 	render() {
@@ -75,8 +30,9 @@ export class Main extends React.Component<P_Main> {
             return <AppPage appState={this.props.appState} route={route} />;
           }}
   				initialRoute={searchRoute}
+
   			/>
-        <PleaseWait showStatusMessage={this.showStatusMessage} statusMessage={this.statusMessage} />
+        <PleaseWait showStatusMessage={this.props.appState.showStatusMessage} statusMessage={this.props.appState.statusMessage} />
       </div>
 		);
 	}

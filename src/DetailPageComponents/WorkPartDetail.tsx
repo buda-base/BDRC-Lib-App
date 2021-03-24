@@ -1,24 +1,27 @@
+import {openExternalLink} from "./openExternalLink";
+
 declare var navigator: any;
 declare var Connection: any;
 declare var window: any;
 
 import * as React from 'react';
 import {observer} from 'mobx-react';
-import {Work, WorkPart} from '../Records';
-import Database from '../Database';
-import {ILocalizedStrings} from '../LocalizedStrings';
-import AppState from '../AppState';
+import {Work, WorkPart, WorkPartItem} from '../data/Records';
+import Database from '../data/Database';
+import {ILocalizedStrings} from '../data/LocalizedStrings';
+import AppState from '../data/AppState';
 import {Card} from 'react-onsenui';
 import {StringSection} from './StringSection';
 import {RelatedRecordSection} from './RelatedRecordSection';
 import {ShareButton} from './ShareButton';
 import {ViewButton} from './ViewButton';
 import {NetworkAlert} from './NetworkAlert';
-import { DatabaseResult } from '../DatabaseResult';
+import { DatabaseResult } from '../data/DatabaseResult';
 import { observable } from 'mobx';
 
 interface P_WorkPartDetail {
-  workPart:WorkPart;
+  workPart?:WorkPart;
+  workPartItem?:WorkPartItem;
   strings:ILocalizedStrings;
   db:Database;
   viewRelatedRecord:(record:DatabaseResult)=>void;
@@ -49,7 +52,7 @@ export class WorkPartDetail extends React.Component<P_WorkPartDetail> {
   receiveWorks = (works:Array<DatabaseResult>) => {
     this.setState({relatedWorks:works});
     if(works.length>0) {
-      works[0].load( (work:any)=>{this.receiveWork(work)} );
+      works[0].load( this.props.appState.fileTool.fs.root.toURL()+'/BDRCLIB/',(work:any)=>{this.receiveWork(work)} );
     }
   }
 
@@ -59,57 +62,212 @@ export class WorkPartDetail extends React.Component<P_WorkPartDetail> {
     }
   }
 
-
-  onGalleryClose = () =>{
-    //this.setState({pechaViewerOpen:false});
-  }
-
   onAlertClose = () =>{
     this.alertOpen = false;
   }
 
-
-
-  onViewButtonClicked = () =>{
-    window.ga.trackEvent('DetailPage', 'Gallery', this.props.workPart.nodeId);
+  handleWPIViewButtonClicked = (workPartItem:WorkPartItem) => {
+    window.ga.trackEvent('DetailPage', 'Gallery', workPartItem.id);
 
     if(navigator.connection.type===Connection.NONE) {
       this.alertOpen = true;
     } else {
       // this.setState({pechaViewerOpen:true});
+      openExternalLink(this.props.appState.generateViewLink(workPartItem.id));
+    }
+  }
+
+  handleViewButtonClicked = (workPart:WorkPart) =>{
+    window.ga.trackEvent('DetailPage', 'Gallery', workPart.nodeId);
+
+    if(navigator.connection.type===Connection.NONE) {
+      this.alertOpen = true;
+    } else {
+      // this.setState({pechaViewerOpen:true});
+      openExternalLink(this.props.appState.generateViewLink(workPart.nodeId));
     }
   }
 
 /* བཀྲ་ཤིས་ཆེན་པོའི་མདོ། */
   render() {
-    if(this.props.workPart) {
+    const { workPart, workPartItem, strings, appState, viewRelatedRecord} = this.props;
 
-      const work = this.work;
+    const workPartItems = workPart ? workPart.workPartItems : workPartItem? workPartItem.workPartItems : [];
+
+    return (
+      <section>
+
+        {workPartItem &&
+          <WorkPartItemCard
+            isHeader={true}
+            workPartItem={workPartItem}
+            strings={strings}
+            appState={appState}
+            onViewButtonClicked={() => {
+              this.handleWPIViewButtonClicked(workPartItem);
+            }}
+          />
+        }
+
+        <WorkPartTopLevel
+          workPart={workPart}
+          strings={strings}
+          appState={appState}
+          onViewButtonClicked={this.handleViewButtonClicked}
+          relatedWorks={this.relatedWorks}
+          work={this.work}
+          viewRelatedRecord={viewRelatedRecord}
+        />
+
+        {/*{workPartItems.map(wpi=>*/}
+        {/*  <WorkPartItemCard*/}
+        {/*    key={wpi.id}*/}
+        {/*    workPartItem={wpi}*/}
+        {/*    strings={this.props.strings}*/}
+        {/*    appState={this.props.appState}*/}
+        {/*    onViewButtonClicked={this.handleWPIViewButtonClicked}*/}
+        {/*  />*/}
+        {/*  )*/}
+        {/*}*/}
 
 
-      // /#!rid=O4JW333|O4JW3334CZ90006$W22084
-      const shareLink = work ? this.props.appState.libraryServer.url+'/?locale='+this.props.strings.id+'#!rid='+this.props.workPart.nodeId : '';
-      const shareSubject = this.props.strings.linkToTextPre+this.props.workPart.nodeId+this.props.strings.linkToTextPost;
+
+        {this.alertOpen?<NetworkAlert show={this.alertOpen} onClose={this.onAlertClose} strings={this.props.strings} />:null}
+
+      </section>
+    );
+
+  }
+}
+
+
+interface IWorkPartTopLevelProps {
+  workPart?:WorkPart;
+  strings:ILocalizedStrings;
+  appState:AppState;
+  work:Work|null;
+  relatedWorks:Array<DatabaseResult>;
+  viewRelatedRecord:(record:DatabaseResult)=>void;
+  onViewButtonClicked:(workPart:WorkPart)=>void;
+}
+
+
+class WorkPartTopLevel  extends React.Component<IWorkPartTopLevelProps> {
+  render() {
+    const {strings, appState, workPart, relatedWorks, viewRelatedRecord, onViewButtonClicked} = this.props;
+
+    if (!workPart) {
+      return null;
+    } else {
+      const shareLink = appState.generateShareLink(workPart.nodeId);
+      const shareSubject = strings.linkToTextPre + workPart.nodeId + strings.linkToTextPost;
 
       return (
-        <section>
-          <Card modifier="material">
-            <StringSection title={this.props.strings.Title} vals={this.props.workPart.workTitle} />
-            <StringSection title={this.props.strings.WorkPartRID} val={this.props.workPart.nodeId} /> 
-            <RelatedRecordSection title={this.props.strings.IsWorkPartOf} relatedRecords={this.relatedWorks} viewRelatedRecord={this.props.viewRelatedRecord} />            
-            <div className="action-bar">
-              <div className="actions">   
-                {work ? <ShareButton strings={this.props.strings} subject={shareSubject} url={shareLink} nodeId={this.props.workPart.nodeId} /> : null }          
-                {work ? <ViewButton strings={this.props.strings} handleViewButtonClicked={this.onViewButtonClicked}/> : null }
-              </div>
-            </div>  
-            {this.alertOpen?<NetworkAlert show={this.alertOpen} onClose={this.onAlertClose} strings={this.props.strings} />:null}
-          </Card>
-        </section>        
-      );
+        <Card modifier="material">
+          <StringSection title={strings.Title} val={workPart.title}/>
+          <StringSection title={strings.WorkPartRID} val={workPart.nodeId}/>
+          <RelatedRecordSection title={strings.IsWorkPartOf} relatedRecords={relatedWorks} viewRelatedRecord={viewRelatedRecord}/>
 
-    } else {
-      return null;
+          <WorkPartItemsList appState={appState} workPartItems={workPart.workPartItems} />
+
+          <div className="action-bar">
+            <div className="actions">
+              <ShareButton strings={strings} subject={shareSubject} url={shareLink} nodeId={workPart.nodeId} />
+              <ViewButton strings={strings} handleViewButtonClicked={onViewButtonClicked} />
+            </div>
+          </div>
+        </Card>
+      );
     }
   }
 }
+
+
+
+
+
+interface IWorkPartItemCardProps {
+  workPartItem:WorkPartItem;
+  strings:ILocalizedStrings;
+  appState:AppState;
+  onViewButtonClicked:(workPartItem:WorkPartItem)=>void;
+  isHeader?:boolean;
+}
+
+@observer
+class WorkPartItemCard extends React.Component<IWorkPartItemCardProps> {
+  handleViewButtonClicked = () => {
+    this.props.onViewButtonClicked(this.props.workPartItem);
+  }
+
+  render() {
+
+    const {appState, strings, workPartItem, isHeader} = this.props;
+
+    const shareLink = appState.generateShareLink(workPartItem.id);
+    const shareSubject = strings.linkToTextPre+workPartItem.id+strings.linkToTextPost;
+
+    return (
+      <Card modifier="material">
+        <StringSection title={strings.Title} vals={workPartItem.title} />
+        <StringSection title={strings.WorkPartRID} val={workPartItem.id} />
+
+        <WorkPartItemsList appState={appState} workPartItems={workPartItem.workPartItems} />
+
+        <div className="action-bar">
+          <div className="actions">
+            <ShareButton strings={strings} subject={shareSubject} url={shareLink} nodeId={workPartItem.id}/>
+            <ViewButton strings={strings} handleViewButtonClicked={this.handleViewButtonClicked}/>
+          </div>
+        </div>
+
+      </Card>
+    );
+  }
+}
+
+
+
+
+
+const WorkPartItemsList = (props:{workPartItems:WorkPartItem[], appState:AppState}) => {
+  if(props.workPartItems.length>0) {
+    return (
+      <div className={"WorkPartItemsList"}>
+        <h4>Parts</h4>
+        <div>
+          {props.workPartItems.map(wpi =>
+            <WorkPartItemLink
+              key={wpi.id}
+              workPartItem={wpi}
+              appState={props.appState}
+            />
+          )}
+        </div>
+      </div>
+    );
+  } else {
+    return null;
+  }
+}
+
+interface IWorkPartItemLinkProps {
+  workPartItem:WorkPartItem;
+  appState:AppState;
+}
+
+@observer
+class WorkPartItemLink extends React.Component<IWorkPartItemLinkProps> {
+
+  openSubSection = () => {
+    this.props.appState.navigateToWorkPartItem(this.props.workPartItem);
+  }
+
+  render() {
+    const {workPartItem} = this.props;
+    return (
+      <li className="list-item list-item--material" onClick={this.openSubSection}>{workPartItem.title}</li>
+    );
+  }
+}
+

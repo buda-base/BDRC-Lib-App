@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as ons from 'onsenui';
 import {observer} from 'mobx-react';
 import { Page } from 'react-onsenui';
 import { SearchPage } from './SearchPage';
@@ -6,9 +7,9 @@ import { DetailPage } from './DetailPage';
 import { AboutPage } from './AboutPage';
 import { HelpPage } from './HelpPage';
 import { SettingsPage } from './SettingsPage';
-import {Route} from './TypeAliases';
-import AppState, { searchRoute, detailRoute, aboutRoute, helpRoute, settingsRoute } from './AppState';
-import { AppToolbar } from './AppToolbar';
+import AppState, { searchRoute, detailRoute, aboutRoute, helpRoute, settingsRoute } from './data/AppState';
+import { AppToolbar } from './widgets/AppToolbar';
+import {Route} from "./data/interfaces/Route";
 
 export const AppPage = observer(( props:{route:Route, appState:AppState} ) => {
   let content:any = "";
@@ -20,8 +21,14 @@ export const AppPage = observer(( props:{route:Route, appState:AppState} ) => {
     pageTitle = props.appState.strings.appName;
     pageKey='search';
   } else if(props.route.page===detailRoute.page)  {
-    content = <DetailPage strings={props.appState.strings} db={props.appState.db} databaseResult={props.route.data.databaseResult} files={props.route.data.files} appState={props.appState}  />; 
-    pageTitle = props.route.data.databaseResult.title;  
+    content = <DetailPage
+                strings={props.appState.strings}
+                db={props.appState.db}
+                databaseResult={props.route.data.databaseResult}
+                files={props.route.data.files}
+                appState={props.appState}
+              />;
+    pageTitle = props.route.data.databaseResult ? props.route.data.databaseResult.title : props.route.data.files.workPartItem ? props.route.data.files.workPartItem.title : '';
     // Account for compound nodeId that is brought in with the workPart Index files in order to provide both the 
     // filename of the workPart, and the node within the workPart that the title represents.
     let dashIndex = pageTitle.indexOf('-');
@@ -42,7 +49,12 @@ export const AppPage = observer(( props:{route:Route, appState:AppState} ) => {
   }
 
   return (
-    <Page modifier="material" key={pageKey} renderToolbar={ () => <AppToolbar appState={props.appState} route={props.route} pageTitle={pageTitle} />} >
+    <Page
+      contentStyle={{paddingTop:`${ons.platform.isIPhoneX()?'16px':'0px'}`, background:'white'}}
+      modifier="material"
+      key={pageKey}
+      renderToolbar={ () => <AppToolbar appState={props.appState} route={props.route} pageTitle={pageTitle} />}
+    >
       {content}    
     </Page>
   );

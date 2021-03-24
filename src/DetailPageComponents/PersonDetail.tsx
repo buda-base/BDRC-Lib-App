@@ -1,14 +1,14 @@
 import * as React from 'react';
 import {observer} from 'mobx-react';
-import {Person} from '../Records';
-import Database from '../Database';
-import {ILocalizedStrings} from '../LocalizedStrings';
-import AppState from '../AppState';
+import {Person} from '../data/Records';
+import Database from '../data/Database';
+import {ILocalizedStrings} from '../data/LocalizedStrings';
+import AppState from '../data/AppState';
 import {Card} from 'react-onsenui';
 import {StringSection} from './StringSection'; 
 import {RelatedRecordSection} from './RelatedRecordSection';
 import {ShareButton} from './ShareButton';
-import { DatabaseResult } from '../DatabaseResult';
+import { DatabaseResult } from '../data/DatabaseResult';
 
 @observer
 export class PersonDetail extends React.Component {  
@@ -43,8 +43,8 @@ export class PersonDetail extends React.Component {
   render() {    
     if(this.props.person) {
 
-      let shareLink = this.props.appState.libraryServer.url+"/#!rid="+this.props.person.nodeId;
-      let shareSubject = this.props.strings.linkToAuthorPre+this.props.person.nodeId+this.props.strings.linkToAuthorPost;
+      const shareLink = this.props.appState.generateShareLink(this.props.person.nodeId);
+      const shareSubject = this.props.strings.linkToAuthorPre+this.props.person.nodeId+this.props.strings.linkToAuthorPost;
 
       return (
         <section>

@@ -1,10 +1,14 @@
 import * as React  from 'react';
+import * as ons from 'onsenui';
+
 import {Page, Button} from 'react-onsenui';
 import {observer} from 'mobx-react';
-import AppState, {libChina, libUSA} from './AppState';
-import {bo, en, cn} from './LocalizedStrings';
+import AppState from './data/AppState';
+import {bo, en, cn} from './data/LocalizedStrings';
 import { Main } from './Main';
 import './Top.pcss';
+import {valueForLang} from "./data/interfaces/I_LangString";
+import {Mirrors} from "./data/interfaces/I_MirrorSite";
 
 interface P_Top {
   appState:AppState;
@@ -13,8 +17,16 @@ interface P_Top {
 @observer
 export class Top extends React.Component<P_Top> {
 
-  render() {
+  constructor(props:P_Top) {
+    super(props);
+    if(ons.platform.isIPhoneX()) {
+      document.documentElement.setAttribute('onsflag-iphonex-portrait', '');
+      document.documentElement.setAttribute('onsflag-iphonex-landscape', '');
+    }
+  }
 
+  render() {
+    // SETUP: Step 1, language
     if(!this.props.appState.strings){
       return (
         <Page modifier="material">
@@ -33,7 +45,9 @@ export class Top extends React.Component<P_Top> {
           </div>
         </Page>
       );
-    } else if(!this.props.appState.libraryServer) {
+    }
+    // SETUP: Step 2, Select Mirror
+    else if(this.props.appState.updater.noMirrorSelected) {
       return (
         <Page modifier="material">
           <div className="selectLanguage">
@@ -43,14 +57,35 @@ export class Top extends React.Component<P_Top> {
               <h2>{this.props.appState.strings.pleaseSelectLocation}</h2>
               <p>{this.props.appState.strings.pleaseSelectLocationDescription}</p>
 
-              <Button style={{margin: '6px'}} modifier='material' onClick={()=>{this.props.appState.setLibraryServer(libChina);}}>{this.props.appState.strings.serverInChina}</Button>
-              <Button style={{margin: '6px'}} modifier='material' onClick={()=>{this.props.appState.setLibraryServer(libUSA);}}>{this.props.appState.strings.serverInUSA}</Button>
+              {this.props.appState.updater.mirrors.map((mirror)=> {
+                if (mirror.id === Mirrors.Custom.id) {
+                  return null;
+                } else {
+                  return (
+                    <Button
+                      key={mirror.id}
+                      style={{margin: '6px'}}
+                      modifier='material'
+                      onClick={() => {
+                        this.props.appState.setLibraryMirror(mirror);
+                      }}
+                    >
+                      {valueForLang(mirror.name, this.props.appState.strings.id)}
+                    </Button>
+                  );
+                }
+              })}
+
+              {/*<Button style={{margin: '6px'}} modifier='material' onClick={()=>{this.props.appState.setLibraryServer(libChina);}}>{this.props.appState.strings.serverInChina}</Button>*/}
+              {/*<Button style={{margin: '6px'}} modifier='material' onClick={()=>{this.props.appState.setLibraryServer(libUSA);}}>{this.props.appState.strings.serverInUSA}</Button>*/}
 
             </div>
           </div>
         </Page>
       );
-    } else {
+    }
+    // SETUP IS COMPLETE
+    else {
       return <Main db={this.props.appState.db} appState={this.props.appState} />;            
     }
 

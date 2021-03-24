@@ -4,16 +4,18 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as ons from 'onsenui';
 import * as uuidV1 from 'uuid/v1';
+import 'onsenui/css/onsenui.css';
+import 'onsenui/css/onsen-css-components.css';
 // import injectTapEventPlugin from 'react-tap-event-plugin';
 // injectTapEventPlugin();
 
 import { Top } from './Top';
-import { MOM } from './MOM';
-import AppState from './AppState';
+import { MOM } from './widgets/MOM';
+import AppState from './data/AppState';
 import * as Logger from 'js-logger';
-import {SnackBar} from './UIWidgets';
+import {SnackBar} from './widgets/UIWidgets';
 
-const APP_VERSION = '2.0';
+const APP_VERSION = '1.2.0';
 
 // Log messages will be written to the window's console.
 Logger.useDefaults();
@@ -47,15 +49,9 @@ class app {
 
     if(id==='deviceready') {
 
-
-
       // initialize language
       let language = localStorage.getItem('language');
       if(language && language.length>0) this.appState.setInterfaceLocalization(language);
-
-      // initialize server location
-      let location = localStorage.getItem('libraryServerId');
-      if(location && location.length>0) this.appState.setLibraryServerFromString(location);
 
       // https://github.com/danwilson/google-analytics-plugin
       //turn on google tracking
@@ -76,7 +72,12 @@ class app {
       // load the UI
       ons.ready(()=>{
 
-        this.appState.initializeFileSystem();
+        // initialize the file system
+        this.appState.initializeFileSystem()
+        .then(()=>{
+          // check for updates
+          this.appState.checkForLibraryUpdates();          
+        });
 
         ReactDOM.render( <Top appState={this.appState} />, document.getElementById('AppContainer'));
         ReactDOM.render( <MOM appState={this.appState} />, document.getElementById('MOMContainer'));
@@ -85,6 +86,7 @@ class app {
         //if(confirm('ready?')){
 	      // ReactDOM.render( <Top db={db}  />, document.getElementById('AppContainer'));
       	//}
+
       });
     }
   }

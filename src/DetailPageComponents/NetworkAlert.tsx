@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {ILocalizedStrings} from '../LocalizedStrings';
+import {ILocalizedStrings} from '../data/LocalizedStrings';
 import {AlertDialog} from 'react-onsenui';
 
 interface P_NetworkAlert {
