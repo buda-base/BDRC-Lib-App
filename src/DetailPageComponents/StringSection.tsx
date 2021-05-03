@@ -12,9 +12,9 @@ interface P_StringSection {
 export class StringSection extends React.Component<P_StringSection> {
   render(){
     if(this.props.val) {
-      return <div><h4>{this.props.title}</h4><div>{this.props.val}</div></div>
+      return <div><h4>{this.props.title}</h4><div className={"yes-select"}>{this.props.val}</div></div>
     } else if(this.props.vals) {
-      return <div><h4>{this.props.title}</h4>{this.props.vals.map((val, idx)=><div key={idx}>{val}</div>)}</div>
+      return <div><h4>{this.props.title}</h4>{this.props.vals.map((val, idx)=><div key={idx} className={"yes-select"}>{val}</div>)}</div>
     } else {
       return null;
     }

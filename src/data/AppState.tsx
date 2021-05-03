@@ -219,15 +219,16 @@ export default class AppState {
   }
 
   generateViewLink = (id:string) => {
+
     // ?work=bdr:MW22084&origin=BDRCLibApp1.2.0&lang=bo&uilang=0
     const url = this.updater.storedLibraryMetaData?.viewerUrlPrefix+"?work=bdr:"+id+"&origin="+STORAGE_KEY_PREFIX+"&lang="+this.strings.iifviewerlang+"&uilang="+this.strings.id;
-    console.log(url);
+    //console.log(url);
     return url;
   }
 
   generateShareLink = (id:string) => {
     const url = this.updater.storedLibraryMetaData?.libraryUrl+'/show/bdr:'+id;
-    console.log(url);
+    //console.log(url);
     return url;
   }
 

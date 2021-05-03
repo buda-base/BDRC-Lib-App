@@ -34,6 +34,15 @@ const WORKPARTS_IDX_FILE_PREFIX = 'workparts-';
 
 type StatusListenerFunc = (message:string) => void;
 
+function removeTrailing(src:string, trailing:string) {
+	let idx = src.lastIndexOf(trailing);
+	while(idx!=-1 && src.length>0 && idx===src.length-trailing.length) {
+		src = src.substring(0, idx);
+		idx = src.lastIndexOf(trailing);
+	}
+	return src;
+}
+
 class Database {
 	appState:AppState;
 
@@ -203,12 +212,26 @@ class Database {
 	 * @return {void}
 	 */
 	search(searchStringSrc:string) {
-		this.appState.currentQueryString = searchStringSrc;
 		this.searchString = searchStringSrc;
 
 		let searchByNodeId = false;
 		let searchByNodeIdExact = true;
 		let searchString = searchStringSrc;
+
+		// trim '་', '༌', '།', and '༎'
+		try {
+			if (searchString && searchString.length > 0) {
+				searchString = searchString.trim();
+				// searchString = removeTrailing(searchString, TSHEG);
+				searchString = removeTrailing(searchString, '་');
+				searchString = removeTrailing(searchString, '༌');
+				searchString = removeTrailing(searchString, '།');
+				searchString = removeTrailing(searchString, '༎');
+			}
+		} catch(e) {
+			searchString = searchStringSrc;
+		}
+		this.appState.currentQueryString = searchString;
 
 		// Figure out whether this is a node id search. This was written in
 		// this way to facilitate a change in the node prefix, such as W to MW
@@ -276,13 +299,16 @@ class Database {
 				// SEARCH THE DATABASE
 				else {
 
+
+
+
 					let query = 'SELECT id, title, nodeId, type FROM indices WHERE (title LIKE ?)';
 					let queryParams = ['%'+searchString+'%'];
 					if('$'===searchString[0]) {
 						query =  'SELECT id, title, nodeId, type FROM indices WHERE (title MATCH ?)';
 						queryParams = ['"'+searchString+'*"']
 					}
-					// console.log('query '+query);
+
 					try {
 						//console.time('Search'+query);
 						this.database.executeSql(query, queryParams, (resultSet:any) => {

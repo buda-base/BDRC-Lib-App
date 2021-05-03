@@ -92,7 +92,7 @@ export class SearchResults extends React.Component<P_SearchResults> {
 				<div className="search-results">
 					{/*<div className="status">{this.props.strings.searchRequirementText}</div>*/}
 					{this.searchString?null:
-						<div style={helpTextStyle}>
+						<div style={helpTextStyle} className={'yes-select'}>
 							{this.props.strings.searchHelpText}
 						</div>
 					}

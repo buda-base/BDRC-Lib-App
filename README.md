@@ -29,6 +29,12 @@ with a target of the Cordova www folder. http://localhost:8080
 npm run serve
 ```
 
+## Android dev testing
+
+See console.log output using Chrome
+
+```chrome://inspect/#devices```
+
 This runs the webpack-dev-server, rebuilding and reloading in the browser when a change is made.
 
 ## Production

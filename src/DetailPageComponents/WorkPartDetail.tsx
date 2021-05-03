@@ -72,19 +72,18 @@ export class WorkPartDetail extends React.Component<P_WorkPartDetail> {
     if(navigator.connection.type===Connection.NONE) {
       this.alertOpen = true;
     } else {
-      // this.setState({pechaViewerOpen:true});
-      openExternalLink(this.props.appState.generateViewLink(workPartItem.id));
+      const externalLink = this.props.appState.generateViewLink(workPartItem.id);
+      openExternalLink(externalLink);
     }
   }
 
   handleViewButtonClicked = (workPart:WorkPart) =>{
     window.ga.trackEvent('DetailPage', 'Gallery', workPart.nodeId);
-
     if(navigator.connection.type===Connection.NONE) {
       this.alertOpen = true;
     } else {
-      // this.setState({pechaViewerOpen:true});
-      openExternalLink(this.props.appState.generateViewLink(workPart.nodeId));
+      const externalLink = this.props.appState.generateViewLink(workPart.nodeId);
+      openExternalLink(externalLink);
     }
   }
 
@@ -103,9 +102,7 @@ export class WorkPartDetail extends React.Component<P_WorkPartDetail> {
             workPartItem={workPartItem}
             strings={strings}
             appState={appState}
-            onViewButtonClicked={() => {
-              this.handleWPIViewButtonClicked(workPartItem);
-            }}
+            onViewButtonClicked={this.handleWPIViewButtonClicked}
           />
         }
 
@@ -153,6 +150,13 @@ interface IWorkPartTopLevelProps {
 
 
 class WorkPartTopLevel  extends React.Component<IWorkPartTopLevelProps> {
+
+  handleViewButtonClicked = () => {
+    if(this.props.workPart) {
+      this.props.onViewButtonClicked(this.props.workPart);
+    }
+  }
+
   render() {
     const {strings, appState, workPart, relatedWorks, viewRelatedRecord, onViewButtonClicked} = this.props;
 
@@ -173,7 +177,7 @@ class WorkPartTopLevel  extends React.Component<IWorkPartTopLevelProps> {
           <div className="action-bar">
             <div className="actions">
               <ShareButton strings={strings} subject={shareSubject} url={shareLink} nodeId={workPart.nodeId} />
-              <ViewButton strings={strings} handleViewButtonClicked={onViewButtonClicked} />
+              <ViewButton strings={strings} handleViewButtonClicked={this.handleViewButtonClicked} />
             </div>
           </div>
         </Card>
@@ -196,14 +200,13 @@ interface IWorkPartItemCardProps {
 
 @observer
 class WorkPartItemCard extends React.Component<IWorkPartItemCardProps> {
+
   handleViewButtonClicked = () => {
     this.props.onViewButtonClicked(this.props.workPartItem);
   }
 
   render() {
-
     const {appState, strings, workPartItem, isHeader} = this.props;
-
     const shareLink = appState.generateShareLink(workPartItem.id);
     const shareSubject = strings.linkToTextPre+workPartItem.id+strings.linkToTextPost;
 
