@@ -4,6 +4,7 @@ export interface ILocalizedStrings	 {
 	displayNum: (num:number)=>string;
 	displayStatus: (str:string)=>string;
 	accessString: (str:string)=>string;
+	printTypeForCode:(str:string)=>string;
 	appName: string;
 	searchHintText: string;
 	searchRequirementText: string;
@@ -144,6 +145,10 @@ export interface ILocalizedStrings	 {
 	Cancel:string,
 	Ok:string,
 	PleaseConfirm:string,
+	printTypeWoodblock:string,
+	printTypeManuscript:string,
+	printTypeModernPrint:string,
+	printTypeXerography:string,
 };
 
 
@@ -157,6 +162,24 @@ function localizedAccessString(accessValue:string, strings:ILocalizedStrings) {
 	else if('fairuse'===accessValue) return strings.accessFairuse;
 	//else if('mixed'===accessValue) return strings.accessMixed;
 	else return '';
+}
+
+function printTypeForCode(code:string, strings:ILocalizedStrings){
+	if(null!=code) {
+		if('x'===code) {
+			return strings.printTypeWoodblock;
+		} else	if('m'===code) {
+			return strings.printTypeManuscript;
+		} else	if('mo'===code) {
+			return strings.printTypeModernPrint;
+		} else	if('l'===code) {
+			return strings.printTypeXerography;
+		} else {
+			return code;
+		}
+	} else {
+		return code;
+	}
 }
 
 export const en:ILocalizedStrings = {
@@ -174,6 +197,9 @@ export const en:ILocalizedStrings = {
 	},
 	accessString(accessValue){
 		return localizedAccessString(accessValue, this);
+	},
+	printTypeForCode(code:string){
+		return printTypeForCode(code, this);
 	},
 	statusSeekingOut: 'Seeking Out',
 	statusAcquiring: 'Acquiring',
@@ -312,6 +338,10 @@ export const en:ILocalizedStrings = {
 	Cancel:'Cancel',
 	Ok:'Ok',
 	PleaseConfirm:'Please Confirm',
+	printTypeWoodblock:'Woodblock',
+	printTypeManuscript:'Manuscript',
+	printTypeModernPrint:'Modern print',
+	printTypeXerography:'Xerography',
 };
 
 
@@ -333,6 +363,9 @@ export const cn:ILocalizedStrings = {
 	},
 	accessString(accessValue){
 		return localizedAccessString(accessValue, this);
+	},
+	printTypeForCode(code:string){
+		return printTypeForCode(code, this);
 	},
 	statusSeekingOut: '寻找',
 	statusAcquiring: '正在取得该书',
@@ -470,6 +503,10 @@ export const cn:ILocalizedStrings = {
 	Cancel:'取消',
 	Ok:'好',
 	PleaseConfirm:'请确认',
+	printTypeWoodblock:'雕版',
+	printTypeManuscript:'雕版',
+	printTypeModernPrint:'电脑输入',
+	printTypeXerography:'静电复印',
 };
 
 
@@ -479,14 +516,13 @@ export const bo:ILocalizedStrings = {
 	iifviewerlang:'bo',
 	displayNum(num:number){
 		let result = '';
-
 		if(0===num) return bo_nums[0];
 		if(num) {
 			while(num>0){
 				let v = num%10;
-				console.log("v "+v+" num "+num+" bo_nums[v] "+bo_nums[v]+"result "+result);
+				// console.log("v "+v+" num "+num+" bo_nums[v] "+bo_nums[v]+"result "+result);
 				result = bo_nums[v]+result;
-				num = parseInt((num/10 ).toFixed(0));
+				num = Math.trunc(num/10);
 			}
 		}
 		return result;
@@ -498,7 +534,9 @@ export const bo:ILocalizedStrings = {
 		else if(status==='released') return this.statusReleased;
 		else return this.statusUnknown;
 	},
-
+	printTypeForCode(code:string){
+		return printTypeForCode(code, this);
+	},
 	accessString(accessValue){
 		return localizedAccessString(accessValue, this);
 	},
@@ -644,5 +682,10 @@ export const bo:ILocalizedStrings = {
 	Cancel:'ཕྱིར་འཐེན།',
 	Ok:'འགྲིག',
 	PleaseConfirm:'གཏན་འཁེལ་བྱ་རོགས།',
+	printTypeWoodblock:'ཤིང་པར།',
+	printTypeManuscript:'བྲིས་མ།',
+	printTypeModernPrint:'རྩིས་འཁོར་ནང་དུ་འཇུག་པ།',
+	printTypeXerography:'པར་སློག',
+
 };
 

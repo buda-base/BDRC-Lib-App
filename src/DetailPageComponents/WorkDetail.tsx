@@ -51,6 +51,7 @@ export class WorkDetail extends React.Component<P_WorkDetail> {
 
       const shareLink = this.props.appState.generateShareLink(this.props.work.nodeId);
       const shareSubject = this.props.strings.linkToWorkPre+this.props.work.nodeId+this.props.strings.linkToWorkPost;
+      const printType = this.props.strings.printTypeForCode(this.props.work.printType);
 
       return (
         <section>
@@ -69,7 +70,7 @@ export class WorkDetail extends React.Component<P_WorkDetail> {
             <StringSection title={this.props.strings.PublisherName} val={this.props.work.publisherName} /> 
             <StringSection title={this.props.strings.PublisherLocation} val={this.props.work.publisherLocation} />
             <StringSection title={this.props.strings.PublisherDate} val={this.props.work.publisherDate} />
-            <StringSection title={this.props.strings.PrintType} val={this.props.work.printType} />
+            <StringSection title={this.props.strings.PrintType} val={printType} />
 
 
             <div className="action-bar">
