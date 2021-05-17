@@ -22,6 +22,8 @@ export class DatabaseResult {
 
 	load = (rootFolder:string, afterLoaded:(record:Work|Person|WorkPart|null)=>void) => {
 
+		console.log('DatabaseResult.load '+this.nodeId);
+
 		let rid = this.nodeId;
 
 		// WorkParts may contain references to the part in their Ids.
@@ -36,6 +38,7 @@ export class DatabaseResult {
 
 		// let relativeFilePath = this.type.toLowerCase()+'s/'+filename+'.json';
 		let relativeFilePath = this.type.toLowerCase()+'s/'+hash.substring(0, 2)+'.json';
+		console.log(' loading '+relativeFilePath);
 
 		// // if this is namedspaced, include the namespace as a subfolder in the
 		// // record file reference
@@ -57,11 +60,16 @@ export class DatabaseResult {
 	}
 
 	loaded = (json:any, rid:string, afterLoaded:(record:Work|Person|WorkPart|null)=>void) => {
+
+		console.log('DatabaseResult.loaded '+rid);
+
+
 		if(null==json) {
 			afterLoaded(null);
 		} else {
 			const doc = json[rid];
 			if(doc) {
+				console.log(doc);
 				if (this.isPerson) {
 					afterLoaded(new Person(doc, this.nodeId));
 				} else if (this.isWork) {

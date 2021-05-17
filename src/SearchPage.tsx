@@ -28,10 +28,14 @@ export class SearchPage extends React.Component<P_SearchPage> {
 	// 	this.props.db.search(this.query);
 	// }
 
-	handleQueryChange = (e:any) => {		
+	handleQueryChange = (e:any) => {
 		let query = e.currentTarget.value;
-		this.props.db.search(query);
-		this.query = query;
+		if(1===query.length && "W"===query.toUpperCase()) {
+			this.query = "MW";
+		} else {
+			this.props.db.search(query);
+			this.query = query;
+		}
 	}
 
 	render(){
