@@ -3,7 +3,7 @@ import { v1 as uuidV1 } from 'uuid';
 import { Navigator } from 'react-onsenui';
 import FileTool from './FileTool';
 import Database from './Database';
-import {Work, WorkPart, Person, WorkPartItem} from './Records';
+import {Work, WorkPart, Person, WorkPartItem, IParentWorkPart} from './Records';
 import { bo, en, cn } from './LocalizedStrings';
 import { ILocalizedStrings} from './LocalizedStrings';
 import { DatabaseResult } from './DatabaseResult';
@@ -263,6 +263,7 @@ export default class AppState {
   
   @action
   navigateTo = (databaseResult:DatabaseResult) => { // , navigator:Navigator) => {
+    console.log('AppState.navigateTo', databaseResult);
 
     let work:Work|null = null;
     let person:Person|null = null;
@@ -281,18 +282,22 @@ export default class AppState {
       // NOTE: If performance is jerky do to loading related records, either through a database search, or through a file load, 
       // that work should be done here and passed through the "data" object
 
-      const route:Route = { page: 'Detail', hasBackButton: true, isModal:false, data:{ databaseResult:databaseResult, files:{ work:work, person:person, workPart:workPart }, relatedDatabaseResults:{}}};
+      const route:Route = { page: 'Detail', hasBackButton: true, isModal:false, data:{ databaseResult:databaseResult, files:{ work:work, person:person, workPart:workPart, workPartItem:null }, relatedDatabaseResults:{}}};
       this.pushPage(route); //, navigator);    
     });
 
   }
-
+  
   @action
   navigateToWorkPartItem = (workPartItem:WorkPartItem) => {
-    const route:Route = { page: 'Detail', hasBackButton: true, isModal:false, data:{ files:{ work:null, person:null, workPart:null, workPartItem:workPartItem }, relatedDatabaseResults:{}}};
-    this.pushPage(route);
+    const syntheticRecord = {
+      title:workPartItem.title,
+      nodeId:workPartItem.id,
+      type:'WorkPart'
+    }
+    const databaseResult = new DatabaseResult(this.db, syntheticRecord);
+    return this.navigateTo(databaseResult);
   }
-
 
   constructor() {
     this.updater = new LibraryUpdater(this);

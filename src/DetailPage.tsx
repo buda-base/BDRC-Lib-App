@@ -17,7 +17,12 @@ interface P_DetailPage {
 	databaseResult:DatabaseResult;
 	strings:ILocalizedStrings;
 	appState:AppState;
-	files:any;
+	files:{
+		work?:any;
+		workPart?:any;
+		person?:any;
+		workPartItem?:any;
+	};
 }
 
 @observer
@@ -37,8 +42,11 @@ export class DetailPage extends React.Component<P_DetailPage> {
 	}
 
 	render() {
+		console.log('render DetailPage');
+		console.log(this.props);
 		if(this.props.databaseResult) {
 			if(this.props.files.person) {
+				console.log(' person');
 				return (
 					<PersonDetail
 						db={this.props.db}
@@ -48,6 +56,7 @@ export class DetailPage extends React.Component<P_DetailPage> {
 						appState={this.props.appState}
 					/>);
 			} else if(this.props.files.work) {
+				console.log(' work');
 				return (
 					<WorkDetail
 						db={this.props.db}
@@ -57,6 +66,7 @@ export class DetailPage extends React.Component<P_DetailPage> {
 						appState={this.props.appState}
 					/>);
 			} else if(this.props.files.workPart) {
+				console.log(' workPart');
 				return (
 					<WorkPartDetail
 						db={this.props.db}
@@ -66,9 +76,12 @@ export class DetailPage extends React.Component<P_DetailPage> {
 						appState={this.props.appState}
 					/>);
 			} else {
+				console.log(' null #1');
 				return null;
 			}
 		} else if(this.props.files.workPartItem) {
+			console.log(' workPartItem');
+
 			return (
 				<WorkPartDetail
 					db={this.props.db}
@@ -78,6 +91,8 @@ export class DetailPage extends React.Component<P_DetailPage> {
 					appState={this.props.appState}
 				/>);
 		} else {
+			console.log(' null #2');
+
 			return null;
 		}
 	}

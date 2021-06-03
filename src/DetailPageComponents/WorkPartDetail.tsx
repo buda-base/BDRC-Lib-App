@@ -44,14 +44,16 @@ export class WorkPartDetail extends React.Component<P_WorkPartDetail> {
   @observable downloadPDFOpen:boolean = false;
 
   componentWillMount(){
-    if(this.props.workPart && this.props.workPart.workId){ 
+    if(this.props.workPart && this.props.workPart.workId){
+      console.log('WorkPartDetail componentWillMount searchForMatchingNodes '+this.props.workPart.workId);
       this.props.db.searchForMatchingNodes([this.props.workPart.workId], this.receiveWorks);
     } 
   }
 
   receiveWorks = (works:Array<DatabaseResult>) => {
-    this.setState({relatedWorks:works});
+    this.relatedWorks = works;
     if(works.length>0) {
+      console.log('WorkPartDetail.receiveWorks');
       works[0].load( this.props.appState.fileTool.fs.root.toURL()+'/BDRCLIB/',(work:any)=>{this.receiveWork(work)} );
     }
   }
@@ -90,8 +92,9 @@ export class WorkPartDetail extends React.Component<P_WorkPartDetail> {
 /* བཀྲ་ཤིས་ཆེན་པོའི་མདོ། */
   render() {
     const { workPart, workPartItem, strings, appState, viewRelatedRecord} = this.props;
+    console.log('render WorkPartDetail', workPart);
 
-    const workPartItems = workPart ? workPart.workPartItems : workPartItem? workPartItem.workPartItems : [];
+    // const workPartItems = workPart ? workPart.workPartItems : workPartItem? workPartItem.workPartItems : [];
 
     return (
       <section>
@@ -163,14 +166,28 @@ class WorkPartTopLevel  extends React.Component<IWorkPartTopLevelProps> {
     if (!workPart) {
       return null;
     } else {
+      console.log('render WorkPartTopLevel '+workPart.nodeId);
+
       const shareLink = appState.generateShareLink(workPart.nodeId);
       const shareSubject = strings.linkToTextPre + workPart.nodeId + strings.linkToTextPost;
-
+      let workPartParentDatabaseResult:DatabaseResult|null = null;
+      if(workPart.parent) {
+        const fakeRecord = {
+          title:workPart.parent.title,
+          nodeId:workPart.parent.id,
+          type:'WorkPart'
+        }
+        workPartParentDatabaseResult = new DatabaseResult(appState.db, fakeRecord);
+      }
       return (
         <Card modifier="material">
           <StringSection title={strings.Title} val={workPart.title}/>
           <StringSection title={strings.WorkPartRID} val={workPart.nodeId}/>
           <RelatedRecordSection title={strings.IsWorkPartOf} relatedRecords={relatedWorks} viewRelatedRecord={viewRelatedRecord}/>
+
+          {workPartParentDatabaseResult &&
+            <RelatedRecordSection title={"Parent Work Part"} relatedRecords={[workPartParentDatabaseResult]} viewRelatedRecord={viewRelatedRecord}/>
+          }
 
           <WorkPartItemsList appState={appState} workPartItems={workPart.workPartItems} />
 
@@ -206,7 +223,11 @@ class WorkPartItemCard extends React.Component<IWorkPartItemCardProps> {
   }
 
   render() {
+
     const {appState, strings, workPartItem, isHeader} = this.props;
+
+    console.log('render WorkPartItemCard '+workPartItem.id);
+
     const shareLink = appState.generateShareLink(workPartItem.id);
     const shareSubject = strings.linkToTextPre+workPartItem.id+strings.linkToTextPost;
 
@@ -234,6 +255,8 @@ class WorkPartItemCard extends React.Component<IWorkPartItemCardProps> {
 
 
 const WorkPartItemsList = (props:{workPartItems:WorkPartItem[], appState:AppState}) => {
+  console.log('WorkPartItemsList');
+
   if(props.workPartItems.length>0) {
     return (
       <div className={"WorkPartItemsList"}>
@@ -267,6 +290,8 @@ class WorkPartItemLink extends React.Component<IWorkPartItemLinkProps> {
   }
 
   render() {
+    console.log('render WorkPartItemLink');
+
     const {workPartItem} = this.props;
     return (
       <li className="list-item list-item--material" onClick={this.openSubSection}>{workPartItem.title}</li>

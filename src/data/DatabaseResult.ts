@@ -1,3 +1,5 @@
+import {findWorkPart} from "./findWorkPart";
+
 declare var device: any;
 
 import { Work, Person, WorkPart } from './Records';
@@ -6,6 +8,8 @@ import BrowserUtil from './BrowserUtil';
 import NativeUtil from './NativeUtil';
 import {  v1 as uuidV1 } from 'uuid';
 import * as SparkMD5 from 'spark-md5';
+
+
 
 export class DatabaseResult {
 
@@ -24,60 +28,52 @@ export class DatabaseResult {
 
 		console.log('DatabaseResult.load '+this.nodeId);
 
-		let rid = this.nodeId;
+		let baseRid = this.nodeId;
 
 		// WorkParts may contain references to the part in their Ids.
 		if(this.isWorkPart) {
-			const lastUnderscoreIdx = rid.lastIndexOf('_');
+			const lastUnderscoreIdx = baseRid.lastIndexOf('_');
 			if(-1!=lastUnderscoreIdx) {
-				rid = rid.substring(0,lastUnderscoreIdx);
+				baseRid = baseRid.substring(0,lastUnderscoreIdx);
 			}
 		}
 
-		const hash = SparkMD5.hash(rid);
+		// Use the base RID to find the file that contains the associated JSON
+		const hash = SparkMD5.hash(baseRid);
 
 		// let relativeFilePath = this.type.toLowerCase()+'s/'+filename+'.json';
 		let relativeFilePath = this.type.toLowerCase()+'s/'+hash.substring(0, 2)+'.json';
 		console.log(' loading '+relativeFilePath);
 
-		// // if this is namedspaced, include the namespace as a subfolder in the
-		// // record file reference
-		// const colonIdx = filename.indexOf(':');
-		// if(-1!=colonIdx) {
-		// 	relativeFilePath += filename.substring(0,colonIdx) + '/' + filename.substring(colonIdx+1);
-		// } else {
-		// 	relativeFilePath += filename;
-		// }
-		// relativeFilePath += '.json';
-
-
-
 		if('browser'===device.platform) {
-			BrowserUtil.loadJSONFile(relativeFilePath, (json:any) => { this.loaded(json, rid, afterLoaded); });
+			BrowserUtil.loadJSONFile(relativeFilePath, (json:any) => { this.loaded(json, this.nodeId, afterLoaded); });
 		} else {
-			NativeUtil.loadJSONFile(rootFolder, relativeFilePath, (json:any) => { this.loaded(json, rid, afterLoaded); });
+			NativeUtil.loadJSONFile(rootFolder, relativeFilePath, (json:any) => { this.loaded(json, this.nodeId, afterLoaded); });
 		}
 	}
 
 	loaded = (json:any, rid:string, afterLoaded:(record:Work|Person|WorkPart|null)=>void) => {
 
-		console.log('DatabaseResult.loaded '+rid);
-
+		console.log('DatabaseResult.loaded '+rid, json);
 
 		if(null==json) {
+			console.log('DatabaseResult.loaded: json empty');
 			afterLoaded(null);
 		} else {
-			const doc = json[rid];
+			const doc = this.isWorkPart ? findWorkPart(json, rid) : json[rid];
 			if(doc) {
-				console.log(doc);
 				if (this.isPerson) {
+					console.log("DatabaseResult.loaded: loading person "+this.nodeId);
 					afterLoaded(new Person(doc, this.nodeId));
 				} else if (this.isWork) {
+					console.log("DatabaseResult.loaded: loading work "+this.nodeId);
 					afterLoaded(new Work(doc, this.nodeId));
 				} else if (this.isWorkPart) {
+					console.log("DatabaseResult.loaded: loading work part "+this.nodeId);
 					afterLoaded(new WorkPart(doc, this.nodeId, this.title));
 				}
 			} else {
+				console.log('DatabaseResult.loaded: no doc');
 				afterLoaded(null);
 			}
 		}

@@ -100,10 +100,16 @@ class Person {
  *
  */
 
+export interface IParentWorkPart {
+	id:string;
+	title:string;
+}
+
 class WorkPart {
 	nodeId:string;
 	title:string;
 	workPartItems:WorkPartItem[];
+	parent:IParentWorkPart;
 
 	@computed
 	get workId() {
@@ -111,15 +117,24 @@ class WorkPart {
 		return -1!=underscoreIdx ? this.nodeId.substring(0, underscoreIdx) : this.nodeId;
 	}
 
-	constructor(json: WorkPartItemJSON[], nodeId:string, title: string) {
+	constructor(json: any, nodeId:string, title: string) {
 		this.nodeId = nodeId;
 		this.title = title ;
 		this.workPartItems = [];
 		if(json) {
-			json.forEach(nodeJSON=>{
-				this.workPartItems.push(new WorkPartItem(nodeJSON));
-			});
-		}		
+			console.log(json);
+			if(json.parent && json.part.id) {
+				this.parent = {
+					id:json.parent.id,
+					title:(json.parent.t && json.parent.t.length>0)?json.parent.t[0]:json.parent.id
+				}
+			}
+			if(json.part && json.part.n && json.part.n.length>0) {
+				json.part.n.forEach((n:any)=>{
+					this.workPartItems.push(new WorkPartItem(n));
+				});
+			}
+		}
 	}
 }
 

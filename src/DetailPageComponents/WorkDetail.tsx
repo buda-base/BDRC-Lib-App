@@ -59,7 +59,8 @@ export class WorkDetail extends React.Component<P_WorkDetail> {
 
             <StringSection title={this.props.strings.Title} vals={this.props.work.title} />
 
-            <RelatedRecordSection title={this.props.strings.Creator} 
+            <RelatedRecordSection
+              title={this.props.strings.Creator}
               relatedRecords={this.authors} 
               viewRelatedRecord={this.props.viewRelatedRecord} 
               showOnlyFirstRecord={true} 
@@ -71,7 +72,6 @@ export class WorkDetail extends React.Component<P_WorkDetail> {
             <StringSection title={this.props.strings.PublisherLocation} val={this.props.work.publisherLocation} />
             <StringSection title={this.props.strings.PublisherDate} val={this.props.work.publisherDate} />
             <StringSection title={this.props.strings.PrintType} val={printType} />
-
 
             <div className="action-bar">
               <div className="actions"> 
