@@ -68,6 +68,7 @@ export class WorkPartDetail extends React.Component<P_WorkPartDetail> {
     this.alertOpen = false;
   }
 
+  /*
   handleWPIViewButtonClicked = (workPartItem:WorkPartItem) => {
     window.ga.trackEvent('DetailPage', 'Gallery', workPartItem.id);
 
@@ -78,6 +79,7 @@ export class WorkPartDetail extends React.Component<P_WorkPartDetail> {
       openExternalLink(externalLink);
     }
   }
+  */
 
   handleViewButtonClicked = (workPart:WorkPart) =>{
     window.ga.trackEvent('DetailPage', 'Gallery', workPart.nodeId);
@@ -91,23 +93,23 @@ export class WorkPartDetail extends React.Component<P_WorkPartDetail> {
 
 /* བཀྲ་ཤིས་ཆེན་པོའི་མདོ། */
   render() {
-    const { workPart, workPartItem, strings, appState, viewRelatedRecord} = this.props;
+    const { workPart, /*workPartItem,*/ strings, appState, viewRelatedRecord} = this.props;
     console.log('render WorkPartDetail', workPart);
 
-    // const workPartItems = workPart ? workPart.workPartItems : workPartItem? workPartItem.workPartItems : [];
 
     return (
       <section>
 
-        {workPartItem &&
-          <WorkPartItemCard
-            isHeader={true}
-            workPartItem={workPartItem}
-            strings={strings}
-            appState={appState}
-            onViewButtonClicked={this.handleWPIViewButtonClicked}
-          />
-        }
+
+        {/*{workPartItem &&*/}
+        {/*  <WorkPartItemCard*/}
+        {/*    isHeader={true}*/}
+        {/*    workPartItem={workPartItem}*/}
+        {/*    strings={strings}*/}
+        {/*    appState={appState}*/}
+        {/*    onViewButtonClicked={this.handleWPIViewButtonClicked}*/}
+        {/*  />*/}
+        {/*}*/}
 
         <WorkPartTopLevel
           workPart={workPart}
@@ -129,8 +131,6 @@ export class WorkPartDetail extends React.Component<P_WorkPartDetail> {
         {/*  />*/}
         {/*  )*/}
         {/*}*/}
-
-
 
         {this.alertOpen?<NetworkAlert show={this.alertOpen} onClose={this.onAlertClose} strings={this.props.strings} />:null}
 
@@ -161,7 +161,7 @@ class WorkPartTopLevel  extends React.Component<IWorkPartTopLevelProps> {
   }
 
   render() {
-    const {strings, appState, workPart, relatedWorks, viewRelatedRecord, onViewButtonClicked} = this.props;
+    const { strings, appState, workPart, relatedWorks, viewRelatedRecord } = this.props;
 
     if (!workPart) {
       return null;
@@ -170,15 +170,17 @@ class WorkPartTopLevel  extends React.Component<IWorkPartTopLevelProps> {
 
       const shareLink = appState.generateShareLink(workPart.nodeId);
       const shareSubject = strings.linkToTextPre + workPart.nodeId + strings.linkToTextPost;
+
       let workPartParentDatabaseResult:DatabaseResult|null = null;
       if(workPart.parent) {
-        const fakeRecord = {
+        const syntheticRecord = {
           title:workPart.parent.title,
           nodeId:workPart.parent.id,
           type:'WorkPart'
         }
-        workPartParentDatabaseResult = new DatabaseResult(appState.db, fakeRecord);
+        workPartParentDatabaseResult = new DatabaseResult(appState.db, syntheticRecord);
       }
+
       return (
         <Card modifier="material">
           <StringSection title={strings.Title} val={workPart.title}/>
@@ -186,10 +188,10 @@ class WorkPartTopLevel  extends React.Component<IWorkPartTopLevelProps> {
           <RelatedRecordSection title={strings.IsWorkPartOf} relatedRecords={relatedWorks} viewRelatedRecord={viewRelatedRecord}/>
 
           {workPartParentDatabaseResult &&
-            <RelatedRecordSection title={"Parent Work Part"} relatedRecords={[workPartParentDatabaseResult]} viewRelatedRecord={viewRelatedRecord}/>
+            <RelatedRecordSection title={strings.parentWorkPart} relatedRecords={[workPartParentDatabaseResult]} viewRelatedRecord={viewRelatedRecord}/>
           }
 
-          <WorkPartItemsList appState={appState} workPartItems={workPart.workPartItems} />
+          <WorkPartItemsList appState={appState} strings={strings} workPartItems={workPart.workPartItems} />
 
           <div className="action-bar">
             <div className="actions">
@@ -206,7 +208,7 @@ class WorkPartTopLevel  extends React.Component<IWorkPartTopLevelProps> {
 
 
 
-
+/*
 interface IWorkPartItemCardProps {
   workPartItem:WorkPartItem;
   strings:ILocalizedStrings;
@@ -249,18 +251,22 @@ class WorkPartItemCard extends React.Component<IWorkPartItemCardProps> {
     );
   }
 }
+*/
 
 
 
 
-
-const WorkPartItemsList = (props:{workPartItems:WorkPartItem[], appState:AppState}) => {
+const WorkPartItemsList = (props:{
+  workPartItems:WorkPartItem[],
+  appState:AppState,
+  strings:ILocalizedStrings,
+}) => {
   console.log('WorkPartItemsList');
 
   if(props.workPartItems.length>0) {
     return (
       <div className={"WorkPartItemsList"}>
-        <h4>Parts</h4>
+        <h4>{props.strings.Parts}</h4>
         <div>
           {props.workPartItems.map(wpi =>
             <WorkPartItemLink

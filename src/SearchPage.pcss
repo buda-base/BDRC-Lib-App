@@ -4,16 +4,24 @@
 	line-height: 24px;
 }
 */
-
-#SearchInput {
-  width:100%;
-  padding-top:4px;
-  &.focused {
-    background-color: rgba(246, 245, 223, .25)
+div.search-input-wrapper {
+  position:relative;
+  & a {
+    position: absolute;
+    top: 8px;
+    right: 20px;
   }
-  &::placeholder {
-    padding-top:0px;
+  & #SearchInput {
+    width:100%;
+    padding-top:4px;
+    padding-right: 52px;
+    &.focused {
+      background-color: rgba(246, 245, 223, .25)
+    }
+    &::placeholder {
+      padding-top:0px;
+    }
   }
-
 }
+
 

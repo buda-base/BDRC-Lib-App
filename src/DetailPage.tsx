@@ -76,10 +76,11 @@ export class DetailPage extends React.Component<P_DetailPage> {
 						appState={this.props.appState}
 					/>);
 			} else {
-				console.log(' null #1');
+				console.log('no specified record type');
 				return null;
 			}
-		} else if(this.props.files.workPartItem) {
+		/*}
+		else if(this.props.files.workPartItem) {
 			console.log(' workPartItem');
 
 			return (
@@ -90,12 +91,14 @@ export class DetailPage extends React.Component<P_DetailPage> {
 					viewRelatedRecord={this.viewRelatedRecord}
 					appState={this.props.appState}
 				/>);
+				*/
 		} else {
-			console.log(' null #2');
-
+			console.log('no database result');
 			return null;
 		}
 	}
+
+
 }
 
 

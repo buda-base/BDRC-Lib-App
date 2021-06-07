@@ -287,7 +287,7 @@ export default class AppState {
     });
 
   }
-  
+
   @action
   navigateToWorkPartItem = (workPartItem:WorkPartItem) => {
     const syntheticRecord = {

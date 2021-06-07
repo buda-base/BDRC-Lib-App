@@ -149,6 +149,7 @@ export interface ILocalizedStrings	 {
 	printTypeManuscript:string,
 	printTypeModernPrint:string,
 	printTypeXerography:string,
+	parentWorkPart:string,
 };
 
 
@@ -342,6 +343,7 @@ export const en:ILocalizedStrings = {
 	printTypeManuscript:'Manuscript',
 	printTypeModernPrint:'Modern print',
 	printTypeXerography:'Xerography',
+	parentWorkPart:'Parent Work Part',
 };
 
 
@@ -507,6 +509,7 @@ export const cn:ILocalizedStrings = {
 	printTypeManuscript:'雕版',
 	printTypeModernPrint:'电脑输入',
 	printTypeXerography:'静电复印',
+	parentWorkPart:'Parent Work Part',
 };
 
 
@@ -686,6 +689,7 @@ export const bo:ILocalizedStrings = {
 	printTypeManuscript:'བྲིས་མ།',
 	printTypeModernPrint:'རྩིས་འཁོར་ནང་དུ་འཇུག་པ།',
 	printTypeXerography:'པར་སློག',
+	parentWorkPart:'Parent Work Part',
 
 };
 
