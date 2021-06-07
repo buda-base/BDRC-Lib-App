@@ -1,8 +1,8 @@
 {
   "name": "org.tbrc.bdrclibapp",
-  "displayName": "BDRC Lib",
-  "version": "1.2.0",
-  "description": "An application for exploring the BDRC library.",
+  "displayName": "BDRC Mobile",
+  "version": "1.2.2",
+  "description": "A mobile application for exploring the BDRC library.",
   "main": "index.js",
   "scripts": {
     "serve": "webpack-dev-server -w",

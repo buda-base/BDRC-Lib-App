@@ -11,6 +11,7 @@ class Work {
 	publisherLocation: string;
 	printType: string;
 	creator: Array<string>;
+	hasParts: boolean;
 
 	constructor(json: WorkJSON, nodeId:string){
 		this.nodeId = nodeId;
@@ -20,6 +21,7 @@ class Work {
 		this.publisherDate = json.pd;
 		this.publisherLocation = json.pl;
 		this.printType = json.pt;
+		this.hasParts = json.hasParts ? true : false;
 	}
 }
 
@@ -122,7 +124,6 @@ class WorkPart {
 		this.title = title ;
 		this.workPartItems = [];
 		if(json) {
-			console.log(json);
 			if(json.parent && json.part.id) {
 				this.parent = {
 					id:json.parent.id,
@@ -154,38 +155,6 @@ class WorkPartItem {
 		}
 	}
 }
-
-
-
-/*
-class Outline {
-	nodeId: string;
-	outlineNodeId: string;
-	isOutlineOf: string; // references a Work
-  volumeEnd: number;
-  beginsAt: number;
-  volume: number;
-  endsAt: number;
-  title: Array<string>;
-
-	constructor(json: OutlineJSON, nodeId: string, outlineNodeId: string) {
-		this.nodeId = nodeId;
-		this.outlineNodeId = outlineNodeId;
-		this.isOutlineOf = json.isOutlineOf;
-		for(let i=0,ii=json.nodes.length;i<ii;i++){
-			if(nodeId===json.nodes[i].id){
-				this.volumeEnd = json.nodes[i].volumeEnd;
-				this.volume = json.nodes[i].volume;
-				this.beginsAt = json.nodes[i].beginsAt;
-				this.endsAt = json.nodes[i].endsAt;
-				this.title = json.nodes[i].title;
-				break;
-			}
-		}
-	}
-}
-*/
-
 
 export type Record = Work | Person | WorkPart | null;
 export { Work, Person, WorkPart, WorkPartItem };

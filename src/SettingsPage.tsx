@@ -21,7 +21,6 @@ export class SettingsPage extends React.Component<P_SettingsPage> {
       const strings = this.props.appState.strings
       ons.notification.confirm(strings.changeMirrorConfirmation, {title:strings.PleaseConfirm, buttonLabels:[strings.Cancel, strings.Ok],
         callback:(idx:any)=>{
-          console.log('callback',idx);
           if(idx===1) {
             this.props.appState.setLibraryMirror(mirror);
           }

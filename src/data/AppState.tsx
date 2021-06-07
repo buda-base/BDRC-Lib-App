@@ -43,11 +43,9 @@ export default class AppState {
 
   @observable updater:LibraryUpdater;
 
-
   db:Database;
   navigator:Navigator;
   databaseResultStack:Array<DatabaseResult> = [];
-
 
   fileTool: FileTool;
   @observable fileSystemFailedToLoad:boolean = false;
@@ -77,48 +75,42 @@ export default class AppState {
 
 
   initializeDatabase = () => new Promise((resolve, reject) => {
+    ons.notification.alert(
+      {
+        title:this.strings.Alert,
+        buttonLabel:this.strings.OK,
+        message: this.strings.Welcome,
+        callback: () => {
+          this.statusMessage = this.strings.InitializingDatabase;
+          this.db.clearDatabase();
+          this.db.initialize(
+            (success, error)=>{
+              if(!success) {
+                this.statusMessage = '';
+                this.showStatusMessage = false;
+                ons.notification.alert(
+                  {
+                    message: this.strings.databaseInitFailed,
+                    title:this.strings.Alert,
+                    buttonLabel:this.strings.OK
+                  }
+                );
+                reject();
+              } else {
+                this.statusMessage = this.strings.Complete;
+                setTimeout(()=>{
+                  resolve();
+                }, 2000);
 
-    //if(!this.props.db.isInitialized()) {
-      ons.notification.alert(
-        {
-          title:this.strings.Alert,
-          buttonLabel:this.strings.OK,
-          message: this.strings.Welcome,
-          callback: () => {
-            this.statusMessage = this.strings.InitializingDatabase;
-            this.db.clearDatabase();
-            this.db.initialize(
-              (success, error)=>{
-                if(!success) {
-                  this.statusMessage = '';
-                  this.showStatusMessage = false;
-                  ons.notification.alert(
-                    {
-                      message: this.strings.databaseInitFailed,
-                      title:this.strings.Alert,
-                      buttonLabel:this.strings.OK
-                    }
-                  );
-                  reject();
-                } else {
-                  this.statusMessage = this.strings.Complete;
-                  setTimeout(()=>{
-                    resolve();
-                  }, 2000);
-
-                }
-              },
-              (status:string) => {
-                this.statusMessage = status;
               }
-            );
-
-          }
+            },
+            (status:string) => {
+              this.statusMessage = status;
+            }
+          );
         }
-      );
-    // } else {
-    //   setTimeout(this.hideStatusMessage, 1000);
-    // }
+      }
+    );
   });
 
 
@@ -138,7 +130,6 @@ export default class AppState {
     if(this.fileSystemLoaded) {
       this.updater.getLatestLibraryMetadata()
       .then(()=>{
-        console.log(this.updater.storedLibraryMetaData);
         resolve();
       })
       .catch((e:any)=>{
@@ -219,16 +210,13 @@ export default class AppState {
   }
 
   generateViewLink = (id:string) => {
-
     // ?work=bdr:MW22084&origin=BDRCLibApp1.2.0&lang=bo&uilang=0
     const url = this.updater.storedLibraryMetaData?.viewerUrlPrefix+"?work=bdr:"+id+"&origin="+STORAGE_KEY_PREFIX+"&lang="+this.strings.iifviewerlang+"&uilang="+this.strings.id;
-    //console.log(url);
     return url;
   }
 
   generateShareLink = (id:string) => {
     const url = this.updater.storedLibraryMetaData?.libraryUrl+'/show/bdr:'+id;
-    //console.log(url);
     return url;
   }
 
@@ -263,7 +251,6 @@ export default class AppState {
   
   @action
   navigateTo = (databaseResult:DatabaseResult) => { // , navigator:Navigator) => {
-    console.log('AppState.navigateTo', databaseResult);
 
     let work:Work|null = null;
     let person:Person|null = null;
@@ -281,7 +268,6 @@ export default class AppState {
 
       // NOTE: If performance is jerky do to loading related records, either through a database search, or through a file load, 
       // that work should be done here and passed through the "data" object
-
       const route:Route = { page: 'Detail', hasBackButton: true, isModal:false, data:{ databaseResult:databaseResult, files:{ work:work, person:person, workPart:workPart, workPartItem:null }, relatedDatabaseResults:{}}};
       this.pushPage(route); //, navigator);    
     });
@@ -298,6 +284,25 @@ export default class AppState {
     const databaseResult = new DatabaseResult(this.db, syntheticRecord);
     return this.navigateTo(databaseResult);
   }
+
+  /**
+   * This method is called when a WorkDetail is rendered for a work that
+   * "hasParts" and returns the top level parts for display in the Parts
+   * section of the Work Detail page.
+   *
+   * @param work
+   */
+  loadWorkPartsForWork = (work:Work) => new Promise((resolve, reject)=> {
+    const syntheticRecord = {
+      title: '',
+      nodeId: work.nodeId,
+      type: 'WorkPart'
+    }
+    const databaseResult = new DatabaseResult(this.db, syntheticRecord);
+    databaseResult.load(this.fileTool.fs.root.toURL() + '/BDRCLIB/', (record: any) => {
+      resolve(record);
+    });
+  });
 
   constructor() {
     this.updater = new LibraryUpdater(this);

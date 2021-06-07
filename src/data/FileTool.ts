@@ -93,39 +93,20 @@ class FileTool {
   constructor(afterSuccessfulInit:EmptyVoidFunc, ifInitFails?:EmptyVoidFunc){
     this.loadFileSystem(afterSuccessfulInit, ifInitFails);
   }
-  
-    /*
-  urlToFolder = (folder:string, onSuccess:(url:string)=>void ) => {
-    this.fs.root.getDirectory(folder, { create: true }, 
-      (productsFolder:any) => {
-        onSuccess(productsFolder.toURL());
-    });
-  }
-  */
 
- // this.appState.fileTool.fs.root.toURL()
   listDirectory= (path:string) => new Promise((resolve, reject)=>{
-    console.log('actOnDirectoryEntries: '+path);
     this.fs.root.getDirectory(path, {create:false}, (directoryEntry:any)=>{
-      //directoryEntry.isFile === false
-      //directoryEntry.isDirectory === true
-      //directoryEntry.name === 'Documents'
-      //directoryEntry.fullPath === '/Documents'
       const directoryReader = directoryEntry.createReader();
       directoryReader.readEntries(
         (entries:any) => {
-          // console.log(entries);
           resolve(entries);
         },
         function (err:any) {
-          // console.log(err);
           reject(err);
         }
       );
 
     }, function (err:any) {
-      // console.log('getDirectory error');
-      // console.log(err);
       reject(err);
     });
   });

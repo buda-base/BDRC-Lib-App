@@ -830,7 +830,10 @@ class Database {
 
 					loadingPromises.push(cb);
 
-					serial(loadingPromises).then(()=>{ console.log('index files loaded'); });
+					serial(loadingPromises).then(()=>{
+						console.log('index files loaded');
+					});
+
 				})
 				.catch(()=>{
 

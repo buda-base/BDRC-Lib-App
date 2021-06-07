@@ -5,13 +5,14 @@ import AppState from '../data/AppState';
 import {observer} from 'mobx-react';
 import {StringSection} from './StringSection';
 import {RelatedRecordSection} from './RelatedRecordSection';
-import {Work} from '../data/Records';
+import {Work, WorkPart} from '../data/Records';
 import {ShareButton} from './ShareButton';
 import {Card} from 'react-onsenui';
-import { observable } from 'mobx';
+import {action, observable} from 'mobx';
 import { DatabaseResult } from '../data/DatabaseResult';
 import { ViewButton } from './ViewButton';
 import { openExternalLink } from './openExternalLink';
+import {WorkPartItemsList} from "./WorkPartDetail";
 
 interface P_WorkDetail {
   work:Work;
@@ -25,21 +26,36 @@ interface P_WorkDetail {
 export class WorkDetail extends React.Component<P_WorkDetail> {
 
   @observable authors: Array<DatabaseResult> = [];
+  @observable workPart: WorkPart;
+
+
 
   componentWillMount(){
-    if(this.props.work && this.props.work.creator && this.props.work.creator.length>0){
-      // Only want a single author.
-      const creatorKeys = [this.props.work.creator[0]];
-      // Only want a single author. 
-      //creatorKeys.push(this.props.work.creator[0].id);
-      this.props.db.searchForMatchingNodes(creatorKeys, this.receiveAuthors);
+    if(this.props.work) {
+      if(this.props.work.creator && this.props.work.creator.length>0){
+        // Only want a single author.
+        const creatorKeys = [this.props.work.creator[0]];
+        // Only want a single author.
+        //creatorKeys.push(this.props.work.creator[0].id);
+        this.props.db.searchForMatchingNodes(creatorKeys, this.receiveAuthors);
+      }
+    }
+    if(this.props.work.hasParts){
+      this.props.appState.loadWorkPartsForWork(this.props.work)
+        .then(this.receiveWorkPart)
+        .catch(()=>{
+          console.log('failed to load workparts for ', this.props.work);
+        });
     }
   }
 
+  @action
+  receiveWorkPart = (workPart:WorkPart) => {
+    this.workPart = workPart;
+  }
+
+  @action
   receiveAuthors = (authors:Array<DatabaseResult>) => {
-    // if(authors && authors.length>0) {
-    //   authors[0].title = this.props.work.creator[0].name;
-    // }
     this.authors = authors;
   }
   handleViewButtonClicked = () => {
@@ -72,6 +88,14 @@ export class WorkDetail extends React.Component<P_WorkDetail> {
             <StringSection title={this.props.strings.PublisherLocation} val={this.props.work.publisherLocation} />
             <StringSection title={this.props.strings.PublisherDate} val={this.props.work.publisherDate} />
             <StringSection title={this.props.strings.PrintType} val={printType} />
+
+            {this.workPart && this.workPart.workPartItems &&
+            <WorkPartItemsList
+              appState={this.props.appState}
+              strings={this.props.strings}
+              workPartItems={this.workPart.workPartItems}
+            />
+            }
 
             <div className="action-bar">
               <div className="actions"> 

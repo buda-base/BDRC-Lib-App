@@ -26,8 +26,6 @@ export class DatabaseResult {
 
 	load = (rootFolder:string, afterLoaded:(record:Work|Person|WorkPart|null)=>void) => {
 
-		console.log('DatabaseResult.load '+this.nodeId);
-
 		let baseRid = this.nodeId;
 
 		// WorkParts may contain references to the part in their Ids.
@@ -41,10 +39,7 @@ export class DatabaseResult {
 		// Use the base RID to find the file that contains the associated JSON
 		const hash = SparkMD5.hash(baseRid);
 
-		// let relativeFilePath = this.type.toLowerCase()+'s/'+filename+'.json';
 		let relativeFilePath = this.type.toLowerCase()+'s/'+hash.substring(0, 2)+'.json';
-		console.log(' loading '+relativeFilePath);
-
 		if('browser'===device.platform) {
 			BrowserUtil.loadJSONFile(relativeFilePath, (json:any) => { this.loaded(json, this.nodeId, afterLoaded); });
 		} else {
@@ -53,27 +48,19 @@ export class DatabaseResult {
 	}
 
 	loaded = (json:any, rid:string, afterLoaded:(record:Work|Person|WorkPart|null)=>void) => {
-
-		console.log('DatabaseResult.loaded '+rid, json);
-
 		if(null==json) {
-			console.log('DatabaseResult.loaded: json empty');
 			afterLoaded(null);
 		} else {
 			const doc = this.isWorkPart ? findWorkPart(json, rid) : json[rid];
 			if(doc) {
 				if (this.isPerson) {
-					console.log("DatabaseResult.loaded: loading person "+this.nodeId);
 					afterLoaded(new Person(doc, this.nodeId));
 				} else if (this.isWork) {
-					console.log("DatabaseResult.loaded: loading work "+this.nodeId);
 					afterLoaded(new Work(doc, this.nodeId));
 				} else if (this.isWorkPart) {
-					console.log("DatabaseResult.loaded: loading work part "+this.nodeId);
 					afterLoaded(new WorkPart(doc, this.nodeId, this.title));
 				}
 			} else {
-				console.log('DatabaseResult.loaded: no doc');
 				afterLoaded(null);
 			}
 		}
