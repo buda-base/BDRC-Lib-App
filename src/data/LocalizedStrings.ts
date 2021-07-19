@@ -689,7 +689,7 @@ export const bo:ILocalizedStrings = {
 	printTypeManuscript:'བྲིས་མ།',
 	printTypeModernPrint:'རྩིས་འཁོར་ནང་དུ་འཇུག་པ།',
 	printTypeXerography:'པར་སློག',
-	parentWorkPart:'དབྱེ་གཞི།',
+	parentWorkPart:'ནང་ཚན།',
 
 };
 
