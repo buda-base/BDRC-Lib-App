@@ -374,8 +374,8 @@ export const cn:ILocalizedStrings = {
 	statusAccessioned: '正在编目中',
 	statusReleased: '发布',
 	statusUnknown: '未知',
-	appName: '佛教数字资源中心图书资料库',	
-	searchHintText: '用书名、作者或RID编号检索',
+	appName: 'BDRC掌中書庫',	
+	searchHintText: '搜索',
 	searchRequirementText: '检索时须输入两个音节',
 	resultsFoundPre:'',
 	resultsFoundPost:'检索结果',
@@ -399,7 +399,7 @@ export const cn:ILocalizedStrings = {
 	Volumes:'卷',	
 	IsWorkPartOf:'概述',	
 	VIEW:'阅读',
-	SHARE:'网站',
+	SHARE:'分享',
 	pagesPre:' ',
 	pagesPost:'页',
 	viewWarning:'阅读扫描文档需有稳定的互联网。',
@@ -509,7 +509,7 @@ export const cn:ILocalizedStrings = {
 	printTypeManuscript:'雕版',
 	printTypeModernPrint:'电脑输入',
 	printTypeXerography:'静电复印',
-	parentWorkPart:'Parent Work Part',
+	parentWorkPart:'属于',
 };
 
 
@@ -548,8 +548,8 @@ export const bo:ILocalizedStrings = {
 	statusAccessioned: 'ཐོབ་ཟིན་པ།',
 	statusReleased: 'སྤེལ་ཟིན་པ།',
 	statusUnknown: 'མི་གསལ།',
-	appName: 'དཔེ་ཀློག་མཉེན་ཆས།',
-	searchHintText: 'དཔེ་ཆའི་མཚན་བྱང་ངམ་མཛད་པ་པོའི་མཚན་བྲིས་ཏེ་འཚོལ།',
+	appName: 'ལག་བཅངས་དཔེ་མཛོད།',
+	searchHintText: 'འཚོལ།',
 	searchRequirementText: 'ཉུང་མཐར་ཚེག་བར་གཉིས་འབྲི་དགོས།',
 	resultsFoundPre:'བཙལ་འབྲས་ ',
 	resultsFoundPost:'',
@@ -573,7 +573,7 @@ export const bo:ILocalizedStrings = {
 	Volumes:'པོད་གྲངས།',	
 	IsWorkPartOf:'ཁུངས།',		
 	VIEW:'ཀློག',
-	SHARE:'དྲ་ཐག',
+	SHARE:'བརྒྱུད་སྐུར།',
 	pagesPre:' ཤོག་གྲངས་',
 	pagesPost:'',
 	viewWarning:'ཀློག་འདོན་བྱེད་པར་དྲ་རྒྱ་བརྟན་པོ་ཡོད་དགོས།',
@@ -603,7 +603,7 @@ export const bo:ILocalizedStrings = {
 	chinese:'中文',
 	interfaceLanguage:'སྐད་ཡིག་འདེམ་གསེས།',
 	pleaseSelectInterfaceLanguage:'སྐད་ཡིག་ཅིག་འདེམ་རོགས།',
-	searchHelpText: '',
+	searchHelpText: 'བཙལ་བྱའི་མཚན་བྱང་དང་ཡང་ན་མཛད་པ་པོའི་མཚན། BDRC ID སྟེ་བརྩམས་ཆོས་ཨང་བཅས་ཀྱི་གང་རུང་ཞིག་བྲིས་ཏེ་ཚོལ། བདག་དབང་ཡོད་པའི་དཔེ་ཆའི་རིགས་འཚོལ་མི་ཐུབ་པས་དགོངས་འཇགས་ཞུ།',
 	PDF:'ཕབ་ལེན།',
 	pleaseWaitWhileWeGenerateYourPDF:'ཁྱེད་ཀྱི་ PDF བཟོ་མུས་ཡིན།',	
 	yourPDFHasBeenGenerated:'ཁྱེད་ཀྱི་PDF བཟོས་ཟིན།',
@@ -689,7 +689,7 @@ export const bo:ILocalizedStrings = {
 	printTypeManuscript:'བྲིས་མ།',
 	printTypeModernPrint:'རྩིས་འཁོར་ནང་དུ་འཇུག་པ།',
 	printTypeXerography:'པར་སློག',
-	parentWorkPart:'Parent Work Part',
+	parentWorkPart:'དབྱེ་གཞི།',
 
 };
 
